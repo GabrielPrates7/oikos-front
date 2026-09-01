@@ -40,3 +40,15 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { path: '/cartoes', label: 'Cartões', icon: CreditCard },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
+
+// Tudo que fica de fora do BottomNav (pro menu hambúrguer mobile), derivado por exclusão
+// de path — garante que nenhum módulo do Sidebar fique inalcançável no mobile. Isso inclui
+// Despesas e Contas além dos 4 citados no pedido (Categorias, Faturas, Relatórios,
+// Transferências): a rota /despesas não está literalmente em BOTTOM_NAV_ITEMS (só /entradas
+// está, como link do item combinado "Entradas/Despesas"), e Contas também não está em
+// nenhum dos dois; sem isso os dois ficariam sem nenhum caminho de navegação no mobile.
+const BOTTOM_NAV_PATHS = new Set(BOTTOM_NAV_ITEMS.map((item) => item.path))
+
+export const OVERFLOW_NAV_ITEMS: NavItem[] = SIDEBAR_NAV_ITEMS.filter(
+  (item) => !BOTTOM_NAV_PATHS.has(item.path),
+)
