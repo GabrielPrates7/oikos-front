@@ -14,10 +14,13 @@
   "dependencies": {
     "@fontsource/fraunces": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@hookform/resolvers": "^5.9.1",
     "lucide-react": "^1.39.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3"
+    "react-hook-form": "^7.87.0",
+    "react-router-dom": "^7.18.3",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

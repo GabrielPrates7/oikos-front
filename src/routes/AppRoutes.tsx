@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ComingSoon } from '../components/feedback/ComingSoon'
 import { Shell } from '../components/layout/Shell'
+import { LoginPage } from '../modules/auth/LoginPage'
+import { RegisterPage } from '../modules/auth/RegisterPage'
 import { ProtectedRoute } from './ProtectedRoute'
 
 const PROTECTED_MODULES: { path: string; title: string }[] = [
@@ -19,8 +21,8 @@ const PROTECTED_MODULES: { path: string; title: string }[] = [
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<ComingSoon title="Login" />} />
-      <Route path="/register" element={<ComingSoon title="Cadastro" />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       <Route
         element={

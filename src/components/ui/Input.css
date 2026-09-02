@@ -1,0 +1,36 @@
+.ui-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.ui-input__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.ui-input__field {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+.ui-input__field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.ui-input__field[aria-invalid='true'] {
+  border-color: var(--color-accent-expense);
+}
+
+.ui-input__error {
+  font-size: 13px;
+  color: var(--color-accent-expense);
+}
