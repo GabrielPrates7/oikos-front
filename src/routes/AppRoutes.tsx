@@ -6,11 +6,11 @@ import { RegisterPage } from '../modules/auth/RegisterPage'
 import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
 import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
 import { ProfileForm } from '../modules/configuracoes/ProfileForm'
+import { ContasPage } from '../modules/contas/ContasPage'
 import { ProtectedRoute } from './ProtectedRoute'
 
 const PROTECTED_MODULES: { path: string; title: string }[] = [
   { path: '/dashboard', title: 'Dashboard' },
-  { path: '/contas', title: 'Contas' },
   { path: '/categorias', title: 'Categorias' },
   { path: '/entradas', title: 'Entradas' },
   { path: '/despesas', title: 'Despesas' },
@@ -36,6 +36,8 @@ export function AppRoutes() {
         {PROTECTED_MODULES.map(({ path, title }) => (
           <Route key={path} path={path} element={<ComingSoon title={title} />} />
         ))}
+
+        <Route path="/contas" element={<ContasPage />} />
 
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />

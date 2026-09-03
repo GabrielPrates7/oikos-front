@@ -42,3 +42,7 @@
   font-size: 13px;
   color: var(--color-accent-expense);
 }
+
+select.ui-input__field {
+  cursor: pointer;
+}
