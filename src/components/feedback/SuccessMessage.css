@@ -1,0 +1,9 @@
+.success-message {
+  background: rgba(107, 175, 130, 0.12);
+  border: 1px solid var(--color-accent-income);
+  color: var(--color-accent-income);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}

@@ -3,6 +3,9 @@ import { ComingSoon } from '../components/feedback/ComingSoon'
 import { Shell } from '../components/layout/Shell'
 import { LoginPage } from '../modules/auth/LoginPage'
 import { RegisterPage } from '../modules/auth/RegisterPage'
+import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
+import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
+import { ProfileForm } from '../modules/configuracoes/ProfileForm'
 import { ProtectedRoute } from './ProtectedRoute'
 
 const PROTECTED_MODULES: { path: string; title: string }[] = [
@@ -15,7 +18,6 @@ const PROTECTED_MODULES: { path: string; title: string }[] = [
   { path: '/cartoes', title: 'Cartões' },
   { path: '/faturas', title: 'Faturas' },
   { path: '/relatorios', title: 'Relatórios' },
-  { path: '/configuracoes', title: 'Configurações' },
 ]
 
 export function AppRoutes() {
@@ -34,6 +36,13 @@ export function AppRoutes() {
         {PROTECTED_MODULES.map(({ path, title }) => (
           <Route key={path} path={path} element={<ComingSoon title={title} />} />
         ))}
+
+        <Route path="/configuracoes" element={<ConfiguracoesPage />}>
+          <Route index element={<Navigate to="perfil" replace />} />
+          <Route path="perfil" element={<ProfileForm />} />
+          <Route path="preferencias" element={<ComingSoon title="Preferências" />} />
+          <Route path="seguranca" element={<ChangePasswordForm />} />
+        </Route>
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

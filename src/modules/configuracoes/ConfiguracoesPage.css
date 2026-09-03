@@ -1,0 +1,15 @@
+.configuracoes-page {
+  max-width: 480px;
+}
+
+.configuracoes-page__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.configuracoes-page__content {
+  margin-top: 24px;
+}
