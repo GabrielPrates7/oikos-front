@@ -14,6 +14,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   ref,
 ) {
   const inputId = id ?? name
+  const errorId = error && inputId ? `${inputId}-error` : undefined
+
   return (
     <div className="ui-input">
       <label htmlFor={inputId} className="ui-input__label">
@@ -25,9 +27,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         ref={ref}
         className="ui-input__field"
         aria-invalid={!!error}
+        aria-describedby={errorId}
         {...rest}
       />
-      {error && <p className="ui-input__error">{error}</p>}
+      {error && (
+        <p id={errorId} className="ui-input__error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   )
 })

@@ -26,6 +26,14 @@
   border-color: var(--color-accent);
 }
 
+/* :focus-visible (não :focus) pra só mostrar o anel extra na navegação por teclado —
+   clique de mouse já basta com a borda destacada acima. O outline nativo é suprimido
+   em :focus só porque este substituto explícito cobre o caso de teclado. */
+.ui-input__field:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .ui-input__field[aria-invalid='true'] {
   border-color: var(--color-accent-expense);
 }
