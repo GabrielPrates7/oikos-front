@@ -2,16 +2,13 @@ import { apiFetch } from '../../services/api'
 import type { PayFormData } from './pagamento.schema'
 import type { Invoice, InvoiceDetail, InvoiceListItem, InvoicePayment } from './faturas.types'
 
-async function withTotal(invoice: Invoice): Promise<InvoiceListItem> {
-  const result = await apiFetch<{ invoice: InvoiceDetail }>(`/invoices/${invoice.id}`)
-  return { ...invoice, totalCents: result.invoice.totalCents }
-}
-
 export const faturasService = {
+  // totalCents já vem pronto do backend (subquery na própria listagem) — sem fetch por
+  // fatura.
   async list(creditCardId?: string): Promise<InvoiceListItem[]> {
     const query = creditCardId ? `?creditCardId=${creditCardId}` : ''
-    const result = await apiFetch<{ invoices: Invoice[] }>(`/invoices${query}`)
-    return Promise.all(result.invoices.map(withTotal))
+    const result = await apiFetch<{ invoices: InvoiceListItem[] }>(`/invoices${query}`)
+    return result.invoices
   },
 
   async getById(id: string): Promise<InvoiceDetail> {
