@@ -1,0 +1,17 @@
+.despesas-page {
+  max-width: 820px;
+}
+
+.despesas-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.despesas-page__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}

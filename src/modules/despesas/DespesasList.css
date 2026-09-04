@@ -1,0 +1,160 @@
+.despesas-list__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.despesas-list__filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.despesas-list__filter-field label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.despesas-list__filter-field select,
+.despesas-list__filter-field input {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.despesas-list__filter-field select:focus-visible,
+.despesas-list__filter-field input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.despesas-list__clear-filters {
+  background: transparent;
+  border: 1px solid var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.despesas-list__clear-filters:hover {
+  color: var(--color-text-primary);
+}
+
+.despesas-list__clear-filters:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.despesas-list__rows {
+  border-top: 1px solid var(--color-bg-elevated);
+}
+
+.despesas-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.despesas-list__date {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+}
+
+.despesas-list__info {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.despesas-list__description {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.despesas-list__meta {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.despesas-list__amount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+  color: var(--color-accent-expense);
+}
+
+.despesas-list__actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.despesas-list__actions button {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+}
+
+.despesas-list__actions button:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+}
+
+.despesas-list__actions button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.despesas-list__confirm-delete,
+.despesas-list__cancel-delete {
+  width: auto;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.despesas-list__confirm-delete {
+  color: var(--color-accent-expense);
+  border: 1px solid var(--color-accent-expense);
+}
+
+.despesas-list__cancel-delete {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-bg-elevated);
+}
+
+.despesas-list__empty {
+  padding: 40px 4px;
+  text-align: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
