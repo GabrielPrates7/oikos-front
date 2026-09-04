@@ -95,6 +95,15 @@ export function ContasPage() {
     }
   }
 
+  async function handleActivate(account: Account) {
+    try {
+      await contasService.activate(account.id)
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setLoadError(errorMessage(error, 'Não foi possível reativar a conta.'))
+    }
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
@@ -136,6 +145,7 @@ export function ContasPage() {
           onStatusFilterChange={setStatusFilter}
           onEdit={(account) => setMode({ type: 'edit', account })}
           onArchive={handleArchive}
+          onActivate={handleActivate}
         />
       )}
     </div>

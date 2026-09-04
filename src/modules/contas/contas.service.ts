@@ -40,4 +40,8 @@ export const contasService = {
   async archive(id: string): Promise<void> {
     await apiFetch(`/accounts/${id}`, { method: 'DELETE' })
   },
+
+  async activate(id: string): Promise<void> {
+    await apiFetch(`/accounts/${id}/activate`, { method: 'POST' })
+  },
 }

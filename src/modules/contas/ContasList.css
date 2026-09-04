@@ -99,6 +99,34 @@
   outline-offset: 2px;
 }
 
+.contas-list__confirm-archive,
+.contas-list__cancel-archive,
+.contas-list__reactivate {
+  width: auto;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.contas-list__confirm-archive {
+  color: var(--color-accent-expense);
+  border: 1px solid var(--color-accent-expense);
+}
+
+.contas-list__cancel-archive {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-bg-elevated);
+}
+
+.contas-list__reactivate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+}
+
 .contas-list__empty {
   padding: 40px 4px;
   text-align: center;
