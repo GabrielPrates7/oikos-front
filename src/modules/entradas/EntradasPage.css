@@ -1,0 +1,17 @@
+.entradas-page {
+  max-width: 820px;
+}
+
+.entradas-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.entradas-page__title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
