@@ -1,0 +1,62 @@
+.summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 24px 40px;
+  margin-bottom: 32px;
+}
+
+.summary-cards__balance {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-cards__balance-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* O "momento de destaque" da tela: maior número exibido no app até aqui (28px é o maior
+   usado em Cartões/Faturas), pra deixar claro que o saldo total é a informação principal
+   do Dashboard. */
+.summary-cards__balance-value {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.summary-cards__month {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+}
+
+.summary-cards__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-cards__stat-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.summary-cards__stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.summary-cards__stat-value--income {
+  color: var(--color-accent-income);
+}
+
+.summary-cards__stat-value--expense {
+  color: var(--color-accent-expense);
+}

@@ -1,0 +1,16 @@
+.dashboard-page {
+  max-width: 960px;
+}
+
+.dashboard-page__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-page__grid {
+    grid-template-columns: 3fr 2fr;
+  }
+}

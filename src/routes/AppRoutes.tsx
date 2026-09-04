@@ -10,6 +10,7 @@ import { CartaoDetalhePage } from '../modules/cartoes/CartaoDetalhePage'
 import { CartoesPage } from '../modules/cartoes/CartoesPage'
 import { CategoriasPage } from '../modules/categorias/CategoriasPage'
 import { ContasPage } from '../modules/contas/ContasPage'
+import { DashboardPage } from '../modules/dashboard/DashboardPage'
 import { DespesasPage } from '../modules/despesas/DespesasPage'
 import { EntradasPage } from '../modules/entradas/EntradasPage'
 import { FaturaDetalhePage } from '../modules/faturas/FaturaDetalhePage'
@@ -18,7 +19,6 @@ import { TransferenciasPage } from '../modules/transferencias/TransferenciasPage
 import { ProtectedRoute } from './ProtectedRoute'
 
 const PROTECTED_MODULES: { path: string; title: string }[] = [
-  { path: '/dashboard', title: 'Dashboard' },
   { path: '/relatorios', title: 'Relatórios' },
 ]
 
@@ -39,6 +39,7 @@ export function AppRoutes() {
           <Route key={path} path={path} element={<ComingSoon title={title} />} />
         ))}
 
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/contas" element={<ContasPage />} />
         <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/entradas" element={<EntradasPage />} />

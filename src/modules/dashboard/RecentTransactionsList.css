@@ -1,0 +1,92 @@
+.recent-transactions__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+.recent-transactions__empty {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+.recent-transactions__rows {
+  border-top: 1px solid var(--color-bg-elevated);
+}
+
+.recent-transactions__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.recent-transactions__icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.recent-transactions__icon--income {
+  color: var(--color-accent-income);
+  background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+}
+
+.recent-transactions__icon--expense {
+  color: var(--color-accent-expense);
+  background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
+}
+
+.recent-transactions__icon--transfer {
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+}
+
+.recent-transactions__info {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.recent-transactions__description {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.recent-transactions__meta {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.recent-transactions__amount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+}
+
+.recent-transactions__amount--income {
+  color: var(--color-accent-income);
+}
+
+.recent-transactions__amount--expense {
+  color: var(--color-accent-expense);
+}
+
+.recent-transactions__amount--transfer {
+  color: var(--color-text-primary);
+}
