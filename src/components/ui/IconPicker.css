@@ -1,0 +1,32 @@
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+}
+
+.icon-picker__option {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1;
+  padding: 8px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-picker__option:hover {
+  border-color: var(--color-accent);
+}
+
+.icon-picker__option--selected {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.icon-picker__option:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,15 @@
+.categoria-form {
+  max-width: 400px;
+}
+
+.categoria-form__type-readonly {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.categoria-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
