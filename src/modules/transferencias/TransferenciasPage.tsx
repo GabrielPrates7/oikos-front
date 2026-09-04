@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { contasService } from '../contas/contas.service'
@@ -118,7 +119,7 @@ export function TransferenciasPage() {
   if (mode.type === 'create') {
     return (
       <div className="transferencias-page">
-        <h1 className="transferencias-page__title">Nova transferência</h1>
+        <PageHeader title="Nova transferência" />
         <TransferenciaForm
           accounts={activeAccounts}
           error={formError}
@@ -132,13 +133,15 @@ export function TransferenciasPage() {
 
   return (
     <div className="transferencias-page">
-      <div className="transferencias-page__header">
-        <h1 className="transferencias-page__title">Transferências</h1>
-        <Button type="button" onClick={() => setMode({ type: 'create' })}>
-          <Plus size={16} aria-hidden="true" />
-          Nova transferência
-        </Button>
-      </div>
+      <PageHeader
+        title="Transferências"
+        action={
+          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+            <Plus size={16} aria-hidden="true" />
+            Nova transferência
+          </Button>
+        }
+      />
       <FormError message={loadError} />
       {!loading && (
         <TransferenciasList

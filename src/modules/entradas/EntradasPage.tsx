@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { categoriasService } from '../categorias/categorias.service'
@@ -139,9 +140,7 @@ export function EntradasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="entradas-page">
-        <h1 className="entradas-page__title">
-          {mode.type === 'create' ? 'Nova entrada' : 'Editar entrada'}
-        </h1>
+        <PageHeader title={mode.type === 'create' ? 'Nova entrada' : 'Editar entrada'} />
         <EntradaForm
           initialData={mode.type === 'edit' ? mode.entry : undefined}
           accounts={activeAccounts}
@@ -159,13 +158,15 @@ export function EntradasPage() {
 
   return (
     <div className="entradas-page">
-      <div className="entradas-page__header">
-        <h1 className="entradas-page__title">Entradas</h1>
-        <Button type="button" onClick={() => setMode({ type: 'create' })}>
-          <Plus size={16} aria-hidden="true" />
-          Nova entrada
-        </Button>
-      </div>
+      <PageHeader
+        title="Entradas"
+        action={
+          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+            <Plus size={16} aria-hidden="true" />
+            Nova entrada
+          </Button>
+        }
+      />
       <FormError message={loadError} />
       {!loading && (
         <EntradasList

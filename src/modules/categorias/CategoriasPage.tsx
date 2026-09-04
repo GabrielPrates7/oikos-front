@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { CategoriaForm } from './CategoriaForm'
@@ -109,9 +110,7 @@ export function CategoriasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="categorias-page">
-        <h1 className="categorias-page__title">
-          {mode.type === 'create' ? 'Nova categoria' : 'Editar categoria'}
-        </h1>
+        <PageHeader title={mode.type === 'create' ? 'Nova categoria' : 'Editar categoria'} />
         <CategoriaForm
           initialData={mode.type === 'edit' ? mode.category : undefined}
           error={formError}
@@ -127,13 +126,15 @@ export function CategoriasPage() {
 
   return (
     <div className="categorias-page">
-      <div className="categorias-page__header">
-        <h1 className="categorias-page__title">Categorias</h1>
-        <Button type="button" onClick={() => setMode({ type: 'create' })}>
-          <Plus size={16} aria-hidden="true" />
-          Nova categoria
-        </Button>
-      </div>
+      <PageHeader
+        title="Categorias"
+        action={
+          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+            <Plus size={16} aria-hidden="true" />
+            Nova categoria
+          </Button>
+        }
+      />
       <FormError message={loadError} />
       {!loading && (
         <CategoriasList

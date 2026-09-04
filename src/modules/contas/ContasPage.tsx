@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { ContaForm } from './ContaForm'
@@ -112,9 +113,7 @@ export function ContasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="contas-page">
-        <h1 className="contas-page__title">
-          {mode.type === 'create' ? 'Nova conta' : 'Editar conta'}
-        </h1>
+        <PageHeader title={mode.type === 'create' ? 'Nova conta' : 'Editar conta'} />
         <ContaForm
           initialData={mode.type === 'edit' ? mode.account : undefined}
           error={formError}
@@ -130,13 +129,15 @@ export function ContasPage() {
 
   return (
     <div className="contas-page">
-      <div className="contas-page__header">
-        <h1 className="contas-page__title">Contas</h1>
-        <Button type="button" onClick={() => setMode({ type: 'create' })}>
-          <Plus size={16} aria-hidden="true" />
-          Nova conta
-        </Button>
-      </div>
+      <PageHeader
+        title="Contas"
+        action={
+          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+            <Plus size={16} aria-hidden="true" />
+            Nova conta
+          </Button>
+        }
+      />
       <FormError message={loadError} />
       {!loading && (
         <ContasList

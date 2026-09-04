@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { categoriasService } from '../categorias/categorias.service'
@@ -137,9 +138,7 @@ export function DespesasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="despesas-page">
-        <h1 className="despesas-page__title">
-          {mode.type === 'create' ? 'Nova despesa' : 'Editar despesa'}
-        </h1>
+        <PageHeader title={mode.type === 'create' ? 'Nova despesa' : 'Editar despesa'} />
         <DespesaForm
           initialData={mode.type === 'edit' ? mode.entry : undefined}
           accounts={activeAccounts}
@@ -157,13 +156,15 @@ export function DespesasPage() {
 
   return (
     <div className="despesas-page">
-      <div className="despesas-page__header">
-        <h1 className="despesas-page__title">Despesas</h1>
-        <Button type="button" onClick={() => setMode({ type: 'create' })}>
-          <Plus size={16} aria-hidden="true" />
-          Nova despesa
-        </Button>
-      </div>
+      <PageHeader
+        title="Despesas"
+        action={
+          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+            <Plus size={16} aria-hidden="true" />
+            Nova despesa
+          </Button>
+        }
+      />
       <FormError message={loadError} />
       {!loading && (
         <DespesasList
