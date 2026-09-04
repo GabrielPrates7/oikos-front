@@ -6,6 +6,7 @@ import { RegisterPage } from '../modules/auth/RegisterPage'
 import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
 import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
 import { ProfileForm } from '../modules/configuracoes/ProfileForm'
+import { CartaoDetalhePage } from '../modules/cartoes/CartaoDetalhePage'
 import { CartoesPage } from '../modules/cartoes/CartoesPage'
 import { CategoriasPage } from '../modules/categorias/CategoriasPage'
 import { ContasPage } from '../modules/contas/ContasPage'
@@ -43,7 +44,7 @@ export function AppRoutes() {
         <Route path="/despesas" element={<DespesasPage />} />
         <Route path="/transferencias" element={<TransferenciasPage />} />
         <Route path="/cartoes" element={<CartoesPage />} />
-        <Route path="/cartoes/:id" element={<ComingSoon title="Detalhe do cartão" />} />
+        <Route path="/cartoes/:id" element={<CartaoDetalhePage />} />
 
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />

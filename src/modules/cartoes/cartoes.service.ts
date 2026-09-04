@@ -1,4 +1,6 @@
 import { apiFetch } from '../../services/api'
+import type { CreateCompraFormData } from '../compras/compras.schemas'
+import type { Purchase } from '../compras/compras.types'
 import type { CreateCartaoFormData, UpdateCartaoFormData } from './cartoes.schemas'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 
@@ -50,5 +52,36 @@ export const cartoesService = {
 
   async activate(id: string): Promise<void> {
     await apiFetch(`/credit-cards/${id}/activate`, { method: 'POST' })
+  },
+
+  async getById(id: string): Promise<CreditCard> {
+    const result = await apiFetch<{ creditCard: RawCreditCard }>(`/credit-cards/${id}`)
+    return withAvailableLimit(result.creditCard)
+  },
+
+  async getAvailableLimit(id: string): Promise<number> {
+    const result = await apiFetch<{ availableLimitCents: number }>(
+      `/credit-cards/${id}/available-limit`,
+    )
+    return result.availableLimitCents
+  },
+
+  async getPurchaseHistory(cardId: string): Promise<Purchase[]> {
+    const result = await apiFetch<{ purchases: Purchase[] }>(`/credit-cards/${cardId}/purchases`)
+    return result.purchases
+  },
+
+  async createPurchase(cardId: string, data: CreateCompraFormData): Promise<void> {
+    await apiFetch('/purchases', {
+      method: 'POST',
+      body: JSON.stringify({
+        credit_card_id: cardId,
+        category_id: data.categoryId,
+        description: data.description,
+        total_amount_cents: data.totalAmountCents,
+        installments_count: data.installmentsCount,
+        purchase_date: data.purchaseDate,
+      }),
+    })
   },
 }

@@ -1,0 +1,9 @@
+.compra-form {
+  max-width: 400px;
+}
+
+.compra-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
