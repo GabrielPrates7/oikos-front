@@ -10,11 +10,11 @@ import { CategoriasPage } from '../modules/categorias/CategoriasPage'
 import { ContasPage } from '../modules/contas/ContasPage'
 import { DespesasPage } from '../modules/despesas/DespesasPage'
 import { EntradasPage } from '../modules/entradas/EntradasPage'
+import { TransferenciasPage } from '../modules/transferencias/TransferenciasPage'
 import { ProtectedRoute } from './ProtectedRoute'
 
 const PROTECTED_MODULES: { path: string; title: string }[] = [
   { path: '/dashboard', title: 'Dashboard' },
-  { path: '/transferencias', title: 'Transferências' },
   { path: '/cartoes', title: 'Cartões' },
   { path: '/faturas', title: 'Faturas' },
   { path: '/relatorios', title: 'Relatórios' },
@@ -41,6 +41,7 @@ export function AppRoutes() {
         <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/entradas" element={<EntradasPage />} />
         <Route path="/despesas" element={<DespesasPage />} />
+        <Route path="/transferencias" element={<TransferenciasPage />} />
 
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />
