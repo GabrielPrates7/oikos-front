@@ -3,8 +3,6 @@ import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { ApiError } from '../../services/api'
 import { currentMonthString } from '../../utils/date'
-import { cartoesService } from '../cartoes/cartoes.service'
-import type { CreditCard } from '../cartoes/cartoes.types'
 import { CategoryBreakdownChart } from './CategoryBreakdownChart'
 import { CreditCardsSummary } from './CreditCardsSummary'
 import { MonthSwitcher } from './MonthSwitcher'
@@ -21,7 +19,6 @@ function errorMessage(error: unknown, fallback: string): string {
 export function DashboardPage() {
   const [month, setMonth] = useState(() => currentMonthString())
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
-  const [cards, setCards] = useState<CreditCard[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -32,13 +29,9 @@ export function DashboardPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const [summaryResult, cardsResult] = await Promise.all([
-          dashboardService.getSummary(month),
-          cartoesService.list('active'),
-        ])
+        const result = await dashboardService.getSummary(month)
         if (active) {
-          setSummary(summaryResult)
-          setCards(cardsResult)
+          setSummary(result)
         }
       } catch (error) {
         if (active) {
@@ -67,7 +60,7 @@ export function DashboardPage() {
           <SummaryCards totalBalanceCents={summary.totalBalanceCents} totals={summary.totals} />
           <div className="dashboard-page__grid">
             <CategoryBreakdownChart data={summary.expensesByCategory} />
-            <CreditCardsSummary cards={cards} />
+            <CreditCardsSummary cards={summary.creditCards} />
           </div>
           <RecentTransactionsList transactions={summary.recentTransactions} />
         </>

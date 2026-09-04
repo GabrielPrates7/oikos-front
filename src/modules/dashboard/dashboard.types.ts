@@ -10,12 +10,10 @@ export interface DashboardAccountSummary {
   balanceCents: number
 }
 
-// Não usado pra CreditCardsSummary (falta credit_limit_cents pra calcular a barra de
-// uso) — a tela busca os cartões via cartoesService.list('active') em vez disso, que já
-// devolve o limite total junto do disponível.
 export interface DashboardCreditCardSummary {
   id: string
   name: string
+  creditLimitCents: number
   availableLimitCents: number
 }
 

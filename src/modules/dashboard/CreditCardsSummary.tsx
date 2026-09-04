@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import { centsToBRL } from '../../utils/currency'
-import type { CreditCard } from '../cartoes/cartoes.types'
+import type { DashboardCreditCardSummary } from './dashboard.types'
 import './CreditCardsSummary.css'
 
 interface CreditCardsSummaryProps {
-  cards: CreditCard[]
+  cards: DashboardCreditCardSummary[]
 }
 
 export function CreditCardsSummary({ cards }: CreditCardsSummaryProps) {
@@ -16,10 +16,10 @@ export function CreditCardsSummary({ cards }: CreditCardsSummaryProps) {
       ) : (
         <ul className="credit-cards-summary__rows">
           {cards.map((card) => {
-            const usedCents = Math.max(0, card.credit_limit_cents - card.availableLimitCents)
+            const usedCents = Math.max(0, card.creditLimitCents - card.availableLimitCents)
             const usedPercent =
-              card.credit_limit_cents > 0
-                ? Math.min(100, (usedCents / card.credit_limit_cents) * 100)
+              card.creditLimitCents > 0
+                ? Math.min(100, (usedCents / card.creditLimitCents) * 100)
                 : 0
             return (
               <li key={card.id} className="credit-cards-summary__row">
