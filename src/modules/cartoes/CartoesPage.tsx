@@ -1,9 +1,9 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
+import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
 import { CartaoForm } from './CartaoForm'
 import { CartoesList } from './CartoesList'
@@ -19,8 +19,7 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 export function CartoesPage() {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const navError = useNavRedirectError()
   const [cards, setCards] = useState<CreditCard[]>([])
   const [statusFilter, setStatusFilter] = useState<CreditCardStatusFilter>('active')
   const [loading, setLoading] = useState(true)
@@ -29,30 +28,6 @@ export function CartoesPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
-
-  // Indicação de erro vinda de um redirect (ex: /cartoes/:id inexistente ou de outro
-  // usuário). Captura o state da navegação com o padrão de "ajustar state durante o
-  // render" (comparando com o valor anterior) em vez de um useEffect — se fosse setState
-  // dentro do efeito, o próprio efeito abaixo que limpa o location.state dispararia um
-  // re-render no mesmo tick e a mensagem desapareceria antes de ser vista.
-  const [navError, setNavError] = useState<string | null>(null)
-  // Semente que nunca é igual a um location.state real — sem ela, o useState abaixo
-  // inicializaria já igual ao location.state atual (mesma referência), e a comparação
-  // nunca dispararia se o erro já estivesse presente logo no primeiro render.
-  const [lastHandledState, setLastHandledState] = useState<unknown>(() => Symbol('unhandled'))
-  if (location.state !== lastHandledState) {
-    setLastHandledState(location.state)
-    const state = location.state as { error?: string } | null
-    if (state?.error) {
-      setNavError(state.error)
-    }
-  }
-
-  useEffect(() => {
-    if ((location.state as { error?: string } | null)?.error) {
-      navigate('.', { replace: true, state: null })
-    }
-  }, [location.state, navigate])
 
   useEffect(() => {
     let active = true

@@ -1,0 +1,14 @@
+.pagar-fatura-form {
+  max-width: 400px;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.pagar-fatura-form__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 16px;
+}

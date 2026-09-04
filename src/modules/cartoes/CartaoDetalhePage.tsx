@@ -156,6 +156,9 @@ export function CartaoDetalhePage() {
           / {centsToBRL(card.credit_limit_cents)} disponível
         </span>
       </div>
+      <Link to={`/faturas?cartao=${card.id}`} className="cartao-detalhe-page__invoices-link">
+        Ver faturas
+      </Link>
 
       <h2 className="cartao-detalhe-page__section-title">Histórico de compras</h2>
       {purchases.length === 0 ? (
