@@ -9,6 +9,8 @@ export const createSchema = z.object({
   amountCents: z.number().int().positive('Informe um valor'),
   paymentMethod: paymentMethodSchema,
   expenseDate: z.string().min(1, 'Informe uma data'),
+  isEssential: z.boolean({ required_error: 'Selecione se é essencial ou supérfluo' }),
+  isFixed: z.boolean({ required_error: 'Selecione se é um gasto fixo' }),
 })
 
 export const updateSchema = createSchema.partial()

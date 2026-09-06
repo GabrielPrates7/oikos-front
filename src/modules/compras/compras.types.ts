@@ -9,6 +9,8 @@ export interface Purchase {
   total_amount_cents: number
   installments_count: number
   purchase_date: string
+  is_essential: boolean
+  is_fixed: boolean
   created_at: string
   category_name: string
   category_icon: string | null

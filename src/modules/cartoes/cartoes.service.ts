@@ -81,6 +81,8 @@ export const cartoesService = {
         total_amount_cents: data.totalAmountCents,
         installments_count: data.installmentsCount,
         purchase_date: data.purchaseDate,
+        is_essential: data.isEssential,
+        is_fixed: data.isFixed,
       }),
     })
   },

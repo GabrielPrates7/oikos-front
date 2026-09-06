@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
+import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
@@ -35,6 +36,8 @@ export function CompraForm({ categories, error, submitting, onSubmit, onCancel }
       totalAmountCents: 0,
       installmentsCount: 1,
       purchaseDate: today(),
+      isEssential: undefined,
+      isFixed: undefined,
     },
   })
 
@@ -82,6 +85,38 @@ export function CompraForm({ categories, error, submitting, onSubmit, onCancel }
         type="date"
         error={errors.purchaseDate?.message}
         {...register('purchaseDate')}
+      />
+      <Controller
+        control={control}
+        name="isEssential"
+        render={({ field }) => (
+          <BooleanToggle
+            label="Essencial ou supérfluo?"
+            value={field.value}
+            options={[
+              { value: true, label: 'Essencial' },
+              { value: false, label: 'Supérfluo' },
+            ]}
+            onChange={field.onChange}
+            error={errors.isEssential?.message}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="isFixed"
+        render={({ field }) => (
+          <BooleanToggle
+            label="É gasto fixo?"
+            value={field.value}
+            options={[
+              { value: true, label: 'Sim' },
+              { value: false, label: 'Não' },
+            ]}
+            onChange={field.onChange}
+            error={errors.isFixed?.message}
+          />
+        )}
       />
       <FormError message={error} />
       <div className="compra-form__actions">

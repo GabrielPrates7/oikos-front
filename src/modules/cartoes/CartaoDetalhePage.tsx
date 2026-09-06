@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, Tag } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
@@ -166,9 +166,15 @@ export function CartaoDetalhePage() {
                 {formatDateBR(purchase.purchase_date)}
               </span>
               <div className="cartao-detalhe-page__purchase-info">
-                <span className="cartao-detalhe-page__purchase-description">
-                  {purchase.description}
-                </span>
+                <div className="cartao-detalhe-page__purchase-description-row">
+                  <span className="cartao-detalhe-page__purchase-description">
+                    {purchase.description}
+                  </span>
+                  <span className="cartao-detalhe-page__essential-badge">
+                    <Tag size={12} aria-hidden="true" />
+                    {purchase.is_essential ? 'Essencial' : 'Supérfluo'}
+                  </span>
+                </div>
                 <span className="cartao-detalhe-page__purchase-meta">
                   {purchase.category_icon ?? '📁'} {purchase.category_name} ·{' '}
                   {purchase.installments_count}x

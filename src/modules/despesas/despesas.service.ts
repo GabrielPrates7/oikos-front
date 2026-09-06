@@ -10,6 +10,8 @@ function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unkn
   if (data.amountCents !== undefined) payload.amount_cents = data.amountCents
   if (data.paymentMethod !== undefined) payload.payment_method = data.paymentMethod
   if (data.expenseDate !== undefined) payload.expense_date = data.expenseDate
+  if (data.isEssential !== undefined) payload.is_essential = data.isEssential
+  if (data.isFixed !== undefined) payload.is_fixed = data.isFixed
   return payload
 }
 

@@ -1,4 +1,4 @@
-import { Edit2, Trash2 } from 'lucide-react'
+import { Edit2, Tag, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
@@ -183,7 +183,13 @@ export function DespesasList({
               <li key={entry.id} className="despesas-list__row">
                 <span className="despesas-list__date">{formatDateBR(entry.expense_date)}</span>
                 <div className="despesas-list__info">
-                  <span className="despesas-list__description">{entry.description}</span>
+                  <div className="despesas-list__description-row">
+                    <span className="despesas-list__description">{entry.description}</span>
+                    <span className="despesas-list__essential-badge">
+                      <Tag size={12} aria-hidden="true" />
+                      {entry.is_essential ? 'Essencial' : 'Supérfluo'}
+                    </span>
+                  </div>
                   <span className="despesas-list__meta">
                     {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
                     {' · '}
