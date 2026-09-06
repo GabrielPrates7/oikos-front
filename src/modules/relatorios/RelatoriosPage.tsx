@@ -3,6 +3,7 @@ import { Tabs } from '../../components/layout/Tabs'
 import './RelatoriosPage.css'
 
 const TABS = [
+  { path: '/relatorios/visao-geral', label: 'Visão Geral' },
   { path: '/relatorios/por-categoria', label: 'Por categoria' },
   { path: '/relatorios/evolucao-mensal', label: 'Evolução mensal' },
   { path: '/relatorios/comparativo', label: 'Comparativo' },

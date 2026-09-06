@@ -1,7 +1,11 @@
 import { apiFetch } from '../../services/api'
 import type {
+  ByAccountResult,
   ByCategoryResult,
+  ByReceiptMethodResult,
   ComparisonResult,
+  EssentialVsSuperfluousResult,
+  FixedVsNonFixedResult,
   MonthlyEvolutionResult,
   ReportCategoryType,
 } from './relatorios.types'
@@ -17,5 +21,23 @@ export const relatoriosService = {
 
   async getComparison(month1: string, month2: string): Promise<ComparisonResult> {
     return apiFetch<ComparisonResult>(`/reports/comparison?month1=${month1}&month2=${month2}`)
+  },
+
+  async getByAccount(month: string, type: ReportCategoryType): Promise<ByAccountResult> {
+    return apiFetch<ByAccountResult>(`/reports/by-account?month=${month}&type=${type}`)
+  },
+
+  async getByReceiptMethod(month: string): Promise<ByReceiptMethodResult> {
+    return apiFetch<ByReceiptMethodResult>(`/reports/by-receipt-method?month=${month}`)
+  },
+
+  async getEssentialVsSuperfluous(month: string): Promise<EssentialVsSuperfluousResult> {
+    return apiFetch<EssentialVsSuperfluousResult>(
+      `/reports/essential-vs-superfluous?month=${month}`,
+    )
+  },
+
+  async getFixedVsNonFixed(month: string): Promise<FixedVsNonFixedResult> {
+    return apiFetch<FixedVsNonFixedResult>(`/reports/fixed-vs-non-fixed?month=${month}`)
   },
 }

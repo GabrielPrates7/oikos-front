@@ -23,6 +23,7 @@ import { ComparativoTab } from '../modules/relatorios/ComparativoTab'
 import { EvolucaoMensalTab } from '../modules/relatorios/EvolucaoMensalTab'
 import { PorCategoriaTab } from '../modules/relatorios/PorCategoriaTab'
 import { RelatoriosPage } from '../modules/relatorios/RelatoriosPage'
+import { VisaoGeralTab } from '../modules/relatorios/VisaoGeralTab'
 import { TransferenciasPage } from '../modules/transferencias/TransferenciasPage'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -55,7 +56,8 @@ export function AppRoutes() {
         <Route path="/metas/:id" element={<MetaDetalhePage />} />
 
         <Route path="/relatorios" element={<RelatoriosPage />}>
-          <Route index element={<Navigate to="por-categoria" replace />} />
+          <Route index element={<Navigate to="visao-geral" replace />} />
+          <Route path="visao-geral" element={<VisaoGeralTab />} />
           <Route path="por-categoria" element={<PorCategoriaTab />} />
           <Route path="evolucao-mensal" element={<EvolucaoMensalTab />} />
           <Route path="comparativo" element={<ComparativoTab />} />

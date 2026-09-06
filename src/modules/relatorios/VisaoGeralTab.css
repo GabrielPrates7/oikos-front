@@ -1,0 +1,17 @@
+.visao-geral-tab__controls {
+  margin-bottom: 20px;
+}
+
+/* 2 colunas em telas largas, 1 coluna (empilhado) abaixo de ~560px — 6 gráficos de pizza
+   lado a lado numa tela estreita ficariam pequenos demais pra legenda ser legível. */
+.visao-geral-tab__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 560px) {
+  .visao-geral-tab__grid {
+    grid-template-columns: 1fr;
+  }
+}

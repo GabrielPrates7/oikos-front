@@ -49,3 +49,46 @@ export interface ComparisonResult {
   }
   categories: ComparisonCategoryItem[]
 }
+
+export interface ByAccountItem {
+  accountId: string
+  name: string
+  totalCents: number
+}
+
+export interface ByAccountResult {
+  month: string
+  type: ReportCategoryType
+  accounts: ByAccountItem[]
+}
+
+export type ReceiptMethod = 'pix' | 'transfer' | 'cash' | 'other'
+
+export const RECEIPT_METHOD_LABELS: Record<ReceiptMethod, string> = {
+  pix: 'Pix',
+  transfer: 'Transferência',
+  cash: 'Dinheiro',
+  other: 'Outro',
+}
+
+export interface ByReceiptMethodItem {
+  receiptMethod: string
+  totalCents: number
+}
+
+export interface ByReceiptMethodResult {
+  month: string
+  methods: ByReceiptMethodItem[]
+}
+
+export interface EssentialVsSuperfluousResult {
+  month: string
+  essentialCents: number
+  superfluousCents: number
+}
+
+export interface FixedVsNonFixedResult {
+  month: string
+  fixedCents: number
+  nonFixedCents: number
+}
