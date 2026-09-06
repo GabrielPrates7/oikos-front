@@ -24,7 +24,7 @@ export interface DashboardCategoryExpense {
   totalCents: number
 }
 
-export type DashboardTransactionType = 'income' | 'expense' | 'transfer'
+export type DashboardTransactionType = 'income' | 'expense' | 'transfer' | 'invoice_payment'
 
 export interface DashboardRecentTransaction {
   type: DashboardTransactionType

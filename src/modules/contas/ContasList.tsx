@@ -1,5 +1,6 @@
-import { Archive, Edit2, RotateCcw } from 'lucide-react'
+import { Archive, Edit2, Receipt, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { centsToBRL } from '../../utils/currency'
 import { ACCOUNT_TYPE_LABELS } from './contas.types'
 import type { Account, AccountStatusFilter } from './contas.types'
@@ -128,6 +129,12 @@ export function ContasList({
                     </>
                   ) : (
                     <>
+                      <Link
+                        to={`/contas/${account.id}/extrato`}
+                        aria-label={`Ver extrato de ${account.name}`}
+                      >
+                        <Receipt size={16} aria-hidden="true" />
+                      </Link>
                       <button
                         type="button"
                         aria-label={`Editar ${account.name}`}

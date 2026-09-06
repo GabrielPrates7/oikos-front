@@ -22,3 +22,25 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   savings: 'Poupança',
   cash: 'Dinheiro',
 }
+
+export type StatementEntryType =
+  | 'income'
+  | 'expense'
+  | 'transfer_out'
+  | 'transfer_in'
+  | 'invoice_payment'
+
+export interface StatementEntry {
+  id: string
+  type: StatementEntryType
+  description: string
+  amountCents: number
+  date: string
+  runningBalanceCents: number
+}
+
+export interface AccountStatement {
+  openingBalanceCents: number
+  closingBalanceCents: number
+  entries: StatementEntry[]
+}

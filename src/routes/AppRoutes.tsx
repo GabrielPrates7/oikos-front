@@ -1,15 +1,16 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { ComingSoon } from '../components/feedback/ComingSoon'
 import { Shell } from '../components/layout/Shell'
 import { LoginPage } from '../modules/auth/LoginPage'
 import { RegisterPage } from '../modules/auth/RegisterPage'
 import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
 import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
+import { PreferenciasTab } from '../modules/configuracoes/PreferenciasTab'
 import { ProfileForm } from '../modules/configuracoes/ProfileForm'
 import { CartaoDetalhePage } from '../modules/cartoes/CartaoDetalhePage'
 import { CartoesPage } from '../modules/cartoes/CartoesPage'
 import { CategoriasPage } from '../modules/categorias/CategoriasPage'
 import { ContasPage } from '../modules/contas/ContasPage'
+import { ExtratoPage } from '../modules/contas/ExtratoPage'
 import { DashboardPage } from '../modules/dashboard/DashboardPage'
 import { DespesasPage } from '../modules/despesas/DespesasPage'
 import { EntradasPage } from '../modules/entradas/EntradasPage'
@@ -37,6 +38,7 @@ export function AppRoutes() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/contas" element={<ContasPage />} />
+        <Route path="/contas/:id/extrato" element={<ExtratoPage />} />
         <Route path="/categorias" element={<CategoriasPage />} />
         <Route path="/entradas" element={<EntradasPage />} />
         <Route path="/despesas" element={<DespesasPage />} />
@@ -56,7 +58,7 @@ export function AppRoutes() {
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />
           <Route path="perfil" element={<ProfileForm />} />
-          <Route path="preferencias" element={<ComingSoon title="Preferências" />} />
+          <Route path="preferencias" element={<PreferenciasTab />} />
           <Route path="seguranca" element={<ChangePasswordForm />} />
         </Route>
       </Route>

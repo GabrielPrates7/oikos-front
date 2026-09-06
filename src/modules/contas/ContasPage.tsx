@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
+import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
 import { ContaForm } from './ContaForm'
 import { ContasList } from './ContasList'
@@ -18,6 +19,7 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 export function ContasPage() {
+  const navError = useNavRedirectError()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [statusFilter, setStatusFilter] = useState<AccountStatusFilter>('active')
   const [loading, setLoading] = useState(true)
@@ -138,7 +140,7 @@ export function ContasPage() {
           </Button>
         }
       />
-      <FormError message={loadError} />
+      <FormError message={navError ?? loadError} />
       {!loading && (
         <ContasList
           accounts={accounts}

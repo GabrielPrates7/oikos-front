@@ -52,6 +52,11 @@
   background: var(--color-bg-elevated);
 }
 
+.recent-transactions__icon--invoice_payment {
+  color: var(--color-accent-expense);
+  background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
+}
+
 .recent-transactions__info {
   flex: 1 1 200px;
   display: flex;
@@ -89,4 +94,8 @@
 
 .recent-transactions__amount--transfer {
   color: var(--color-text-primary);
+}
+
+.recent-transactions__amount--invoice_payment {
+  color: var(--color-accent-expense);
 }

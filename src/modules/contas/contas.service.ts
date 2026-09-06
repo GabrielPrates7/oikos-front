@@ -1,6 +1,6 @@
 import { apiFetch } from '../../services/api'
 import type { CreateContaFormData, UpdateContaFormData } from './contas.schemas'
-import type { Account, AccountStatusFilter } from './contas.types'
+import type { Account, AccountStatement, AccountStatusFilter } from './contas.types'
 
 // O backend espera snake_case (name, bank_name, type, initial_balance_cents) — o form usa
 // camelCase (convenção JS/TS), então essa é a camada que traduz entre os dois.
@@ -43,5 +43,18 @@ export const contasService = {
 
   async activate(id: string): Promise<void> {
     await apiFetch(`/accounts/${id}/activate`, { method: 'POST' })
+  },
+
+  async getById(id: string): Promise<Account> {
+    const result = await apiFetch<{ account: Account }>(`/accounts/${id}`)
+    return result.account
+  },
+
+  async getStatement(accountId: string, from?: string, to?: string): Promise<AccountStatement> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const query = params.toString()
+    return apiFetch<AccountStatement>(`/accounts/${accountId}/statement${query ? `?${query}` : ''}`)
   },
 }

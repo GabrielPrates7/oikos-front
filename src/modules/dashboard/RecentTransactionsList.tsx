@@ -7,6 +7,7 @@ const TYPE_ICONS: Record<DashboardTransactionType, string> = {
   income: '↗',
   expense: '↘',
   transfer: '⇄',
+  invoice_payment: '💳',
 }
 
 interface RecentTransactionsListProps {
