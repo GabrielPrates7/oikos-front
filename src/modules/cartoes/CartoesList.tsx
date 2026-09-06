@@ -1,7 +1,7 @@
 import { Archive, Edit2, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { centsToBRL } from '../../utils/currency'
+import { CartaoVisual } from './CartaoVisual'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 import './CartoesList.css'
 
@@ -93,18 +93,12 @@ export function CartoesList({
             const isConfirming = confirmingId === card.id
             return (
               <li key={card.id} className="cartoes-list__row">
-                <Link to={`/cartoes/${card.id}`} className="cartoes-list__link">
-                  <div className="cartoes-list__info">
-                    <span className="cartoes-list__name">{card.name}</span>
-                    <span className="cartoes-list__meta">{card.brand ?? 'Sem bandeira'}</span>
-                  </div>
-                  <span className="cartoes-list__limit">
-                    {centsToBRL(card.availableLimitCents)}
-                    <span className="cartoes-list__limit-total">
-                      {' '}
-                      / {centsToBRL(card.credit_limit_cents)}
-                    </span>
-                  </span>
+                <Link
+                  to={`/cartoes/${card.id}`}
+                  className="cartoes-list__link"
+                  aria-label={`Ver detalhes de ${card.name}`}
+                >
+                  <CartaoVisual card={card} />
                 </Link>
                 <div className="cartoes-list__actions">
                   {isConfirming ? (

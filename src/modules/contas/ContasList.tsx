@@ -1,6 +1,7 @@
 import { Archive, Edit2, Receipt, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
 import { ACCOUNT_TYPE_LABELS } from './contas.types'
 import type { Account, AccountStatusFilter } from './contas.types'
@@ -93,6 +94,11 @@ export function ContasList({
             const isConfirming = confirmingId === account.id
             return (
               <li key={account.id} className="contas-list__row">
+                <span
+                  className="contas-list__bank-indicator"
+                  style={{ background: getBankColor(account.bank_name).base }}
+                  aria-hidden="true"
+                />
                 <div className="contas-list__info">
                   <span className="contas-list__name">{account.name}</span>
                   <span className="contas-list__meta">

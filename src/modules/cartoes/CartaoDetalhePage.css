@@ -25,11 +25,7 @@
   gap: 4px 16px;
   color: var(--color-text-muted);
   font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.cartao-detalhe-page__limit {
-  margin-bottom: 12px;
+  margin: 16px 0;
 }
 
 .cartao-detalhe-page__invoices-link {
@@ -48,19 +44,6 @@
 .cartao-detalhe-page__invoices-link:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-}
-
-.cartao-detalhe-page__limit-available {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.cartao-detalhe-page__limit-total {
-  color: var(--color-text-muted);
-  font-size: 14px;
 }
 
 .cartao-detalhe-page__section-title {

@@ -1,0 +1,107 @@
+.cartao-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cartao-visual__card {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1.586 / 1;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #f5f3ee;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Sheen sutil no canto superior — textura leve sem competir com o texto */
+.cartao-visual__card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% -10%, rgba(255, 255, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.cartao-visual--large .cartao-visual__card {
+  max-width: 420px;
+}
+
+.cartao-visual__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cartao-visual__name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.cartao-visual--large .cartao-visual__name {
+  font-size: 24px;
+}
+
+.cartao-visual__archived-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 3px 8px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.cartao-visual__brand {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+.cartao-visual__progress {
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cartao-visual--large .cartao-visual__progress {
+  max-width: 420px;
+}
+
+.cartao-visual__bar-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-bg-elevated);
+  overflow: hidden;
+}
+
+.cartao-visual__bar-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.cartao-visual__bar-fill--warning {
+  background: var(--color-accent-expense);
+}
+
+.cartao-visual__amounts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

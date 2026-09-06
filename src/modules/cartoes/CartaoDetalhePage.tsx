@@ -12,6 +12,7 @@ import type { Category } from '../categorias/categorias.types'
 import { CompraForm } from '../compras/CompraForm'
 import type { CreateCompraFormData } from '../compras/compras.schemas'
 import type { Purchase } from '../compras/compras.types'
+import { CartaoVisual } from './CartaoVisual'
 import { cartoesService } from './cartoes.service'
 import type { CreditCard } from './cartoes.types'
 import './CartaoDetalhePage.css'
@@ -141,19 +142,10 @@ export function CartaoDetalhePage() {
         }
       />
       <FormError message={loadError} />
+      <CartaoVisual card={card} size="large" />
       <div className="cartao-detalhe-page__meta">
-        <span>{card.brand ?? 'Sem bandeira'}</span>
         <span>
           Fecha dia {card.closing_day} · Vence dia {card.due_day}
-        </span>
-      </div>
-      <div className="cartao-detalhe-page__limit">
-        <span className="cartao-detalhe-page__limit-available">
-          {centsToBRL(card.availableLimitCents)}
-        </span>
-        <span className="cartao-detalhe-page__limit-total">
-          {' '}
-          / {centsToBRL(card.credit_limit_cents)} disponível
         </span>
       </div>
       <Link to={`/faturas?cartao=${card.id}`} className="cartao-detalhe-page__invoices-link">
