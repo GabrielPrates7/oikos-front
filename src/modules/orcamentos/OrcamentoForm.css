@@ -1,0 +1,9 @@
+.orcamento-form {
+  max-width: 400px;
+}
+
+.orcamento-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}

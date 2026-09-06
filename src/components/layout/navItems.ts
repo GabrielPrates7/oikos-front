@@ -3,9 +3,11 @@ import {
   BarChart3,
   CreditCard,
   LayoutDashboard,
+  PiggyBank,
   Receipt,
   Settings,
   Tags,
+  Target,
   TrendingDown,
   TrendingUp,
   Wallet,
@@ -28,6 +30,8 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { path: '/categorias', label: 'Categorias', icon: Tags },
   { path: '/transferencias', label: 'Transferências', icon: ArrowLeftRight },
   { path: '/relatorios', label: 'Relatórios', icon: BarChart3 },
+  { path: '/orcamentos', label: 'Orçamentos', icon: PiggyBank },
+  { path: '/metas', label: 'Metas', icon: Target },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },
 ]
 

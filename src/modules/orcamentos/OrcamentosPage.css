@@ -1,0 +1,10 @@
+.orcamentos-page {
+  max-width: 720px;
+}
+
+.orcamentos-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}

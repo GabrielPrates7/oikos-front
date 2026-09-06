@@ -16,6 +16,9 @@ import { DespesasPage } from '../modules/despesas/DespesasPage'
 import { EntradasPage } from '../modules/entradas/EntradasPage'
 import { FaturaDetalhePage } from '../modules/faturas/FaturaDetalhePage'
 import { FaturasPage } from '../modules/faturas/FaturasPage'
+import { MetaDetalhePage } from '../modules/metas/MetaDetalhePage'
+import { MetasPage } from '../modules/metas/MetasPage'
+import { OrcamentosPage } from '../modules/orcamentos/OrcamentosPage'
 import { ComparativoTab } from '../modules/relatorios/ComparativoTab'
 import { EvolucaoMensalTab } from '../modules/relatorios/EvolucaoMensalTab'
 import { PorCategoriaTab } from '../modules/relatorios/PorCategoriaTab'
@@ -47,6 +50,9 @@ export function AppRoutes() {
         <Route path="/cartoes/:id" element={<CartaoDetalhePage />} />
         <Route path="/faturas" element={<FaturasPage />} />
         <Route path="/faturas/:id" element={<FaturaDetalhePage />} />
+        <Route path="/orcamentos" element={<OrcamentosPage />} />
+        <Route path="/metas" element={<MetasPage />} />
+        <Route path="/metas/:id" element={<MetaDetalhePage />} />
 
         <Route path="/relatorios" element={<RelatoriosPage />}>
           <Route index element={<Navigate to="por-categoria" replace />} />
