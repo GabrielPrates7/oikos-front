@@ -1,0 +1,25 @@
+.list-total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin-bottom: 16px;
+}
+
+.list-total__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.list-total__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.list-total__value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}

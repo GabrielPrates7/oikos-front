@@ -1,6 +1,7 @@
 import { Archive, Edit2, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ListTotal } from '../../components/ui/ListTotal'
 import { CartaoVisual } from './CartaoVisual'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 import './CartoesList.css'
@@ -88,7 +89,27 @@ export function CartoesList({
           )}
         </div>
       ) : (
-        <ul className="cartoes-list__rows" ref={rowsRef}>
+        <>
+          <ListTotal
+            items={[
+              {
+                label: 'Limite total',
+                valueCents: cards.reduce((sum, card) => sum + card.credit_limit_cents, 0),
+              },
+              {
+                label: 'Disponível total',
+                valueCents: cards.reduce((sum, card) => sum + card.availableLimitCents, 0),
+              },
+              {
+                label: 'Usado total (a pagar)',
+                valueCents: cards.reduce(
+                  (sum, card) => sum + (card.credit_limit_cents - card.availableLimitCents),
+                  0,
+                ),
+              },
+            ]}
+          />
+          <ul className="cartoes-list__rows" ref={rowsRef}>
           {cards.map((card) => {
             const isConfirming = confirmingId === card.id
             return (
@@ -153,7 +174,8 @@ export function CartoesList({
               </li>
             )
           })}
-        </ul>
+          </ul>
+        </>
       )}
     </div>
   )

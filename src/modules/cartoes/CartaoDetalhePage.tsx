@@ -15,6 +15,7 @@ import type { Purchase } from '../compras/compras.types'
 import { CartaoVisual } from './CartaoVisual'
 import { cartoesService } from './cartoes.service'
 import type { CreditCard } from './cartoes.types'
+import { PurchaseStatusBadge } from './PurchaseStatusBadge'
 import './CartaoDetalhePage.css'
 
 type Mode = { type: 'view' } | { type: 'create-purchase' }
@@ -174,6 +175,7 @@ export function CartaoDetalhePage() {
                     <Tag size={12} aria-hidden="true" />
                     {purchase.is_essential ? 'Essencial' : 'Supérfluo'}
                   </span>
+                  <PurchaseStatusBadge status={purchase.payment_status} />
                 </div>
                 <span className="cartao-detalhe-page__purchase-meta">
                   {purchase.category_icon ?? '📁'} {purchase.category_name} ·{' '}

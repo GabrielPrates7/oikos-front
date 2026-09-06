@@ -1,0 +1,19 @@
+.purchase-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.purchase-status-badge--pending {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-text-muted);
+}
+
+.purchase-status-badge--paid {
+  color: var(--color-accent-income);
+  border: 1px solid var(--color-accent-income);
+}

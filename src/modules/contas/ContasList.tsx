@@ -1,6 +1,7 @@
 import { Archive, Edit2, Receipt, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ListTotal } from '../../components/ui/ListTotal'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
 import { ACCOUNT_TYPE_LABELS } from './contas.types'
@@ -89,7 +90,16 @@ export function ContasList({
           )}
         </div>
       ) : (
-        <ul className="contas-list__rows" ref={rowsRef}>
+        <>
+          <ListTotal
+            items={[
+              {
+                label: 'Total exibido',
+                valueCents: accounts.reduce((sum, account) => sum + account.balanceCents, 0),
+              },
+            ]}
+          />
+          <ul className="contas-list__rows" ref={rowsRef}>
           {accounts.map((account) => {
             const isConfirming = confirmingId === account.id
             return (
@@ -174,7 +184,8 @@ export function ContasList({
               </li>
             )
           })}
-        </ul>
+          </ul>
+        </>
       )}
     </div>
   )

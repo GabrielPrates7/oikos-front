@@ -27,3 +27,16 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   cash: 'Dinheiro',
   pix: 'PIX',
 }
+
+// Pagamento de fatura mesclado na listagem de Despesas — só informativo (agrega várias
+// compras, não tem categoria própria), nunca editável/excluível por aqui, e nunca somado
+// no total (que é só despesa de verdade).
+export interface InvoicePaymentEntry {
+  type: 'invoice_payment'
+  id: string
+  date: string
+  amountCents: number
+  description: string
+}
+
+export type DespesaListEntry = { type: 'expense'; data: Expense } | InvoicePaymentEntry

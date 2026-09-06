@@ -99,7 +99,8 @@
 
 /* Neutro de propósito — não repete o verde/terracota já usado pro valor, só sinaliza a
    classificação essencial/supérfluo sem competir visualmente com ele. */
-.despesas-list__essential-badge {
+.despesas-list__essential-badge,
+.despesas-list__invoice-payment-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;

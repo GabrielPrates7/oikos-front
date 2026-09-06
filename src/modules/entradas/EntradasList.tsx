@@ -1,5 +1,6 @@
 import { Edit2, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
@@ -136,7 +137,16 @@ export function EntradasList({
           )}
         </div>
       ) : (
-        <ul className="entradas-list__rows" ref={rowsRef}>
+        <>
+          <ListTotal
+            items={[
+              {
+                label: 'Total exibido',
+                valueCents: entries.reduce((sum, entry) => sum + entry.amount_cents, 0),
+              },
+            ]}
+          />
+          <ul className="entradas-list__rows" ref={rowsRef}>
           {entries.map((entry) => {
             const account = accountsById.get(entry.account_id)
             const category = categoriesById.get(entry.category_id)
@@ -193,7 +203,8 @@ export function EntradasList({
               </li>
             )
           })}
-        </ul>
+          </ul>
+        </>
       )}
     </div>
   )

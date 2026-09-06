@@ -12,7 +12,7 @@ import { DespesaForm } from './DespesaForm'
 import { DespesasList } from './DespesasList'
 import { despesasService } from './despesas.service'
 import type { CreateDespesaFormData } from './despesas.schemas'
-import type { Expense, ExpenseFilters } from './despesas.types'
+import type { DespesaListEntry, Expense, ExpenseFilters } from './despesas.types'
 import './DespesasPage.css'
 
 type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; entry: Expense }
@@ -22,7 +22,7 @@ function errorMessage(error: unknown, fallback: string): string {
 }
 
 export function DespesasPage() {
-  const [entries, setEntries] = useState<Expense[]>([])
+  const [entries, setEntries] = useState<DespesaListEntry[]>([])
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -70,7 +70,7 @@ export function DespesasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await despesasService.list(filters)
+        const result = await despesasService.listWithInvoicePayments(filters)
         if (active) {
           setEntries(result)
         }

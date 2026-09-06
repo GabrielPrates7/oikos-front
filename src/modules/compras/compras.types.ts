@@ -1,5 +1,8 @@
+export type PurchasePaymentStatus = 'paid' | 'pending'
+
 // Nível de compra só — sem parcelas/faturas, que têm seu próprio módulo (Faturas, fase
-// futura). Vem com categoria já resolvida (nome/ícone) via JOIN no backend.
+// futura). Vem com categoria já resolvida (nome/ícone) via JOIN no backend. payment_status:
+// 'paid' só quando todas as parcelas já estão em fatura paga.
 export interface Purchase {
   id: string
   user_id: string
@@ -14,4 +17,5 @@ export interface Purchase {
   created_at: string
   category_name: string
   category_icon: string | null
+  payment_status: PurchasePaymentStatus
 }
