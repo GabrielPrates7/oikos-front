@@ -57,3 +57,27 @@ export function currentMonthString(): string {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   return `${year}-${month}`
 }
+
+const MONTH_ABBR_PT = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
+]
+
+// Rótulo compacto ("Set/26") pro eixo X do gráfico de evolução mensal — com até 24
+// pontos, o nome completo do mês ("Setembro 2026") não cabe sem sobrepor em mobile.
+export function formatMonthShort(month: string): string {
+  const [year, monthNum] = month.split('-')
+  if (!year || !monthNum) return month
+  const abbr = MONTH_ABBR_PT[Number(monthNum) - 1] ?? monthNum
+  return `${abbr}/${year.slice(2)}`
+}

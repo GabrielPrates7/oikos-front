@@ -15,12 +15,12 @@ import { DespesasPage } from '../modules/despesas/DespesasPage'
 import { EntradasPage } from '../modules/entradas/EntradasPage'
 import { FaturaDetalhePage } from '../modules/faturas/FaturaDetalhePage'
 import { FaturasPage } from '../modules/faturas/FaturasPage'
+import { ComparativoTab } from '../modules/relatorios/ComparativoTab'
+import { EvolucaoMensalTab } from '../modules/relatorios/EvolucaoMensalTab'
+import { PorCategoriaTab } from '../modules/relatorios/PorCategoriaTab'
+import { RelatoriosPage } from '../modules/relatorios/RelatoriosPage'
 import { TransferenciasPage } from '../modules/transferencias/TransferenciasPage'
 import { ProtectedRoute } from './ProtectedRoute'
-
-const PROTECTED_MODULES: { path: string; title: string }[] = [
-  { path: '/relatorios', title: 'Relatórios' },
-]
 
 export function AppRoutes() {
   return (
@@ -35,10 +35,6 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        {PROTECTED_MODULES.map(({ path, title }) => (
-          <Route key={path} path={path} element={<ComingSoon title={title} />} />
-        ))}
-
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/contas" element={<ContasPage />} />
         <Route path="/categorias" element={<CategoriasPage />} />
@@ -49,6 +45,13 @@ export function AppRoutes() {
         <Route path="/cartoes/:id" element={<CartaoDetalhePage />} />
         <Route path="/faturas" element={<FaturasPage />} />
         <Route path="/faturas/:id" element={<FaturaDetalhePage />} />
+
+        <Route path="/relatorios" element={<RelatoriosPage />}>
+          <Route index element={<Navigate to="por-categoria" replace />} />
+          <Route path="por-categoria" element={<PorCategoriaTab />} />
+          <Route path="evolucao-mensal" element={<EvolucaoMensalTab />} />
+          <Route path="comparativo" element={<ComparativoTab />} />
+        </Route>
 
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />
