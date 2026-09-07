@@ -56,14 +56,22 @@ export function DashboardPage() {
       <PageHeader title="Dashboard" action={<MonthSwitcher month={month} onChange={setMonth} />} />
       <FormError message={loadError} />
       {!loading && summary && (
-        <>
-          <SummaryCards totalBalanceCents={summary.totalBalanceCents} totals={summary.totals} />
-          <div className="dashboard-page__grid">
-            <CategoryBreakdownChart data={summary.expensesByCategory} />
-            <CreditCardsSummary cards={summary.creditCards} />
+        <div className="dashboard-page__panels">
+          <div className="dashboard-panel">
+            <SummaryCards totalBalanceCents={summary.totalBalanceCents} totals={summary.totals} />
           </div>
-          <RecentTransactionsList transactions={summary.recentTransactions} />
-        </>
+          <div className="dashboard-page__grid">
+            <div className="dashboard-panel">
+              <CategoryBreakdownChart data={summary.expensesByCategory} />
+            </div>
+            <div className="dashboard-panel">
+              <CreditCardsSummary cards={summary.creditCards} />
+            </div>
+          </div>
+          <div className="dashboard-panel">
+            <RecentTransactionsList transactions={summary.recentTransactions} />
+          </div>
+        </div>
       )}
     </div>
   )

@@ -15,6 +15,9 @@ export function CategoryBreakdownChart({ data }: CategoryBreakdownChartProps) {
         data={data}
         color={CHART_COLOR_ACCENT}
         emptyMessage="Nenhuma despesa categorizada nesse mês."
+        barSize={22}
+        rowHeight={52}
+        showAxis={false}
       />
     </div>
   )

@@ -20,12 +20,24 @@ interface CategoryBarChartProps {
   data: CategoryBarChartItem[]
   color: string
   emptyMessage: string
+  // Opcionais, default preserva o visual original (usado em Relatórios) — o Dashboard
+  // passa valores mais densos (barra mais grossa, mais espaço entre categorias, sem eixo).
+  barSize?: number
+  rowHeight?: number
+  showAxis?: boolean
 }
 
 // Barras horizontais, uma cor só variando opacidade (mais escura = maior valor),
 // ordenado do maior pro menor. Reusado em Dashboard (Despesas por categoria, sempre
 // verde) e Relatórios (Por categoria, cor muda com o toggle Despesas/Entradas).
-export function CategoryBarChart({ data, color, emptyMessage }: CategoryBarChartProps) {
+export function CategoryBarChart({
+  data,
+  color,
+  emptyMessage,
+  barSize,
+  rowHeight = 40,
+  showAxis = true,
+}: CategoryBarChartProps) {
   if (data.length === 0) {
     return <p className="category-bar-chart__empty">{emptyMessage}</p>
   }
@@ -37,13 +49,18 @@ export function CategoryBarChart({ data, color, emptyMessage }: CategoryBarChart
       valueCents: item.totalCents,
     }))
 
-  const height = Math.max(140, chartData.length * 40)
+  const height = Math.max(140, chartData.length * rowHeight)
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 72, bottom: 4, left: 4 }}>
+      <BarChart
+        data={chartData}
+        layout="vertical"
+        margin={{ top: 4, right: 72, bottom: showAxis ? 4 : 0, left: 4 }}
+      >
         <XAxis
           type="number"
+          hide={!showAxis}
           tickFormatter={(value: number) => centsToBRL(value)}
           tick={{ fill: CHART_COLOR_TEXT_MUTED, fontSize: 12 }}
           axisLine={{ stroke: CHART_COLOR_BG_ELEVATED }}
@@ -75,7 +92,7 @@ export function CategoryBarChart({ data, color, emptyMessage }: CategoryBarChart
             "animando" (showLabels = !isAnimating na Bar do recharts v3) — sem isso os
             rótulos nunca aparecem, porque o estado de animação nunca resolve pra false
             nesse fluxo. */}
-        <Bar dataKey="valueCents" radius={[0, 4, 4, 0]} isAnimationActive={false}>
+        <Bar dataKey="valueCents" radius={[0, 4, 4, 0]} isAnimationActive={false} barSize={barSize}>
           {chartData.map((entry, index) => (
             <Cell key={entry.name} fill={color} fillOpacity={Math.max(MIN_OPACITY, 1 - index * 0.12)} />
           ))}

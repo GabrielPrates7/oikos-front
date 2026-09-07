@@ -1,9 +1,7 @@
 .summary-cards {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 24px 40px;
-  margin-bottom: 32px;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .summary-cards__balance {
@@ -29,16 +27,27 @@
   line-height: 1.1;
 }
 
+/* nowrap + overflow-x: auto — os três ficam sempre numa linha só (pedido explícito), com
+   scroll horizontal como rede de segurança em telas muito estreitas em vez de quebrar
+   e deixar uma divisória solta no meio da linha seguinte. */
 .summary-cards__month {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px 32px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .summary-cards__stat {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 0 24px;
+  border-left: 1px solid var(--color-bg-elevated);
+  white-space: nowrap;
+}
+
+.summary-cards__stat:first-child {
+  padding-left: 0;
+  border-left: none;
 }
 
 .summary-cards__stat-label {
@@ -46,11 +55,27 @@
   color: var(--color-text-muted);
 }
 
+/* Mais forte que texto de corpo (14-15px no resto do app), pra dar peso aos três números
+   sem competir com o saldo total (44px, "momento de destaque" da tela). */
 .summary-cards__stat-value {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 21px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
+}
+
+@media (max-width: 480px) {
+  .summary-cards__stat {
+    padding: 0 8px;
+  }
+
+  .summary-cards__stat-label {
+    font-size: 10px;
+  }
+
+  .summary-cards__stat-value {
+    font-size: 13px;
+  }
 }
 
 .summary-cards__stat-value--income {

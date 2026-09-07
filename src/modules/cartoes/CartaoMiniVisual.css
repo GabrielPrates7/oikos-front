@@ -1,0 +1,52 @@
+.cartao-mini-visual {
+  position: relative;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #f5f3ee;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* Sheen sutil, mesmo padrão do CartaoVisual de tela cheia */
+.cartao-mini-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% -10%, rgba(255, 255, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.cartao-mini-visual__name {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cartao-mini-visual__bar-track {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.cartao-mini-visual__bar-fill {
+  height: 100%;
+  background: rgba(245, 243, 238, 0.85);
+  border-radius: 999px;
+}
+
+.cartao-mini-visual__bar-fill--warning {
+  background: var(--color-accent-expense);
+}
+
+.cartao-mini-visual__available {
+  position: relative;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
