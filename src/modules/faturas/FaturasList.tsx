@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Button } from '../../components/ui/Button'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
 import { formatReferenceMonth } from '../../utils/date'
@@ -12,6 +13,10 @@ interface FaturasListProps {
   cards: CreditCard[]
   selectedCardId: string
   onCardFilterChange: (cardId: string) => void
+  selectedInvoiceIds: Set<string>
+  onToggleInvoiceSelected: (invoiceId: string) => void
+  onToggleSelectAll: () => void
+  onRequestBatchPay: () => void
 }
 
 export function FaturasList({
@@ -19,8 +24,16 @@ export function FaturasList({
   cards,
   selectedCardId,
   onCardFilterChange,
+  selectedInvoiceIds,
+  onToggleInvoiceSelected,
+  onToggleSelectAll,
+  onRequestBatchPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
+  // Só faturas ainda não pagas entram no lote — pagar de novo não faz sentido.
+  const payableInvoices = invoices.filter((invoice) => invoice.displayStatus !== 'paid')
+  const allSelected =
+    payableInvoices.length > 0 && payableInvoices.every((invoice) => selectedInvoiceIds.has(invoice.id))
 
   return (
     <div className="faturas-list">
@@ -63,11 +76,42 @@ export function FaturasList({
               },
             ]}
           />
+          {payableInvoices.length > 0 && (
+            <div className="faturas-list__batch-bar">
+              <label className="faturas-list__select-all">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={onToggleSelectAll}
+                  aria-label="Selecionar todas as faturas em aberto exibidas"
+                />
+                Selecionar todas
+              </label>
+              {selectedInvoiceIds.size > 0 && (
+                <Button type="button" onClick={onRequestBatchPay}>
+                  Pagar {selectedInvoiceIds.size}{' '}
+                  {selectedInvoiceIds.size === 1 ? 'fatura selecionada' : 'faturas selecionadas'}
+                </Button>
+              )}
+            </div>
+          )}
           <ul className="faturas-list__rows">
             {invoices.map((invoice) => {
               const card = cardsById.get(invoice.credit_card_id)
+              const isPayable = invoice.displayStatus !== 'paid'
               return (
                 <li key={invoice.id} className="faturas-list__row">
+                  {isPayable ? (
+                    <input
+                      type="checkbox"
+                      className="faturas-list__checkbox"
+                      checked={selectedInvoiceIds.has(invoice.id)}
+                      onChange={() => onToggleInvoiceSelected(invoice.id)}
+                      aria-label={`Selecionar fatura ${card?.name ?? 'cartão removido'} de ${formatReferenceMonth(invoice.reference_month)}`}
+                    />
+                  ) : (
+                    <span className="faturas-list__checkbox-spacer" aria-hidden="true" />
+                  )}
                   <Link to={`/faturas/${invoice.id}`} className="faturas-list__link">
                     <div className="faturas-list__info">
                       <span className="faturas-list__card-name">

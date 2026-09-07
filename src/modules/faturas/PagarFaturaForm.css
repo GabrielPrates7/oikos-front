@@ -12,3 +12,9 @@
   color: var(--color-text-primary);
   margin-bottom: 16px;
 }
+
+.pagar-fatura-form__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}

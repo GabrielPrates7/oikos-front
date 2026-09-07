@@ -33,15 +33,44 @@
   outline-offset: 2px;
 }
 
+.faturas-list__batch-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.faturas-list__select-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
 .faturas-list__rows {
   border-top: 1px solid var(--color-bg-elevated);
 }
 
 .faturas-list__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border-bottom: 1px solid var(--color-bg-elevated);
 }
 
+.faturas-list__checkbox,
+.faturas-list__checkbox-spacer {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+
 .faturas-list__link {
+  flex: 1 1 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -49,6 +78,7 @@
   padding: 14px 4px;
   text-decoration: none;
   border-radius: 6px;
+  min-width: 0;
 }
 
 .faturas-list__link:focus-visible {
