@@ -26,11 +26,20 @@
   font-weight: 600;
 }
 
-.cartao-mini-visual__bar-track {
+/* Canal TOTALMENTE opaco (--color-bg-base, sem transparência) e independente da cor do
+   cartão — um overlay translúcido não bastava: sobre o verde claro do PicPay a barra de
+   aviso terracota caía pra ~1:1 de contraste WCAG. Sólido garante ~3.8:1 contra terracota
+   e ~17:1 contra o preenchimento normal (cream), com qualquer cor de banco por trás. */
+.cartao-mini-visual__progress {
   position: relative;
+  background: var(--color-bg-base);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.cartao-mini-visual__bar-track {
   height: 4px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
