@@ -47,8 +47,10 @@ export function FaturasList({
   onQuickPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
-  // Padrão é o mês corrente (mesmo critério do Dashboard/Relatórios) — 'all' mostra tudo.
-  const [monthFilter, setMonthFilter] = useState(() => currentMonthString())
+  // Padrão não é só "mês corrente": fatura não paga de mês anterior nunca deveria sumir
+  // sozinha por causa do filtro de mês (só some quando é paga, aí sim é passado). 'all'
+  // mostra tudo, um mês específico filtra só aquele mês (sem esse bônus de não-pagas).
+  const [monthFilter, setMonthFilter] = useState('default')
   const [sortOrder, setSortOrder] = useState<SortOrder>('highest')
 
   const availableMonths = useMemo(() => {
@@ -57,10 +59,16 @@ export function FaturasList({
   }, [invoices])
 
   const visibleInvoices = useMemo(() => {
-    const filtered =
-      monthFilter === 'all'
-        ? invoices
-        : invoices.filter((invoice) => monthKey(invoice.reference_month) === monthFilter)
+    const filtered = invoices.filter((invoice) => {
+      if (monthFilter === 'all') return true
+      if (monthFilter === 'default') {
+        return (
+          monthKey(invoice.reference_month) === currentMonthString() ||
+          invoice.displayStatus !== 'paid'
+        )
+      }
+      return monthKey(invoice.reference_month) === monthFilter
+    })
     const sorted = [...filtered].sort((a, b) =>
       sortOrder === 'highest' ? b.totalCents - a.totalCents : a.totalCents - b.totalCents,
     )
@@ -110,6 +118,7 @@ export function FaturasList({
             value={monthFilter}
             onChange={(event) => setMonthFilter(event.target.value)}
           >
+            <option value="default">Mês atual + não pagas</option>
             <option value="all">Todos os meses</option>
             {availableMonths.map((month) => (
               <option key={month} value={month}>
