@@ -7,6 +7,7 @@ import {
   CHART_COLOR_EXPENSE,
   CHART_COLOR_TEXT_MUTED,
   CHART_COLOR_TEXT_PRIMARY,
+  CHART_COLOR_WARNING,
 } from '../../utils/chartColors'
 import './BudgetComparisonChart.css'
 
@@ -15,7 +16,6 @@ export interface BudgetComparisonItem {
   icon: string | null
   plannedCents: number
   spentCents: number
-  isOverBudget: boolean
 }
 
 interface BudgetComparisonChartProps {
@@ -23,9 +23,18 @@ interface BudgetComparisonChartProps {
   emptyMessage: string
 }
 
+// Mesmos três níveis de OrcamentosList: até 70% verde ("no limite"), 70-100% âmbar
+// ("atenção"), acima de 100% terracota ("excedido").
+function realizadoColor(plannedCents: number, spentCents: number): string {
+  const percentageUsed = plannedCents > 0 ? (spentCents / plannedCents) * 100 : 0
+  if (percentageUsed > 100) return CHART_COLOR_EXPENSE
+  if (percentageUsed >= 70) return CHART_COLOR_WARNING
+  return CHART_COLOR_ACCENT
+}
+
 // Barra dupla horizontal por categoria orçada — mesma orientação de CategoryBarChart, só
 // que com duas séries lado a lado (planejado sempre verde, realizado muda de cor conforme
-// estourou ou não o limite daquela categoria).
+// o percentual usado do limite daquela categoria).
 export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonChartProps) {
   if (data.length === 0) {
     return <p className="budget-comparison-chart__empty">{emptyMessage}</p>
@@ -35,7 +44,7 @@ export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonCh
     name: `${item.icon ?? '📁'} ${item.name}`,
     Planejado: item.plannedCents,
     Realizado: item.spentCents,
-    isOverBudget: item.isOverBudget,
+    realizadoColor: realizadoColor(item.plannedCents, item.spentCents),
   }))
 
   const height = Math.max(160, chartData.length * 70)
@@ -80,10 +89,7 @@ export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonCh
           isAnimationActive={false}
         >
           {chartData.map((entry) => (
-            <Cell
-              key={entry.name}
-              fill={entry.isOverBudget ? CHART_COLOR_EXPENSE : CHART_COLOR_ACCENT}
-            />
+            <Cell key={entry.name} fill={entry.realizadoColor} />
           ))}
         </Bar>
       </BarChart>

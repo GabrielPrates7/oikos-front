@@ -1,8 +1,11 @@
-import { Archive, Edit2, RotateCcw, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { ArrowLeftRight, Receipt } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Button } from '../../components/ui/Button'
+import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
-import { CartaoVisual } from './CartaoVisual'
+import { getBankColor } from '../../utils/bankColors'
+import { centsToBRL } from '../../utils/currency'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 import './CartoesList.css'
 
@@ -22,11 +25,12 @@ const STATUS_FILTERS: { value: CreditCardStatusFilter; label: string }[] = [
   { value: 'all', label: 'Todos' },
 ]
 
-// Uma confirmação por vez (arquivar OU excluir) — nunca as duas juntas na mesma linha.
 interface ConfirmingState {
   id: string
   action: 'archive' | 'delete'
 }
+
+const WARNING_THRESHOLD = 70
 
 export function CartoesList({
   cards,
@@ -38,44 +42,10 @@ export function CartoesList({
   onDelete,
 }: CartoesListProps) {
   const [confirming, setConfirming] = useState<ConfirmingState | null>(null)
-  const rowsRef = useRef<HTMLUListElement>(null)
-
-  // Mesmo padrão de confirmação em dois cliques usado em ContasList: clicar fora cancela
-  // a ação sem chamar a API.
-  useEffect(() => {
-    if (!confirming) return
-
-    function handlePointerDown(event: MouseEvent) {
-      if (!rowsRef.current?.contains(event.target as Node)) {
-        setConfirming(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown)
-    return () => document.removeEventListener('mousedown', handlePointerDown)
-  }, [confirming])
 
   function handleFilterChange(status: CreditCardStatusFilter) {
     setConfirming(null)
     onStatusFilterChange(status)
-  }
-
-  function handleArchiveClick(card: CreditCard) {
-    if (confirming?.id === card.id && confirming.action === 'archive') {
-      setConfirming(null)
-      onArchive(card)
-    } else {
-      setConfirming({ id: card.id, action: 'archive' })
-    }
-  }
-
-  function handleDeleteClick(card: CreditCard) {
-    if (confirming?.id === card.id && confirming.action === 'delete') {
-      setConfirming(null)
-      onDelete(card)
-    } else {
-      setConfirming({ id: card.id, action: 'delete' })
-    }
   }
 
   return (
@@ -126,98 +96,153 @@ export function CartoesList({
               },
             ]}
           />
-          <ul className="cartoes-list__rows" ref={rowsRef}>
-          {cards.map((card) => {
-            const isConfirmingArchive = confirming?.id === card.id && confirming.action === 'archive'
-            const isConfirmingDelete = confirming?.id === card.id && confirming.action === 'delete'
-            return (
-              <li key={card.id} className="cartoes-list__row">
-                <Link
-                  to={`/cartoes/${card.id}`}
-                  className="cartoes-list__link"
-                  aria-label={`Ver detalhes de ${card.name}`}
-                >
-                  <CartaoVisual card={card} />
-                </Link>
-                <div className="cartoes-list__actions">
+          <div className="cartoes-grid">
+            {cards.map((card) => {
+              const isConfirmingArchive =
+                confirming?.id === card.id && confirming.action === 'archive'
+              const isConfirmingDelete = confirming?.id === card.id && confirming.action === 'delete'
+              const { base } = getBankColor(card.name)
+              const initial = card.name.trim().charAt(0).toUpperCase()
+              const usedCents = Math.max(0, card.credit_limit_cents - card.availableLimitCents)
+              const usedPercent =
+                card.credit_limit_cents > 0 ? (usedCents / card.credit_limit_cents) * 100 : 0
+              const isWarning = usedPercent >= WARNING_THRESHOLD
+
+              return (
+                <div key={card.id} className="cartoes-grid__card">
+                  <div className="cartoes-grid__header">
+                    <span
+                      className="cartoes-grid__avatar"
+                      style={{ background: base }}
+                      aria-hidden="true"
+                    >
+                      {initial}
+                    </span>
+                    <div className="cartoes-grid__info">
+                      <span className="cartoes-grid__name">{card.name}</span>
+                      <span className="cartoes-grid__type">{card.brand ?? 'Sem bandeira'}</span>
+                    </div>
+                    <DropdownMenu label={`Mais opções de ${card.name}`}>
+                      {(close) => (
+                        <>
+                          <Link
+                            to={`/faturas?cartao=${card.id}`}
+                            className="dropdown-menu__item"
+                            onClick={close}
+                          >
+                            <Receipt size={14} aria-hidden="true" />
+                            Ver faturas
+                          </Link>
+                          {card.status === 'active' ? (
+                            <button
+                              type="button"
+                              className="dropdown-menu__item"
+                              onClick={() => {
+                                close()
+                                setConfirming({ id: card.id, action: 'archive' })
+                              }}
+                            >
+                              Arquivar
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="dropdown-menu__item"
+                              onClick={() => {
+                                close()
+                                onActivate(card)
+                              }}
+                            >
+                              Reativar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="dropdown-menu__item dropdown-menu__item--danger"
+                            onClick={() => {
+                              close()
+                              setConfirming({ id: card.id, action: 'delete' })
+                            }}
+                          >
+                            Excluir
+                          </button>
+                        </>
+                      )}
+                    </DropdownMenu>
+                  </div>
+
+                  <span className="cartoes-grid__available">
+                    {centsToBRL(card.availableLimitCents)}
+                    <span className="cartoes-grid__available-label">disponível</span>
+                  </span>
+                  <div
+                    className="cartoes-grid__bar-track"
+                    role="progressbar"
+                    aria-valuenow={Math.round(usedPercent)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={`${Math.round(usedPercent)}% do limite usado`}
+                  >
+                    <div
+                      className={`cartoes-grid__bar-fill${isWarning ? ' cartoes-grid__bar-fill--warning' : ''}`}
+                      style={{ width: `${Math.min(100, usedPercent)}%` }}
+                    />
+                  </div>
+                  <span className="cartoes-grid__used">
+                    {centsToBRL(usedCents)} usado de {centsToBRL(card.credit_limit_cents)}
+                  </span>
+
                   {isConfirmingArchive ? (
-                    <>
-                      <button
-                        type="button"
-                        className="cartoes-list__confirm-archive"
-                        onClick={() => handleArchiveClick(card)}
-                      >
-                        Confirmar arquivamento?
-                      </button>
-                      <button
-                        type="button"
-                        className="cartoes-list__cancel-archive"
-                        onClick={() => setConfirming(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
+                    <div className="cartoes-grid__confirm">
+                      <span>Arquivar esse cartão?</span>
+                      <div className="cartoes-grid__confirm-actions">
+                        <Button type="button" variant="secondary" onClick={() => setConfirming(null)}>
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            setConfirming(null)
+                            onArchive(card)
+                          }}
+                        >
+                          Confirmar
+                        </Button>
+                      </div>
+                    </div>
                   ) : isConfirmingDelete ? (
-                    <>
-                      <button
-                        type="button"
-                        className="cartoes-list__confirm-delete"
-                        onClick={() => handleDeleteClick(card)}
-                      >
-                        Excluir de vez?
-                      </button>
-                      <button
-                        type="button"
-                        className="cartoes-list__cancel-archive"
-                        onClick={() => setConfirming(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
+                    <div className="cartoes-grid__confirm">
+                      <span>Excluir esse cartão de vez?</span>
+                      <div className="cartoes-grid__confirm-actions">
+                        <Button type="button" variant="secondary" onClick={() => setConfirming(null)}>
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            setConfirming(null)
+                            onDelete(card)
+                          }}
+                        >
+                          Excluir de vez
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      <button
-                        type="button"
-                        aria-label={`Editar ${card.name}`}
-                        onClick={() => onEdit(card)}
-                      >
-                        <Edit2 size={16} aria-hidden="true" />
-                      </button>
-                      {card.status === 'active' && (
-                        <button
-                          type="button"
-                          aria-label={`Arquivar ${card.name}`}
-                          onClick={() => handleArchiveClick(card)}
-                        >
-                          <Archive size={16} aria-hidden="true" />
-                        </button>
-                      )}
-                      {card.status === 'archived' && (
-                        <button
-                          type="button"
-                          className="cartoes-list__reactivate"
-                          aria-label={`Reativar ${card.name}`}
-                          onClick={() => onActivate(card)}
-                        >
-                          <RotateCcw size={16} aria-hidden="true" />
-                          Reativar
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="cartoes-list__delete"
-                        aria-label={`Excluir ${card.name}`}
-                        onClick={() => handleDeleteClick(card)}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
-                    </>
+                    <div className="cartoes-grid__actions">
+                      <Button type="button" variant="secondary" onClick={() => onEdit(card)}>
+                        Editar
+                      </Button>
+                      <Link to={`/cartoes/${card.id}`} className="cartoes-grid__move-button">
+                        <ArrowLeftRight size={14} aria-hidden="true" />
+                        Movimentar
+                      </Link>
+                    </div>
                   )}
                 </div>
-              </li>
-            )
-          })}
-          </ul>
+              )
+            })}
+          </div>
         </>
       )}
     </div>

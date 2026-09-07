@@ -28,130 +28,127 @@
   outline-offset: 2px;
 }
 
-.contas-list__rows {
-  border-top: 1px solid var(--color-bg-elevated);
+.contas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.contas-list__row {
+.contas-grid__card {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 16px;
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--color-bg-elevated);
+  flex-direction: column;
+  gap: 16px;
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.contas-list__bank-indicator {
+.contas-grid__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.contas-grid__avatar {
   flex: 0 0 auto;
-  width: 5px;
-  height: 32px;
-  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f5f3ee;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
 }
 
-.contas-list__info {
-  flex: 1 1 220px;
+.contas-grid__info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.contas-list__name {
+.contas-grid__name {
   color: var(--color-text-primary);
-  font-weight: 500;
-  font-size: 15px;
-}
-
-.contas-list__meta {
-  color: var(--color-text-muted);
-  font-size: 13px;
-}
-
-.contas-list__balance {
-  flex: 0 0 auto;
-  font-variant-numeric: tabular-nums;
   font-weight: 600;
-  text-align: right;
-  min-width: 120px;
-}
-
-.contas-list__balance--positive {
-  color: var(--color-accent-income);
-}
-
-.contas-list__balance--negative {
-  color: var(--color-accent-expense);
-}
-
-.contas-list__actions {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-}
-
-.contas-list__actions button,
-.contas-list__actions a {
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  display: flex;
-}
-
-.contas-list__actions button:hover,
-.contas-list__actions a:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
-}
-
-.contas-list__actions button:focus-visible,
-.contas-list__actions a:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.contas-list__confirm-archive,
-.contas-list__confirm-delete,
-.contas-list__cancel-archive,
-.contas-list__reactivate {
-  width: auto;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 12px;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.contas-list__confirm-archive,
-.contas-list__confirm-delete {
-  color: var(--color-accent-expense);
-  border: 1px solid var(--color-accent-expense);
-}
-
-/* Cor de perigo já no ícone (não só no hover) — sinaliza que é uma ação irreversível,
-   diferente de Editar/Arquivar que são neutros até o hover. */
-.contas-list__delete {
-  color: var(--color-accent-expense);
-}
-
-.contas-list__delete:hover {
-  background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
-  color: var(--color-accent-expense);
-}
-
-.contas-list__cancel-archive {
+.contas-grid__type {
   color: var(--color-text-muted);
-  border: 1px solid var(--color-bg-elevated);
+  font-size: 12px;
 }
 
-.contas-list__reactivate {
+.contas-grid__balance {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.contas-grid__balance--positive {
+  color: var(--color-accent-income);
+}
+
+.contas-grid__balance--negative {
+  color: var(--color-accent-expense);
+}
+
+.contas-grid__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.contas-grid__actions .ui-button,
+.contas-grid__actions .dropdown-menu {
+  flex: 1;
+}
+
+.contas-grid__move-button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--color-bg-base);
+  color: var(--color-text-primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-body);
+}
+
+.contas-grid__move-button:hover {
+  border-color: var(--color-accent);
+}
+
+.contas-grid__move-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent);
+  justify-content: center;
+  gap: 8px;
+}
+
+.contas-grid__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.contas-grid__confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.contas-grid__confirm-actions .ui-button {
+  flex: 1;
 }
 
 .contas-list__empty {

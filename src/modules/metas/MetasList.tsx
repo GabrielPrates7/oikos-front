@@ -1,4 +1,4 @@
-import { Edit2, Trash2 } from 'lucide-react'
+import { Edit2, Flag, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { centsToBRL } from '../../utils/currency'
@@ -14,13 +14,13 @@ interface MetasListProps {
 
 export function MetasList({ goals, onEdit, onDelete }: MetasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  const rowsRef = useRef<HTMLUListElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!confirmingId) return
 
     function handlePointerDown(event: MouseEvent) {
-      if (!rowsRef.current?.contains(event.target as Node)) {
+      if (!containerRef.current?.contains(event.target as Node)) {
         setConfirmingId(null)
       }
     }
@@ -48,7 +48,7 @@ export function MetasList({ goals, onEdit, onDelete }: MetasListProps) {
   }
 
   return (
-    <ul className="metas-list__rows" ref={rowsRef}>
+    <div className="metas-grid" ref={containerRef}>
       {goals.map((goal) => {
         const isConfirming = confirmingId === goal.id
         const percent =
@@ -57,59 +57,58 @@ export function MetasList({ goals, onEdit, onDelete }: MetasListProps) {
             : 0
 
         return (
-          <li key={goal.id} className="metas-list__row">
-            <div className="metas-list__info">
-              <Link to={`/metas/${goal.id}`} className="metas-list__name">
-                {goal.name}
-              </Link>
-              <div className="metas-list__bar-track">
-                <div className="metas-list__bar-fill" style={{ width: `${percent}%` }} />
+          <div key={goal.id} className="metas-grid__card">
+            <div className="metas-grid__target-date">
+              <Flag size={14} aria-hidden="true" />
+              Até {formatDateBR(goal.target_date)}
+            </div>
+            <Link to={`/metas/${goal.id}`} className="metas-grid__name">
+              {goal.name}
+            </Link>
+            <div className="metas-grid__progress">
+              <div className="metas-grid__bar-track">
+                <div className="metas-grid__bar-fill" style={{ width: `${percent}%` }} />
               </div>
-              <span className="metas-list__meta">
-                {centsToBRL(goal.currentAmountCents)} de {centsToBRL(goal.target_amount_cents)} ·
-                até {formatDateBR(goal.target_date)}
+              <span className="metas-grid__progress-text">
+                {centsToBRL(goal.currentAmountCents)} de {centsToBRL(goal.target_amount_cents)}
+                <span className="metas-grid__percent"> ({percent}%)</span>
               </span>
             </div>
-            <div className="metas-list__actions">
-              {isConfirming ? (
-                <>
-                  <button
-                    type="button"
-                    className="metas-list__confirm-delete"
-                    onClick={() => handleDeleteClick(goal)}
-                  >
-                    Confirmar exclusão?
-                  </button>
-                  <button
-                    type="button"
-                    className="metas-list__cancel-delete"
-                    onClick={() => setConfirmingId(null)}
-                  >
-                    Cancelar
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    aria-label={`Editar ${goal.name}`}
-                    onClick={() => onEdit(goal)}
-                  >
-                    <Edit2 size={16} aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Excluir ${goal.name}`}
-                    onClick={() => handleDeleteClick(goal)}
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                  </button>
-                </>
-              )}
-            </div>
-          </li>
+
+            {isConfirming ? (
+              <div className="metas-grid__confirm">
+                <button
+                  type="button"
+                  className="metas-list__confirm-delete"
+                  onClick={() => handleDeleteClick(goal)}
+                >
+                  Confirmar exclusão?
+                </button>
+                <button
+                  type="button"
+                  className="metas-list__cancel-delete"
+                  onClick={() => setConfirmingId(null)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <div className="metas-grid__actions">
+                <button type="button" aria-label={`Editar ${goal.name}`} onClick={() => onEdit(goal)}>
+                  <Edit2 size={16} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Excluir ${goal.name}`}
+                  onClick={() => handleDeleteClick(goal)}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </div>
         )
       })}
-    </ul>
+    </div>
   )
 }

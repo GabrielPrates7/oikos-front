@@ -1,6 +1,8 @@
-import { Archive, Edit2, Receipt, RotateCcw, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { ArrowLeftRight, Receipt, TrendingDown, TrendingUp } from 'lucide-react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Button } from '../../components/ui/Button'
+import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
@@ -24,7 +26,6 @@ const STATUS_FILTERS: { value: AccountStatusFilter; label: string }[] = [
   { value: 'all', label: 'Todas' },
 ]
 
-// Uma confirmação por vez (arquivar OU excluir) — nunca as duas juntas na mesma linha.
 interface ConfirmingState {
   id: string
   action: 'archive' | 'delete'
@@ -40,43 +41,10 @@ export function ContasList({
   onDelete,
 }: ContasListProps) {
   const [confirming, setConfirming] = useState<ConfirmingState | null>(null)
-  const rowsRef = useRef<HTMLUListElement>(null)
-
-  // Clicar fora da linha em confirmação cancela a ação sem chamar a API.
-  useEffect(() => {
-    if (!confirming) return
-
-    function handlePointerDown(event: MouseEvent) {
-      if (!rowsRef.current?.contains(event.target as Node)) {
-        setConfirming(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown)
-    return () => document.removeEventListener('mousedown', handlePointerDown)
-  }, [confirming])
 
   function handleFilterChange(status: AccountStatusFilter) {
     setConfirming(null)
     onStatusFilterChange(status)
-  }
-
-  function handleArchiveClick(account: Account) {
-    if (confirming?.id === account.id && confirming.action === 'archive') {
-      setConfirming(null)
-      onArchive(account)
-    } else {
-      setConfirming({ id: account.id, action: 'archive' })
-    }
-  }
-
-  function handleDeleteClick(account: Account) {
-    if (confirming?.id === account.id && confirming.action === 'delete') {
-      setConfirming(null)
-      onDelete(account)
-    } else {
-      setConfirming({ id: account.id, action: 'delete' })
-    }
   }
 
   return (
@@ -116,118 +84,182 @@ export function ContasList({
               },
             ]}
           />
-          <ul className="contas-list__rows" ref={rowsRef}>
-          {accounts.map((account) => {
-            const isConfirmingArchive = confirming?.id === account.id && confirming.action === 'archive'
-            const isConfirmingDelete = confirming?.id === account.id && confirming.action === 'delete'
-            return (
-              <li key={account.id} className="contas-list__row">
-                <span
-                  className="contas-list__bank-indicator"
-                  style={{ background: getBankColor(account.bank_name).base }}
-                  aria-hidden="true"
-                />
-                <div className="contas-list__info">
-                  <span className="contas-list__name">{account.name}</span>
-                  <span className="contas-list__meta">
-                    {account.bank_name ? `${account.bank_name} · ` : ''}
-                    {ACCOUNT_TYPE_LABELS[account.type]}
+          <div className="contas-grid">
+            {accounts.map((account) => {
+              const isConfirmingArchive =
+                confirming?.id === account.id && confirming.action === 'archive'
+              const isConfirmingDelete =
+                confirming?.id === account.id && confirming.action === 'delete'
+              const { base } = getBankColor(account.bank_name)
+              const initial = (account.bank_name ?? account.name).trim().charAt(0).toUpperCase()
+
+              return (
+                <div key={account.id} className="contas-grid__card">
+                  <div className="contas-grid__header">
+                    <span
+                      className="contas-grid__avatar"
+                      style={{ background: base }}
+                      aria-hidden="true"
+                    >
+                      {initial}
+                    </span>
+                    <div className="contas-grid__info">
+                      <span className="contas-grid__name">{account.name}</span>
+                      <span className="contas-grid__type">
+                        {account.bank_name ? `${account.bank_name} · ` : ''}
+                        {ACCOUNT_TYPE_LABELS[account.type]}
+                      </span>
+                    </div>
+                    <DropdownMenu label={`Mais opções de ${account.name}`}>
+                      {(close) => (
+                        <>
+                          <Link
+                            to={`/contas/${account.id}/extrato`}
+                            className="dropdown-menu__item"
+                            onClick={close}
+                          >
+                            <Receipt size={14} aria-hidden="true" />
+                            Ver extrato
+                          </Link>
+                          {account.status === 'active' ? (
+                            <button
+                              type="button"
+                              className="dropdown-menu__item"
+                              onClick={() => {
+                                close()
+                                setConfirming({ id: account.id, action: 'archive' })
+                              }}
+                            >
+                              Arquivar
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="dropdown-menu__item"
+                              onClick={() => {
+                                close()
+                                onActivate(account)
+                              }}
+                            >
+                              Reativar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="dropdown-menu__item dropdown-menu__item--danger"
+                            onClick={() => {
+                              close()
+                              setConfirming({ id: account.id, action: 'delete' })
+                            }}
+                          >
+                            Excluir
+                          </button>
+                        </>
+                      )}
+                    </DropdownMenu>
+                  </div>
+
+                  <span
+                    className={`contas-grid__balance ${
+                      account.balanceCents < 0
+                        ? 'contas-grid__balance--negative'
+                        : 'contas-grid__balance--positive'
+                    }`}
+                  >
+                    {centsToBRL(account.balanceCents)}
                   </span>
-                </div>
-                <span
-                  className={`contas-list__balance ${
-                    account.balanceCents < 0
-                      ? 'contas-list__balance--negative'
-                      : 'contas-list__balance--positive'
-                  }`}
-                >
-                  {centsToBRL(account.balanceCents)}
-                </span>
-                <div className="contas-list__actions">
+
                   {isConfirmingArchive ? (
-                    <>
-                      <button
-                        type="button"
-                        className="contas-list__confirm-archive"
-                        onClick={() => handleArchiveClick(account)}
-                      >
-                        Confirmar arquivamento?
-                      </button>
-                      <button
-                        type="button"
-                        className="contas-list__cancel-archive"
-                        onClick={() => setConfirming(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
+                    <div className="contas-grid__confirm">
+                      <span>Arquivar essa conta?</span>
+                      <div className="contas-grid__confirm-actions">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setConfirming(null)}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            setConfirming(null)
+                            onArchive(account)
+                          }}
+                        >
+                          Confirmar
+                        </Button>
+                      </div>
+                    </div>
                   ) : isConfirmingDelete ? (
-                    <>
-                      <button
-                        type="button"
-                        className="contas-list__confirm-delete"
-                        onClick={() => handleDeleteClick(account)}
-                      >
-                        Excluir de vez?
-                      </button>
-                      <button
-                        type="button"
-                        className="contas-list__cancel-archive"
-                        onClick={() => setConfirming(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
+                    <div className="contas-grid__confirm">
+                      <span>Excluir essa conta de vez?</span>
+                      <div className="contas-grid__confirm-actions">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setConfirming(null)}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            setConfirming(null)
+                            onDelete(account)
+                          }}
+                        >
+                          Excluir de vez
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      <Link
-                        to={`/contas/${account.id}/extrato`}
-                        aria-label={`Ver extrato de ${account.name}`}
+                    <div className="contas-grid__actions">
+                      <Button type="button" variant="secondary" onClick={() => onEdit(account)}>
+                        Editar
+                      </Button>
+                      <DropdownMenu
+                        label={`Movimentar ${account.name}`}
+                        trigger={
+                          <span className="contas-grid__move-trigger">
+                            <ArrowLeftRight size={14} aria-hidden="true" />
+                            Movimentar
+                          </span>
+                        }
+                        triggerClassName="contas-grid__move-button"
                       >
-                        <Receipt size={16} aria-hidden="true" />
-                      </Link>
-                      <button
-                        type="button"
-                        aria-label={`Editar ${account.name}`}
-                        onClick={() => onEdit(account)}
-                      >
-                        <Edit2 size={16} aria-hidden="true" />
-                      </button>
-                      {account.status === 'active' && (
-                        <button
-                          type="button"
-                          aria-label={`Arquivar ${account.name}`}
-                          onClick={() => handleArchiveClick(account)}
-                        >
-                          <Archive size={16} aria-hidden="true" />
-                        </button>
-                      )}
-                      {account.status === 'archived' && (
-                        <button
-                          type="button"
-                          className="contas-list__reactivate"
-                          aria-label={`Reativar ${account.name}`}
-                          onClick={() => onActivate(account)}
-                        >
-                          <RotateCcw size={16} aria-hidden="true" />
-                          Reativar
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="contas-list__delete"
-                        aria-label={`Excluir ${account.name}`}
-                        onClick={() => handleDeleteClick(account)}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
-                    </>
+                        {() => (
+                          <>
+                            <Link
+                              to={`/entradas?conta=${account.id}`}
+                              className="dropdown-menu__item"
+                            >
+                              <TrendingUp size={14} aria-hidden="true" />
+                              Nova entrada
+                            </Link>
+                            <Link
+                              to={`/despesas?conta=${account.id}`}
+                              className="dropdown-menu__item"
+                            >
+                              <TrendingDown size={14} aria-hidden="true" />
+                              Nova despesa
+                            </Link>
+                            <Link
+                              to={`/transferencias?conta=${account.id}`}
+                              className="dropdown-menu__item"
+                            >
+                              <ArrowLeftRight size={14} aria-hidden="true" />
+                              Transferência
+                            </Link>
+                          </>
+                        )}
+                      </DropdownMenu>
+                    </div>
                   )}
                 </div>
-              </li>
-            )
-          })}
-          </ul>
+              )
+            })}
+          </div>
         </>
       )}
     </div>

@@ -19,10 +19,40 @@
   min-width: 0;
 }
 
+.orcamentos-list__heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+}
+
 .orcamentos-list__category {
   color: var(--color-text-primary);
   font-weight: 500;
   font-size: 15px;
+}
+
+.orcamentos-list__status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.orcamentos-list__status--ok {
+  color: var(--color-accent-income);
+  border: 1px solid var(--color-accent-income);
+}
+
+.orcamentos-list__status--warning {
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.orcamentos-list__status--over {
+  color: var(--color-accent-expense);
+  border: 1px solid var(--color-accent-expense);
 }
 
 .orcamentos-list__bar-track {
@@ -40,6 +70,10 @@
 }
 
 .orcamentos-list__bar-fill--warning {
+  background: var(--color-warning);
+}
+
+.orcamentos-list__bar-fill--over {
   background: var(--color-accent-expense);
 }
 

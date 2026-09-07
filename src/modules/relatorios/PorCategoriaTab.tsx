@@ -108,7 +108,6 @@ export function PorCategoriaTab() {
       icon: category?.icon ?? null,
       plannedCents: budget.limit_amount_cents,
       spentCents: budget.spentCents,
-      isOverBudget: budget.spentCents > budget.limit_amount_cents,
     }
   })
 

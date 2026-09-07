@@ -2,6 +2,48 @@
   margin-bottom: 20px;
 }
 
+.visao-geral-tab__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.visao-geral-tab__kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.visao-geral-tab__kpi-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.visao-geral-tab__kpi-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.visao-geral-tab__kpi-value--income {
+  color: var(--color-accent-income);
+}
+
+.visao-geral-tab__kpi-value--expense {
+  color: var(--color-accent-expense);
+}
+
+.visao-geral-tab__kpi-sub {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
 /* 2 colunas em telas largas, 1 coluna (empilhado) abaixo de ~560px — 6 gráficos de pizza
    lado a lado numa tela estreita ficariam pequenos demais pra legenda ser legível. */
 .visao-geral-tab__grid {

@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -15,20 +16,31 @@ import type { CreateEntradaFormData } from './entradas.schemas'
 import type { IncomeEntry, IncomeEntryFilters } from './entradas.types'
 import './EntradasPage.css'
 
-type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; entry: IncomeEntry }
+type Mode =
+  | { type: 'list' }
+  | { type: 'create'; defaultAccountId?: string }
+  | { type: 'edit'; entry: IncomeEntry }
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
 export function EntradasPage() {
+  // Atalho "Movimentar" de ContasList/CartoesList chega como /entradas?conta=ID — lido só
+  // uma vez (inicializador preguiçoso do useState) pra abrir direto no formulário de
+  // criação com a conta pré-selecionada, sem precisar de efeito nem depender do parâmetro
+  // continuar na URL depois.
+  const [searchParams] = useSearchParams()
   const [entries, setEntries] = useState<IncomeEntry[]>([])
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filters, setFilters] = useState<IncomeEntryFilters>({})
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<Mode>({ type: 'list' })
+  const [mode, setMode] = useState<Mode>(() => {
+    const conta = searchParams.get('conta')
+    return conta ? { type: 'create', defaultAccountId: conta } : { type: 'list' }
+  })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -142,7 +154,11 @@ export function EntradasPage() {
       <div className="entradas-page">
         <PageHeader title={mode.type === 'create' ? 'Nova entrada' : 'Editar entrada'} />
         <EntradaForm
+          // Mesmo motivo do key em DespesasPage: <select> não-controlado do RHF só aplica
+          // o valor inicial contra as options que já existem no primeiro render.
+          key={activeAccounts.length}
           initialData={mode.type === 'edit' ? mode.entry : undefined}
+          defaultAccountId={mode.type === 'create' ? mode.defaultAccountId : undefined}
           accounts={activeAccounts}
           categories={categories}
           error={formError}

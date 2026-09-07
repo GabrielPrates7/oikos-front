@@ -137,6 +137,15 @@ export function FaturasPage() {
     setMode({ type: 'batch-form' })
   }
 
+  // "Pagar" no menu "..." de um card — reaproveita o fluxo de lote inteiro (mesmo formulário,
+  // mesmo resumo de resultado) selecionando só essa fatura, em vez de duplicar a UI de
+  // pagamento individual que já existe em FaturaDetalhePage.
+  function handleQuickPay(invoiceId: string) {
+    setSelectedInvoiceIds(new Set([invoiceId]))
+    setBatchFormError(null)
+    setMode({ type: 'batch-form' })
+  }
+
   function handleCancelBatchPay() {
     setMode({ type: 'list' })
   }
@@ -245,6 +254,7 @@ export function FaturasPage() {
           onToggleInvoiceSelected={handleToggleInvoiceSelected}
           onToggleSelectAll={handleToggleSelectAll}
           onRequestBatchPay={handleRequestBatchPay}
+          onQuickPay={handleQuickPay}
         />
       )}
     </div>

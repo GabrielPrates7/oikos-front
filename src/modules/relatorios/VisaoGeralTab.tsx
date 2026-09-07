@@ -3,6 +3,7 @@ import { PieChartCard } from '../../components/charts/PieChartCard'
 import type { PieChartSlice } from '../../components/charts/PieChartCard'
 import { FormError } from '../../components/feedback/FormError'
 import { ApiError } from '../../services/api'
+import { centsToBRL } from '../../utils/currency'
 import {
   CHART_COLOR_ACCENT,
   CHART_COLOR_EXPENSE,
@@ -10,6 +11,7 @@ import {
   shadesOf,
 } from '../../utils/chartColors'
 import { currentMonthString } from '../../utils/date'
+import { dashboardService } from '../dashboard/dashboard.service'
 import { MonthSwitcher } from '../dashboard/MonthSwitcher'
 import { relatoriosService } from './relatorios.service'
 import { RECEIPT_METHOD_LABELS } from './relatorios.types'
@@ -43,6 +45,10 @@ function toSlices(
 }
 
 interface VisaoGeralData {
+  totalBalanceCents: number
+  incomeCents: number
+  expenseCents: number
+  netCents: number
   incomeByCategory: ByCategoryResult
   byReceiptMethod: ByReceiptMethodResult
   incomeByAccount: ByAccountResult
@@ -65,6 +71,7 @@ export function VisaoGeralTab() {
       setLoadError(null)
       try {
         const [
+          summary,
           incomeByCategory,
           byReceiptMethod,
           incomeByAccount,
@@ -72,6 +79,7 @@ export function VisaoGeralTab() {
           essentialVsSuperfluous,
           fixedVsNonFixed,
         ] = await Promise.all([
+          dashboardService.getSummary(month),
           relatoriosService.getByCategory(month, 'income'),
           relatoriosService.getByReceiptMethod(month),
           relatoriosService.getByAccount(month, 'income'),
@@ -81,6 +89,10 @@ export function VisaoGeralTab() {
         ])
         if (active) {
           setData({
+            totalBalanceCents: summary.totalBalanceCents,
+            incomeCents: summary.totals.incomeCents,
+            expenseCents: summary.totals.expenseCents,
+            netCents: summary.totals.netCents,
             incomeByCategory,
             byReceiptMethod,
             incomeByAccount,
@@ -114,7 +126,44 @@ export function VisaoGeralTab() {
       </div>
       <FormError message={loadError} />
       {!loading && data && (
-        <div className="visao-geral-tab__grid">
+        <>
+          <div className="visao-geral-tab__kpis">
+            <div className="visao-geral-tab__kpi">
+              <span className="visao-geral-tab__kpi-label">Saldo total</span>
+              <span className="visao-geral-tab__kpi-value">
+                {centsToBRL(data.totalBalanceCents)}
+              </span>
+            </div>
+            <div className="visao-geral-tab__kpi">
+              <span className="visao-geral-tab__kpi-label">Receitas</span>
+              <span className="visao-geral-tab__kpi-value visao-geral-tab__kpi-value--income">
+                {centsToBRL(data.incomeCents)}
+              </span>
+            </div>
+            <div className="visao-geral-tab__kpi">
+              <span className="visao-geral-tab__kpi-label">Despesas</span>
+              <span className="visao-geral-tab__kpi-value visao-geral-tab__kpi-value--expense">
+                {centsToBRL(data.expenseCents)}
+              </span>
+            </div>
+            <div className="visao-geral-tab__kpi">
+              <span className="visao-geral-tab__kpi-label">Disponível</span>
+              <span
+                className={`visao-geral-tab__kpi-value ${
+                  data.netCents >= 0
+                    ? 'visao-geral-tab__kpi-value--income'
+                    : 'visao-geral-tab__kpi-value--expense'
+                }`}
+              >
+                {centsToBRL(data.netCents)}
+              </span>
+              <span className="visao-geral-tab__kpi-sub">
+                {data.incomeCents > 0 ? Math.round((data.netCents / data.incomeCents) * 100) : 0}%
+                da receita
+              </span>
+            </div>
+          </div>
+          <div className="visao-geral-tab__grid">
           <PieChartCard
             title="Fonte de receita"
             emptyMessage="Nenhuma entrada categorizada nesse mês."
@@ -188,7 +237,8 @@ export function VisaoGeralTab() {
               },
             ]}
           />
-        </div>
+          </div>
+        </>
       )}
     </div>
   )

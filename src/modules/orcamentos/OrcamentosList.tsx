@@ -12,9 +12,21 @@ interface OrcamentosListProps {
   onDelete: (budget: Budget) => void
 }
 
-// A partir de 70% de uso a barra fica na cor de despesa — mesmo tom usado quando o
-// orçamento estoura de fato (>100%), só que já como aviso antecipado.
-const WARNING_THRESHOLD = 70
+type BudgetStatus = 'ok' | 'warning' | 'over'
+
+const STATUS_LABELS: Record<BudgetStatus, string> = {
+  ok: 'No limite',
+  warning: 'Atenção',
+  over: 'Excedido',
+}
+
+// Três níveis: até 70% (verde, "No limite"), 70-100% (âmbar, "Atenção" — aviso antecipado
+// antes de estourar de verdade), acima de 100% (terracota, "Excedido" — já estourou).
+function getBudgetStatus(percentageUsed: number): BudgetStatus {
+  if (percentageUsed > 100) return 'over'
+  if (percentageUsed >= 70) return 'warning'
+  return 'ok'
+}
 
 export function OrcamentosList({ budgets, categories, onEdit, onDelete }: OrcamentosListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
@@ -57,18 +69,23 @@ export function OrcamentosList({ budgets, categories, onEdit, onDelete }: Orcame
         const category = categories.find((item) => item.id === budget.category_id)
         const isConfirming = confirmingId === budget.id
         const barPercent = Math.min(100, budget.percentageUsed)
-        const isWarning = budget.percentageUsed >= WARNING_THRESHOLD
+        const status = getBudgetStatus(budget.percentageUsed)
 
         return (
           <li key={budget.id} className="orcamentos-list__row">
             <div className="orcamentos-list__info">
-              <span className="orcamentos-list__category">
-                <span aria-hidden="true">{category?.icon ?? '📁'}</span>{' '}
-                {category?.name ?? 'Categoria removida'}
-              </span>
+              <div className="orcamentos-list__heading">
+                <span className="orcamentos-list__category">
+                  <span aria-hidden="true">{category?.icon ?? '📁'}</span>{' '}
+                  {category?.name ?? 'Categoria removida'}
+                </span>
+                <span className={`orcamentos-list__status orcamentos-list__status--${status}`}>
+                  {STATUS_LABELS[status]}
+                </span>
+              </div>
               <div className="orcamentos-list__bar-track">
                 <div
-                  className={`orcamentos-list__bar-fill${isWarning ? ' orcamentos-list__bar-fill--warning' : ''}`}
+                  className={`orcamentos-list__bar-fill orcamentos-list__bar-fill--${status}`}
                   style={{ width: `${barPercent}%` }}
                 />
               </div>

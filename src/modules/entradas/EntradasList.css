@@ -12,6 +12,10 @@
   gap: 4px;
 }
 
+.entradas-list__filter-field--search {
+  flex: 1 1 200px;
+}
+
 .entradas-list__filter-field label {
   font-size: 12px;
   color: var(--color-text-muted);
@@ -35,6 +39,34 @@
   outline-offset: 2px;
 }
 
+.entradas-list__search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.entradas-list__search-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.entradas-list__search-input input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  cursor: text;
+}
+
+.entradas-list__search-input input:focus-visible {
+  outline: none;
+}
+
 .entradas-list__clear-filters {
   background: transparent;
   border: 1px solid var(--color-bg-elevated);
@@ -55,60 +87,76 @@
   outline-offset: 2px;
 }
 
-.entradas-list__rows {
-  border-top: 1px solid var(--color-bg-elevated);
+/* Tabela pode ficar mais larga que a viewport em mobile (6 colunas) — scroll horizontal
+   confinado a esse wrapper, nunca a página inteira. */
+.entradas-list__table-wrap {
+  overflow-x: auto;
 }
 
-.entradas-list__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 16px;
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--color-bg-elevated);
+.entradas-list__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
 }
 
-.entradas-list__date {
-  flex: 0 0 auto;
+.entradas-list__table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  min-width: 76px;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+  white-space: nowrap;
 }
 
-.entradas-list__info {
-  flex: 1 1 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+.entradas-list__table tbody tr {
+  border-bottom: 1px solid var(--color-bg-elevated);
+  transition: background-color 0.15s ease;
+}
+
+.entradas-list__table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.entradas-list__table td {
+  padding: 12px;
+  vertical-align: middle;
 }
 
 .entradas-list__description {
   color: var(--color-text-primary);
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .entradas-list__meta {
   color: var(--color-text-muted);
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.entradas-list__col-value {
+  text-align: right;
 }
 
 .entradas-list__amount {
-  flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   text-align: right;
-  min-width: 100px;
+  white-space: nowrap;
   color: var(--color-accent-income);
 }
 
+.entradas-list__col-actions {
+  text-align: right;
+}
+
 .entradas-list__actions {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .entradas-list__actions button {
@@ -118,7 +166,7 @@
   cursor: pointer;
   padding: 6px;
   border-radius: 6px;
-  display: flex;
+  display: inline-flex;
 }
 
 .entradas-list__actions button:hover {

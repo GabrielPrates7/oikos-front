@@ -1,68 +1,86 @@
-.metas-list__rows {
-  border-top: 1px solid var(--color-bg-elevated);
+.metas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.metas-list__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--color-bg-elevated);
-}
-
-.metas-list__info {
-  flex: 1 1 260px;
+.metas-grid__card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  gap: 12px;
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.metas-list__name {
+.metas-grid__target-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent-income);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metas-grid__name {
   color: var(--color-text-primary);
-  font-weight: 500;
-  font-size: 15px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
   text-decoration: none;
 }
 
-.metas-list__name:hover {
+.metas-grid__name:hover {
   text-decoration: underline;
 }
 
-.metas-list__name:focus-visible {
+.metas-grid__name:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.metas-list__bar-track {
+.metas-grid__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metas-grid__bar-track {
   height: 6px;
   border-radius: 999px;
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-base);
   overflow: hidden;
 }
 
-.metas-list__bar-fill {
+.metas-grid__bar-fill {
   height: 100%;
   background: var(--color-accent-income);
   border-radius: 999px;
   transition: width 0.2s ease;
 }
 
-.metas-list__meta {
-  color: var(--color-text-muted);
+.metas-grid__progress-text {
+  color: var(--color-text-primary);
   font-size: 13px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-.metas-list__actions {
-  flex: 0 0 auto;
+.metas-grid__percent {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.metas-grid__actions {
   display: flex;
   gap: 4px;
   margin-left: auto;
 }
 
-.metas-list__actions button {
+.metas-grid__actions button {
   background: transparent;
   border: none;
   color: var(--color-text-muted);
@@ -72,14 +90,20 @@
   display: flex;
 }
 
-.metas-list__actions button:hover {
+.metas-grid__actions button:hover {
   color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-base);
 }
 
-.metas-list__actions button:focus-visible {
+.metas-grid__actions button:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+.metas-grid__confirm {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .metas-list__confirm-delete,
@@ -89,6 +113,7 @@
   font-weight: 500;
   padding: 6px 12px;
   white-space: nowrap;
+  border-radius: 6px;
 }
 
 .metas-list__confirm-delete {
@@ -98,7 +123,7 @@
 
 .metas-list__cancel-delete {
   color: var(--color-text-muted);
-  border: 1px solid var(--color-bg-elevated);
+  border: 1px solid var(--color-bg-base);
 }
 
 .metas-list__empty {

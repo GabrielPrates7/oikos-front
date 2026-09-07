@@ -14,6 +14,9 @@ function today(): string {
 }
 
 interface TransferenciaFormProps {
+  // Preenchido só vindo do atalho "Movimentar" de ContasList/CartoesList — a conta de
+  // onde a transferência sai.
+  defaultFromAccountId?: string
   accounts: Account[]
   error?: string | null
   submitting: boolean
@@ -22,6 +25,7 @@ interface TransferenciaFormProps {
 }
 
 export function TransferenciaForm({
+  defaultFromAccountId,
   accounts,
   error,
   submitting,
@@ -36,7 +40,7 @@ export function TransferenciaForm({
   } = useForm<CreateTransferenciaFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      fromAccountId: '',
+      fromAccountId: defaultFromAccountId ?? '',
       toAccountId: '',
       amountCents: 0,
       transferDate: today(),

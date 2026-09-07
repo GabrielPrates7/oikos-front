@@ -7,6 +7,7 @@ const PALETTE = [
   { token: '--color-accent', label: 'Destaque' },
   { token: '--color-accent-income', label: 'Entrada' },
   { token: '--color-accent-expense', label: 'Despesa' },
+  { token: '--color-warning', label: 'Atenção' },
   { token: '--color-text-primary', label: 'Texto' },
   { token: '--color-text-muted', label: 'Texto secundário' },
 ]

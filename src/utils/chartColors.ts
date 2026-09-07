@@ -4,6 +4,7 @@
 export const CHART_COLOR_ACCENT = '#4f8f63'
 export const CHART_COLOR_INCOME = '#6baf82'
 export const CHART_COLOR_EXPENSE = '#b2543a'
+export const CHART_COLOR_WARNING = '#d9a441'
 export const CHART_COLOR_TEXT_MUTED = '#9ca79e'
 export const CHART_COLOR_TEXT_PRIMARY = '#edeae2'
 export const CHART_COLOR_BG_ELEVATED = '#1e2620'

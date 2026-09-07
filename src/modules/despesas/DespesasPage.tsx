@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -15,20 +16,30 @@ import type { CreateDespesaFormData } from './despesas.schemas'
 import type { DespesaListEntry, Expense, ExpenseFilters } from './despesas.types'
 import './DespesasPage.css'
 
-type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; entry: Expense }
+type Mode =
+  | { type: 'list' }
+  | { type: 'create'; defaultAccountId?: string }
+  | { type: 'edit'; entry: Expense }
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
 export function DespesasPage() {
+  // Atalho "Movimentar" de ContasList/CartoesList chega como /despesas?conta=ID — lido só
+  // uma vez (inicializador preguiçoso do useState) pra abrir direto no formulário de
+  // criação com a conta pré-selecionada.
+  const [searchParams] = useSearchParams()
   const [entries, setEntries] = useState<DespesaListEntry[]>([])
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filters, setFilters] = useState<ExpenseFilters>({})
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<Mode>({ type: 'list' })
+  const [mode, setMode] = useState<Mode>(() => {
+    const conta = searchParams.get('conta')
+    return conta ? { type: 'create', defaultAccountId: conta } : { type: 'list' }
+  })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -140,7 +151,14 @@ export function DespesasPage() {
       <div className="despesas-page">
         <PageHeader title={mode.type === 'create' ? 'Nova despesa' : 'Editar despesa'} />
         <DespesaForm
+          // react-hook-form registra o <select> como não-controlado: se a lista de contas
+          // ainda estiver vazia no primeiro render (dado assíncrono), o valor inicial não
+          // encontra a <option> correspondente e não "gruda" depois que ela aparece. A key
+          // muda quando activeAccounts termina de carregar, forçando um remount limpo com
+          // as options já prontas.
+          key={activeAccounts.length}
           initialData={mode.type === 'edit' ? mode.entry : undefined}
+          defaultAccountId={mode.type === 'create' ? mode.defaultAccountId : undefined}
           accounts={activeAccounts}
           categories={categories}
           error={formError}

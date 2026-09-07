@@ -23,6 +23,9 @@ const PAYMENT_METHOD_OPTIONS = (
 
 interface DespesaFormProps {
   initialData?: Expense
+  // Preenchido só na criação, vindo do atalho "Movimentar" de ContasList/CartoesList —
+  // nunca junto com initialData (edição já traz a conta certa em initialData.account_id).
+  defaultAccountId?: string
   accounts: Account[]
   categories: Category[]
   error?: string | null
@@ -33,6 +36,7 @@ interface DespesaFormProps {
 
 export function DespesaForm({
   initialData,
+  defaultAccountId,
   accounts,
   categories,
   error,
@@ -48,7 +52,7 @@ export function DespesaForm({
   } = useForm<CreateDespesaFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      accountId: initialData?.account_id ?? '',
+      accountId: initialData?.account_id ?? defaultAccountId ?? '',
       categoryId: initialData?.category_id ?? '',
       description: initialData?.description ?? '',
       amountCents: initialData?.amount_cents ?? 0,

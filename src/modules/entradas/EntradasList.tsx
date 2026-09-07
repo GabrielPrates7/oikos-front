@@ -1,5 +1,5 @@
-import { Edit2, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Edit2, Search, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
@@ -28,7 +28,10 @@ export function EntradasList({
   onDelete,
 }: EntradasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  const rowsRef = useRef<HTMLUListElement>(null)
+  // Busca client-side — o volume de entradas de um usuário não justifica ida ao servidor
+  // (mesma decisão em DespesasList).
+  const [search, setSearch] = useState('')
+  const rowsRef = useRef<HTMLTableSectionElement>(null)
 
   useEffect(() => {
     if (!confirmingId) return
@@ -61,9 +64,28 @@ export function EntradasList({
   const categoriesById = new Map(categories.map((category) => [category.id, category]))
   const hasFilters = !!(filters.accountId || filters.categoryId || filters.from || filters.to)
 
+  const visibleEntries = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return entries
+    return entries.filter((entry) => entry.description.toLowerCase().includes(query))
+  }, [entries, search])
+
   return (
     <div className="entradas-list">
       <div className="entradas-list__filters">
+        <div className="entradas-list__filter-field entradas-list__filter-field--search">
+          <label htmlFor="filter-search">Buscar</label>
+          <div className="entradas-list__search-input">
+            <Search size={14} aria-hidden="true" />
+            <input
+              id="filter-search"
+              type="text"
+              placeholder="Buscar por descrição..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+        </div>
         <div className="entradas-list__filter-field">
           <label htmlFor="filter-account">Conta</label>
           <select
@@ -125,9 +147,9 @@ export function EntradasList({
         )}
       </div>
 
-      {entries.length === 0 ? (
+      {visibleEntries.length === 0 ? (
         <div className="entradas-list__empty">
-          {hasFilters ? (
+          {hasFilters || search ? (
             <p>Nenhuma entrada encontrada com esses filtros.</p>
           ) : (
             <>
@@ -142,68 +164,79 @@ export function EntradasList({
             items={[
               {
                 label: 'Total exibido',
-                valueCents: entries.reduce((sum, entry) => sum + entry.amount_cents, 0),
+                valueCents: visibleEntries.reduce((sum, entry) => sum + entry.amount_cents, 0),
               },
             ]}
           />
-          <ul className="entradas-list__rows" ref={rowsRef}>
-          {entries.map((entry) => {
-            const account = accountsById.get(entry.account_id)
-            const category = categoriesById.get(entry.category_id)
-            const isConfirming = confirmingId === entry.id
-            return (
-              <li key={entry.id} className="entradas-list__row">
-                <span className="entradas-list__date">{formatDateBR(entry.entry_date)}</span>
-                <div className="entradas-list__info">
-                  <span className="entradas-list__description">{entry.description}</span>
-                  <span className="entradas-list__meta">
-                    {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
-                    {' · '}
-                    {account?.name ?? 'Conta removida'}
-                  </span>
-                </div>
-                <span className="entradas-list__amount">{centsToBRL(entry.amount_cents)}</span>
-                <div className="entradas-list__actions">
-                  {isConfirming ? (
-                    <>
-                      <button
-                        type="button"
-                        className="entradas-list__confirm-delete"
-                        onClick={() => handleDeleteClick(entry)}
-                      >
-                        Confirmar exclusão?
-                      </button>
-                      <button
-                        type="button"
-                        className="entradas-list__cancel-delete"
-                        onClick={() => setConfirmingId(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        aria-label={`Editar ${entry.description}`}
-                        onClick={() => onEdit(entry)}
-                      >
-                        <Edit2 size={16} aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Excluir ${entry.description}`}
-                        onClick={() => handleDeleteClick(entry)}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-          </ul>
+          <div className="entradas-list__table-wrap">
+            <table className="entradas-list__table">
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Data</th>
+                  <th>Conta</th>
+                  <th className="entradas-list__col-value">Valor</th>
+                  <th className="entradas-list__col-actions">Ações</th>
+                </tr>
+              </thead>
+              <tbody ref={rowsRef}>
+                {visibleEntries.map((entry) => {
+                  const account = accountsById.get(entry.account_id)
+                  const category = categoriesById.get(entry.category_id)
+                  const isConfirming = confirmingId === entry.id
+                  return (
+                    <tr key={entry.id}>
+                      <td className="entradas-list__description">{entry.description}</td>
+                      <td className="entradas-list__meta">
+                        {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
+                      </td>
+                      <td className="entradas-list__meta">{formatDateBR(entry.entry_date)}</td>
+                      <td className="entradas-list__meta">{account?.name ?? 'Conta removida'}</td>
+                      <td className="entradas-list__amount">{centsToBRL(entry.amount_cents)}</td>
+                      <td className="entradas-list__actions">
+                        {isConfirming ? (
+                          <>
+                            <button
+                              type="button"
+                              className="entradas-list__confirm-delete"
+                              onClick={() => handleDeleteClick(entry)}
+                            >
+                              Confirmar exclusão?
+                            </button>
+                            <button
+                              type="button"
+                              className="entradas-list__cancel-delete"
+                              onClick={() => setConfirmingId(null)}
+                            >
+                              Cancelar
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              aria-label={`Editar ${entry.description}`}
+                              onClick={() => onEdit(entry)}
+                            >
+                              <Edit2 size={16} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Excluir ${entry.description}`}
+                              onClick={() => handleDeleteClick(entry)}
+                            >
+                              <Trash2 size={16} aria-hidden="true" />
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

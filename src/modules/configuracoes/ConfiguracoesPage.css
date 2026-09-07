@@ -1,5 +1,5 @@
 .configuracoes-page {
-  max-width: 480px;
+  max-width: 640px;
 }
 
 .configuracoes-page__title {
@@ -7,9 +7,71 @@
   font-size: 24px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.configuracoes-page__layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.configuracoes-page__tabs {
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.configuracoes-page__tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.configuracoes-page__tab:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-text-primary);
+}
+
+.configuracoes-page__tab--active {
+  color: var(--color-text-primary);
+}
+
+/* Indicador de bolinha em vez de sublinhado — só preenche quando a aba está ativa. */
+.configuracoes-page__tab-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--color-text-muted);
+}
+
+.configuracoes-page__tab--active .configuracoes-page__tab-dot {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .configuracoes-page__content {
-  margin-top: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .configuracoes-page__layout {
+    flex-direction: column;
+  }
+
+  .configuracoes-page__tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+  }
 }

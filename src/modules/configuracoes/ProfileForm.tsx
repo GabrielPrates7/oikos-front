@@ -9,6 +9,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { ApiError } from '../../services/api'
 import { configuracoesService } from './configuracoes.service'
 import { profileSchema, type ProfileFormData } from './configuracoes.schemas'
+import './ProfileForm.css'
 
 export function ProfileForm() {
   const { user, updateUser } = useAuth()
@@ -18,6 +19,7 @@ export function ProfileForm() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -36,15 +38,30 @@ export function ProfileForm() {
     }
   }
 
+  function handleCancel() {
+    setFormError(null)
+    setSuccessMessage(null)
+    reset({ name: user?.name, email: user?.email })
+  }
+
   return (
-    <form onSubmit={(event) => void handleSubmit(onSubmit)(event)} noValidate>
-      <Input label="Nome" type="text" error={errors.name?.message} {...register('name')} />
-      <Input label="E-mail" type="email" error={errors.email?.message} {...register('email')} />
-      <FormError message={formError} />
-      <SuccessMessage message={successMessage} />
-      <Button type="submit" loading={isSubmitting}>
-        Salvar alterações
-      </Button>
-    </form>
+    <div className="profile-form">
+      <form onSubmit={(event) => void handleSubmit(onSubmit)(event)} noValidate>
+        <div className="profile-form__row">
+          <Input label="Nome" type="text" error={errors.name?.message} {...register('name')} />
+          <Input label="E-mail" type="email" error={errors.email?.message} {...register('email')} />
+        </div>
+        <FormError message={formError} />
+        <SuccessMessage message={successMessage} />
+        <div className="profile-form__actions">
+          <Button type="button" variant="secondary" onClick={handleCancel} disabled={isSubmitting}>
+            Cancelar
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
+            Salvar alterações
+          </Button>
+        </div>
+      </form>
+    </div>
   )
 }

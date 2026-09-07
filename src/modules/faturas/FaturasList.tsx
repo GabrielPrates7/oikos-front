@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
+import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
-import { formatReferenceMonth } from '../../utils/date'
+import { formatDateBR, formatReferenceMonth } from '../../utils/date'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { InvoiceStatusBadge } from './InvoiceStatusBadge'
 import type { InvoiceListItem } from './faturas.types'
@@ -17,6 +18,7 @@ interface FaturasListProps {
   onToggleInvoiceSelected: (invoiceId: string) => void
   onToggleSelectAll: () => void
   onRequestBatchPay: () => void
+  onQuickPay: (invoiceId: string) => void
 }
 
 export function FaturasList({
@@ -28,6 +30,7 @@ export function FaturasList({
   onToggleInvoiceSelected,
   onToggleSelectAll,
   onRequestBatchPay,
+  onQuickPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
   // Só faturas ainda não pagas entram no lote — pagar de novo não faz sentido.
@@ -95,39 +98,69 @@ export function FaturasList({
               )}
             </div>
           )}
-          <ul className="faturas-list__rows">
+          <div className="faturas-grid">
             {invoices.map((invoice) => {
               const card = cardsById.get(invoice.credit_card_id)
               const isPayable = invoice.displayStatus !== 'paid'
               return (
-                <li key={invoice.id} className="faturas-list__row">
+                <div key={invoice.id} className="faturas-grid__card">
                   {isPayable ? (
                     <input
                       type="checkbox"
-                      className="faturas-list__checkbox"
+                      className="faturas-grid__checkbox"
                       checked={selectedInvoiceIds.has(invoice.id)}
                       onChange={() => onToggleInvoiceSelected(invoice.id)}
                       aria-label={`Selecionar fatura ${card?.name ?? 'cartão removido'} de ${formatReferenceMonth(invoice.reference_month)}`}
                     />
                   ) : (
-                    <span className="faturas-list__checkbox-spacer" aria-hidden="true" />
+                    <span className="faturas-grid__checkbox-spacer" aria-hidden="true" />
                   )}
-                  <Link to={`/faturas/${invoice.id}`} className="faturas-list__link">
-                    <div className="faturas-list__info">
-                      <span className="faturas-list__card-name">
+                  <Link to={`/faturas/${invoice.id}`} className="faturas-grid__body">
+                    <div className="faturas-grid__header">
+                      <span className="faturas-grid__card-name">
                         {card?.name ?? 'Cartão removido'}
                       </span>
-                      <span className="faturas-list__reference">
+                      <span className="faturas-grid__reference">
                         {formatReferenceMonth(invoice.reference_month)}
                       </span>
                     </div>
-                    <InvoiceStatusBadge status={invoice.displayStatus} />
-                    <span className="faturas-list__total">{centsToBRL(invoice.totalCents)}</span>
+                    <span className="faturas-grid__total">{centsToBRL(invoice.totalCents)}</span>
+                    <div className="faturas-grid__meta">
+                      <InvoiceStatusBadge status={invoice.displayStatus} />
+                      <span className="faturas-grid__due">
+                        Vence {formatDateBR(invoice.due_date)}
+                      </span>
+                    </div>
                   </Link>
-                </li>
+                  <DropdownMenu label={`Mais opções da fatura de ${formatReferenceMonth(invoice.reference_month)}`}>
+                    {(close) => (
+                      <>
+                        <Link
+                          to={`/faturas/${invoice.id}`}
+                          className="dropdown-menu__item"
+                          onClick={close}
+                        >
+                          Ver detalhe
+                        </Link>
+                        {isPayable && (
+                          <button
+                            type="button"
+                            className="dropdown-menu__item"
+                            onClick={() => {
+                              close()
+                              onQuickPay(invoice.id)
+                            }}
+                          >
+                            Pagar
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </DropdownMenu>
+                </div>
               )
             })}
-          </ul>
+          </div>
         </>
       )}
     </div>

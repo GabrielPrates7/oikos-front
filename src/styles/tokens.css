@@ -5,8 +5,10 @@
   --color-accent: #4f8f63;
   --color-accent-income: #6baf82;
   --color-accent-expense: #b2543a;
+  --color-warning: #d9a441;
   --color-text-primary: #edeae2;
   --color-text-muted: #9ca79e;
   --font-display: 'Fraunces', serif;
   --font-body: 'IBM Plex Sans', sans-serif;
+  --sidebar-width: 240px;
 }

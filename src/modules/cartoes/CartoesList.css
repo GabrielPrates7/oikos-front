@@ -28,101 +28,154 @@
   outline-offset: 2px;
 }
 
-.cartoes-list__rows {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.cartoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.cartoes-list__row {
+.cartoes-grid__card {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cartoes-grid__header {
+  display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-bg-elevated);
 }
 
-.cartoes-list__row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.cartoes-list__link {
-  display: block;
-  text-decoration: none;
-  border-radius: 16px;
-}
-
-.cartoes-list__link:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.cartoes-list__actions {
+.cartoes-grid__avatar {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  color: #f5f3ee;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
 }
 
-.cartoes-list__actions button {
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+.cartoes-grid__info {
+  flex: 1;
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.cartoes-list__actions button:hover {
+.cartoes-grid__name {
   color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
-}
-
-.cartoes-list__actions button:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.cartoes-list__confirm-archive,
-.cartoes-list__confirm-delete,
-.cartoes-list__cancel-archive,
-.cartoes-list__reactivate {
-  width: auto;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.cartoes-list__confirm-archive,
-.cartoes-list__confirm-delete {
-  color: var(--color-accent-expense);
-  border: 1px solid var(--color-accent-expense);
-}
-
-/* Cor de perigo já no ícone (não só no hover) — sinaliza que é uma ação irreversível,
-   diferente de Editar/Arquivar que são neutros até o hover. */
-.cartoes-list__delete {
-  color: var(--color-accent-expense);
-}
-
-.cartoes-list__delete:hover {
-  background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
-  color: var(--color-accent-expense);
-}
-
-.cartoes-list__cancel-archive {
+.cartoes-grid__type {
   color: var(--color-text-muted);
-  border: 1px solid var(--color-bg-elevated);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.cartoes-list__reactivate {
+.cartoes-grid__available {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.cartoes-grid__available-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.cartoes-grid__bar-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-bg-base);
+  overflow: hidden;
+}
+
+.cartoes-grid__bar-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 999px;
+}
+
+.cartoes-grid__bar-fill--warning {
+  background: var(--color-accent-expense);
+}
+
+.cartoes-grid__used {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cartoes-grid__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cartoes-grid__actions .ui-button {
+  flex: 1;
+}
+
+.cartoes-grid__move-button {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent);
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--color-bg-base);
+  color: var(--color-text-primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  text-decoration: none;
+}
+
+.cartoes-grid__move-button:hover {
+  border-color: var(--color-accent);
+}
+
+.cartoes-grid__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin-top: 4px;
+}
+
+.cartoes-grid__confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cartoes-grid__confirm-actions .ui-button {
+  flex: 1;
 }
 
 .cartoes-list__empty {

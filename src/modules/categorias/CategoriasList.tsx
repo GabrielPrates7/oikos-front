@@ -14,6 +14,10 @@ const SECTIONS: { type: CategoryType; title: string }[] = [
   { type: 'income', title: 'Entradas' },
 ]
 
+function usageLabel(count: number): string {
+  return count === 1 ? '1 movimentação' : `${count} movimentações`
+}
+
 export function CategoriasList({ categories, onEdit, onDelete }: CategoriasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -60,7 +64,12 @@ export function CategoriasList({ categories, onEdit, onDelete }: CategoriasListP
                     <span className="categorias-list__icon" aria-hidden="true">
                       {category.icon ?? '📁'}
                     </span>
-                    <span className="categorias-list__name">{category.name}</span>
+                    <div className="categorias-list__info">
+                      <span className="categorias-list__name">{category.name}</span>
+                      <span className="categorias-list__usage">
+                        {usageLabel(category.usageCount)}
+                      </span>
+                    </div>
                     {isOwn && (
                       <div className="categorias-list__actions">
                         {isConfirming ? (

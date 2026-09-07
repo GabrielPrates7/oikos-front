@@ -7,6 +7,14 @@
   border-bottom: 1px solid var(--color-bg-elevated);
 }
 
+/* No desktop o Sidebar já cobre navegação (hambúrguer não existe) e nome+sair (rodapé do
+   Sidebar) — a barra inteira ficaria vazia, então some, devolvendo a altura pro conteúdo. */
+@media (min-width: 768px) {
+  .header {
+    display: none;
+  }
+}
+
 .header__menu-toggle {
   display: flex;
   align-items: center;

@@ -1,5 +1,18 @@
+.categorias-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .categorias-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .categorias-list__section {
-  margin-bottom: 32px;
+  min-width: 0;
 }
 
 .categorias-list__title {
@@ -29,11 +42,25 @@
   flex: 0 0 auto;
 }
 
-.categorias-list__name {
+.categorias-list__info {
   flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.categorias-list__name {
   color: var(--color-text-primary);
   font-size: 15px;
-  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categorias-list__usage {
+  color: var(--color-text-muted);
+  font-size: 12px;
 }
 
 .categorias-list__actions {
