@@ -50,6 +50,10 @@ export const cartoesService = {
     await apiFetch(`/credit-cards/${id}`, { method: 'DELETE' })
   },
 
+  async deletePermanently(id: string): Promise<void> {
+    await apiFetch(`/credit-cards/${id}/permanent`, { method: 'DELETE' })
+  },
+
   async activate(id: string): Promise<void> {
     await apiFetch(`/credit-cards/${id}/activate`, { method: 'POST' })
   },

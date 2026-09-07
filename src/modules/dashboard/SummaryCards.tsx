@@ -4,10 +4,15 @@ import './SummaryCards.css'
 
 interface SummaryCardsProps {
   totalBalanceCents: number
+  totalPendingInvoicesCents: number
   totals: DashboardTotals
 }
 
-export function SummaryCards({ totalBalanceCents, totals }: SummaryCardsProps) {
+export function SummaryCards({
+  totalBalanceCents,
+  totalPendingInvoicesCents,
+  totals,
+}: SummaryCardsProps) {
   return (
     <div className="summary-cards">
       <div className="summary-cards__balance">
@@ -37,6 +42,14 @@ export function SummaryCards({ totalBalanceCents, totals }: SummaryCardsProps) {
             }`}
           >
             {centsToBRL(totals.netCents)}
+          </span>
+        </div>
+        <div className="summary-cards__stat">
+          <span className="summary-cards__stat-label">A pagar</span>
+          {/* Obrigação futura (faturas ainda não pagas), não uma perda já realizada — por
+              isso um terracota mais discreto que o de Despesas, não o mesmo peso visual. */}
+          <span className="summary-cards__stat-value summary-cards__stat-value--pending">
+            {centsToBRL(totalPendingInvoicesCents)}
           </span>
         </div>
       </div>

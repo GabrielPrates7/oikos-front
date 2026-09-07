@@ -104,6 +104,17 @@ export function CartoesPage() {
     }
   }
 
+  async function handleDelete(card: CreditCard) {
+    setLoadError(null)
+    try {
+      await cartoesService.deletePermanently(card.id)
+      // Remove localmente em vez de recarregar — o cartão já não existe mais no servidor.
+      setCards((current) => current.filter((item) => item.id !== card.id))
+    } catch (error) {
+      setLoadError(errorMessage(error, 'Não foi possível excluir o cartão.'))
+    }
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
@@ -146,6 +157,7 @@ export function CartoesPage() {
           onEdit={(card) => setMode({ type: 'edit', card })}
           onArchive={handleArchive}
           onActivate={handleActivate}
+          onDelete={handleDelete}
         />
       )}
     </div>

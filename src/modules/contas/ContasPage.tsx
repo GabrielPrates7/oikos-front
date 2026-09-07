@@ -107,6 +107,18 @@ export function ContasPage() {
     }
   }
 
+  async function handleDelete(account: Account) {
+    setLoadError(null)
+    try {
+      await contasService.deletePermanently(account.id)
+      // Remove localmente em vez de recarregar — a conta já não existe mais no servidor,
+      // não há por que fazer round-trip só pra confirmar isso.
+      setAccounts((current) => current.filter((item) => item.id !== account.id))
+    } catch (error) {
+      setLoadError(errorMessage(error, 'Não foi possível excluir a conta.'))
+    }
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
@@ -149,6 +161,7 @@ export function ContasPage() {
           onEdit={(account) => setMode({ type: 'edit', account })}
           onArchive={handleArchive}
           onActivate={handleActivate}
+          onDelete={handleDelete}
         />
       )}
     </div>

@@ -41,6 +41,10 @@ export const contasService = {
     await apiFetch(`/accounts/${id}`, { method: 'DELETE' })
   },
 
+  async deletePermanently(id: string): Promise<void> {
+    await apiFetch(`/accounts/${id}/permanent`, { method: 'DELETE' })
+  },
+
   async activate(id: string): Promise<void> {
     await apiFetch(`/accounts/${id}/activate`, { method: 'POST' })
   },

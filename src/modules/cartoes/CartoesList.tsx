@@ -1,4 +1,4 @@
-import { Archive, Edit2, RotateCcw } from 'lucide-react'
+import { Archive, Edit2, RotateCcw, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ListTotal } from '../../components/ui/ListTotal'
@@ -13,6 +13,7 @@ interface CartoesListProps {
   onEdit: (card: CreditCard) => void
   onArchive: (card: CreditCard) => void
   onActivate: (card: CreditCard) => void
+  onDelete: (card: CreditCard) => void
 }
 
 const STATUS_FILTERS: { value: CreditCardStatusFilter; label: string }[] = [
@@ -21,6 +22,12 @@ const STATUS_FILTERS: { value: CreditCardStatusFilter; label: string }[] = [
   { value: 'all', label: 'Todos' },
 ]
 
+// Uma confirmação por vez (arquivar OU excluir) — nunca as duas juntas na mesma linha.
+interface ConfirmingState {
+  id: string
+  action: 'archive' | 'delete'
+}
+
 export function CartoesList({
   cards,
   statusFilter,
@@ -28,36 +35,46 @@ export function CartoesList({
   onEdit,
   onArchive,
   onActivate,
+  onDelete,
 }: CartoesListProps) {
-  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState<ConfirmingState | null>(null)
   const rowsRef = useRef<HTMLUListElement>(null)
 
   // Mesmo padrão de confirmação em dois cliques usado em ContasList: clicar fora cancela
-  // o arquivamento sem chamar a API.
+  // a ação sem chamar a API.
   useEffect(() => {
-    if (!confirmingId) return
+    if (!confirming) return
 
     function handlePointerDown(event: MouseEvent) {
       if (!rowsRef.current?.contains(event.target as Node)) {
-        setConfirmingId(null)
+        setConfirming(null)
       }
     }
 
     document.addEventListener('mousedown', handlePointerDown)
     return () => document.removeEventListener('mousedown', handlePointerDown)
-  }, [confirmingId])
+  }, [confirming])
 
   function handleFilterChange(status: CreditCardStatusFilter) {
-    setConfirmingId(null)
+    setConfirming(null)
     onStatusFilterChange(status)
   }
 
   function handleArchiveClick(card: CreditCard) {
-    if (confirmingId === card.id) {
-      setConfirmingId(null)
+    if (confirming?.id === card.id && confirming.action === 'archive') {
+      setConfirming(null)
       onArchive(card)
     } else {
-      setConfirmingId(card.id)
+      setConfirming({ id: card.id, action: 'archive' })
+    }
+  }
+
+  function handleDeleteClick(card: CreditCard) {
+    if (confirming?.id === card.id && confirming.action === 'delete') {
+      setConfirming(null)
+      onDelete(card)
+    } else {
+      setConfirming({ id: card.id, action: 'delete' })
     }
   }
 
@@ -111,7 +128,8 @@ export function CartoesList({
           />
           <ul className="cartoes-list__rows" ref={rowsRef}>
           {cards.map((card) => {
-            const isConfirming = confirmingId === card.id
+            const isConfirmingArchive = confirming?.id === card.id && confirming.action === 'archive'
+            const isConfirmingDelete = confirming?.id === card.id && confirming.action === 'delete'
             return (
               <li key={card.id} className="cartoes-list__row">
                 <Link
@@ -122,7 +140,7 @@ export function CartoesList({
                   <CartaoVisual card={card} />
                 </Link>
                 <div className="cartoes-list__actions">
-                  {isConfirming ? (
+                  {isConfirmingArchive ? (
                     <>
                       <button
                         type="button"
@@ -134,7 +152,24 @@ export function CartoesList({
                       <button
                         type="button"
                         className="cartoes-list__cancel-archive"
-                        onClick={() => setConfirmingId(null)}
+                        onClick={() => setConfirming(null)}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : isConfirmingDelete ? (
+                    <>
+                      <button
+                        type="button"
+                        className="cartoes-list__confirm-delete"
+                        onClick={() => handleDeleteClick(card)}
+                      >
+                        Excluir de vez?
+                      </button>
+                      <button
+                        type="button"
+                        className="cartoes-list__cancel-archive"
+                        onClick={() => setConfirming(null)}
                       >
                         Cancelar
                       </button>
@@ -168,6 +203,14 @@ export function CartoesList({
                           Reativar
                         </button>
                       )}
+                      <button
+                        type="button"
+                        className="cartoes-list__delete"
+                        aria-label={`Excluir ${card.name}`}
+                        onClick={() => handleDeleteClick(card)}
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
                     </>
                   )}
                 </div>

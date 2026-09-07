@@ -114,6 +114,7 @@
 }
 
 .contas-list__confirm-archive,
+.contas-list__confirm-delete,
 .contas-list__cancel-archive,
 .contas-list__reactivate {
   width: auto;
@@ -123,9 +124,21 @@
   white-space: nowrap;
 }
 
-.contas-list__confirm-archive {
+.contas-list__confirm-archive,
+.contas-list__confirm-delete {
   color: var(--color-accent-expense);
   border: 1px solid var(--color-accent-expense);
+}
+
+/* Cor de perigo já no ícone (não só no hover) — sinaliza que é uma ação irreversível,
+   diferente de Editar/Arquivar que são neutros até o hover. */
+.contas-list__delete {
+  color: var(--color-accent-expense);
+}
+
+.contas-list__delete:hover {
+  background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
+  color: var(--color-accent-expense);
 }
 
 .contas-list__cancel-archive {

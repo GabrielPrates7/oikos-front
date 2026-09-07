@@ -58,7 +58,11 @@ export function DashboardPage() {
       {!loading && summary && (
         <div className="dashboard-page__panels">
           <div className="dashboard-panel">
-            <SummaryCards totalBalanceCents={summary.totalBalanceCents} totals={summary.totals} />
+            <SummaryCards
+              totalBalanceCents={summary.totalBalanceCents}
+              totalPendingInvoicesCents={summary.totalPendingInvoicesCents}
+              totals={summary.totals}
+            />
           </div>
           <div className="dashboard-page__grid">
             <div className="dashboard-panel">

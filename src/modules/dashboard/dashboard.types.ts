@@ -40,6 +40,7 @@ export interface DashboardSummary {
   month: string
   totals: DashboardTotals
   totalBalanceCents: number
+  totalPendingInvoicesCents: number
   accounts: DashboardAccountSummary[]
   creditCards: DashboardCreditCardSummary[]
   expensesByCategory: DashboardCategoryExpense[]

@@ -1,4 +1,4 @@
-import { Archive, Edit2, Receipt, RotateCcw } from 'lucide-react'
+import { Archive, Edit2, Receipt, RotateCcw, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ListTotal } from '../../components/ui/ListTotal'
@@ -15,6 +15,7 @@ interface ContasListProps {
   onEdit: (account: Account) => void
   onArchive: (account: Account) => void
   onActivate: (account: Account) => void
+  onDelete: (account: Account) => void
 }
 
 const STATUS_FILTERS: { value: AccountStatusFilter; label: string }[] = [
@@ -23,6 +24,12 @@ const STATUS_FILTERS: { value: AccountStatusFilter; label: string }[] = [
   { value: 'all', label: 'Todas' },
 ]
 
+// Uma confirmação por vez (arquivar OU excluir) — nunca as duas juntas na mesma linha.
+interface ConfirmingState {
+  id: string
+  action: 'archive' | 'delete'
+}
+
 export function ContasList({
   accounts,
   statusFilter,
@@ -30,35 +37,45 @@ export function ContasList({
   onEdit,
   onArchive,
   onActivate,
+  onDelete,
 }: ContasListProps) {
-  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState<ConfirmingState | null>(null)
   const rowsRef = useRef<HTMLUListElement>(null)
 
-  // Clicar fora da linha em confirmação cancela o arquivamento sem chamar a API.
+  // Clicar fora da linha em confirmação cancela a ação sem chamar a API.
   useEffect(() => {
-    if (!confirmingId) return
+    if (!confirming) return
 
     function handlePointerDown(event: MouseEvent) {
       if (!rowsRef.current?.contains(event.target as Node)) {
-        setConfirmingId(null)
+        setConfirming(null)
       }
     }
 
     document.addEventListener('mousedown', handlePointerDown)
     return () => document.removeEventListener('mousedown', handlePointerDown)
-  }, [confirmingId])
+  }, [confirming])
 
   function handleFilterChange(status: AccountStatusFilter) {
-    setConfirmingId(null)
+    setConfirming(null)
     onStatusFilterChange(status)
   }
 
   function handleArchiveClick(account: Account) {
-    if (confirmingId === account.id) {
-      setConfirmingId(null)
+    if (confirming?.id === account.id && confirming.action === 'archive') {
+      setConfirming(null)
       onArchive(account)
     } else {
-      setConfirmingId(account.id)
+      setConfirming({ id: account.id, action: 'archive' })
+    }
+  }
+
+  function handleDeleteClick(account: Account) {
+    if (confirming?.id === account.id && confirming.action === 'delete') {
+      setConfirming(null)
+      onDelete(account)
+    } else {
+      setConfirming({ id: account.id, action: 'delete' })
     }
   }
 
@@ -101,7 +118,8 @@ export function ContasList({
           />
           <ul className="contas-list__rows" ref={rowsRef}>
           {accounts.map((account) => {
-            const isConfirming = confirmingId === account.id
+            const isConfirmingArchive = confirming?.id === account.id && confirming.action === 'archive'
+            const isConfirmingDelete = confirming?.id === account.id && confirming.action === 'delete'
             return (
               <li key={account.id} className="contas-list__row">
                 <span
@@ -126,7 +144,7 @@ export function ContasList({
                   {centsToBRL(account.balanceCents)}
                 </span>
                 <div className="contas-list__actions">
-                  {isConfirming ? (
+                  {isConfirmingArchive ? (
                     <>
                       <button
                         type="button"
@@ -138,7 +156,24 @@ export function ContasList({
                       <button
                         type="button"
                         className="contas-list__cancel-archive"
-                        onClick={() => setConfirmingId(null)}
+                        onClick={() => setConfirming(null)}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : isConfirmingDelete ? (
+                    <>
+                      <button
+                        type="button"
+                        className="contas-list__confirm-delete"
+                        onClick={() => handleDeleteClick(account)}
+                      >
+                        Excluir de vez?
+                      </button>
+                      <button
+                        type="button"
+                        className="contas-list__cancel-archive"
+                        onClick={() => setConfirming(null)}
                       >
                         Cancelar
                       </button>
@@ -178,6 +213,14 @@ export function ContasList({
                           Reativar
                         </button>
                       )}
+                      <button
+                        type="button"
+                        className="contas-list__delete"
+                        aria-label={`Excluir ${account.name}`}
+                        onClick={() => handleDeleteClick(account)}
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
                     </>
                   )}
                 </div>

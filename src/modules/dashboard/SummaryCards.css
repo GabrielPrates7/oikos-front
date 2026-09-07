@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 0 24px;
+  padding: 0 16px;
   border-left: 1px solid var(--color-bg-elevated);
   white-space: nowrap;
 }
@@ -64,17 +64,22 @@
   color: var(--color-text-primary);
 }
 
+/* 4 números não cabem numa linha só em telas de celular sem espremer a fonte a ponto de
+   ficar difícil de ler — vira grade 2x2 aqui (sem divisórias, que não fariam sentido
+   quebradas em duas linhas), mantendo tamanho de fonte confortável. Não empurra o layout
+   além dos 480px porque tablet/desktop já cabem numa linha só sem esse ajuste. */
 @media (max-width: 480px) {
+  .summary-cards__month {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 12px;
+    overflow-x: visible;
+  }
+
   .summary-cards__stat {
-    padding: 0 8px;
-  }
-
-  .summary-cards__stat-label {
-    font-size: 10px;
-  }
-
-  .summary-cards__stat-value {
-    font-size: 13px;
+    padding: 0;
+    border-left: none;
+    white-space: normal;
   }
 }
 
@@ -84,4 +89,12 @@
 
 .summary-cards__stat-value--expense {
   color: var(--color-accent-expense);
+}
+
+/* Terracota mais discreto (opacidade reduzida) que o de Despesas — é uma obrigação
+   futura (faturas ainda não pagas), não uma perda já realizada, não precisa do mesmo
+   peso visual. */
+.summary-cards__stat-value--pending {
+  color: var(--color-accent-expense);
+  opacity: 0.75;
 }
