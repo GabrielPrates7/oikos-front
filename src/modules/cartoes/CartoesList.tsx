@@ -128,6 +128,7 @@ export function CartoesList({
                           <Link
                             to={`/faturas?cartao=${card.id}`}
                             className="dropdown-menu__item"
+                            role="menuitem"
                             onClick={close}
                           >
                             <Receipt size={14} aria-hidden="true" />
@@ -137,6 +138,7 @@ export function CartoesList({
                             <button
                               type="button"
                               className="dropdown-menu__item"
+                              role="menuitem"
                               onClick={() => {
                                 close()
                                 setConfirming({ id: card.id, action: 'archive' })
@@ -148,6 +150,7 @@ export function CartoesList({
                             <button
                               type="button"
                               className="dropdown-menu__item"
+                              role="menuitem"
                               onClick={() => {
                                 close()
                                 onActivate(card)
@@ -159,6 +162,7 @@ export function CartoesList({
                           <button
                             type="button"
                             className="dropdown-menu__item dropdown-menu__item--danger"
+                            role="menuitem"
                             onClick={() => {
                               close()
                               setConfirming({ id: card.id, action: 'delete' })

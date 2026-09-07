@@ -138,6 +138,7 @@ export function FaturasList({
                         <Link
                           to={`/faturas/${invoice.id}`}
                           className="dropdown-menu__item"
+                          role="menuitem"
                           onClick={close}
                         >
                           Ver detalhe
@@ -146,6 +147,7 @@ export function FaturasList({
                           <button
                             type="button"
                             className="dropdown-menu__item"
+                            role="menuitem"
                             onClick={() => {
                               close()
                               onQuickPay(invoice.id)

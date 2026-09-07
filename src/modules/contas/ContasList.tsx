@@ -116,6 +116,7 @@ export function ContasList({
                           <Link
                             to={`/contas/${account.id}/extrato`}
                             className="dropdown-menu__item"
+                            role="menuitem"
                             onClick={close}
                           >
                             <Receipt size={14} aria-hidden="true" />
@@ -125,6 +126,7 @@ export function ContasList({
                             <button
                               type="button"
                               className="dropdown-menu__item"
+                              role="menuitem"
                               onClick={() => {
                                 close()
                                 setConfirming({ id: account.id, action: 'archive' })
@@ -136,6 +138,7 @@ export function ContasList({
                             <button
                               type="button"
                               className="dropdown-menu__item"
+                              role="menuitem"
                               onClick={() => {
                                 close()
                                 onActivate(account)
@@ -147,6 +150,7 @@ export function ContasList({
                           <button
                             type="button"
                             className="dropdown-menu__item dropdown-menu__item--danger"
+                            role="menuitem"
                             onClick={() => {
                               close()
                               setConfirming({ id: account.id, action: 'delete' })
@@ -228,11 +232,13 @@ export function ContasList({
                         }
                         triggerClassName="contas-grid__move-button"
                       >
-                        {() => (
+                        {(close) => (
                           <>
                             <Link
                               to={`/entradas?conta=${account.id}`}
                               className="dropdown-menu__item"
+                              role="menuitem"
+                              onClick={close}
                             >
                               <TrendingUp size={14} aria-hidden="true" />
                               Nova entrada
@@ -240,6 +246,8 @@ export function ContasList({
                             <Link
                               to={`/despesas?conta=${account.id}`}
                               className="dropdown-menu__item"
+                              role="menuitem"
+                              onClick={close}
                             >
                               <TrendingDown size={14} aria-hidden="true" />
                               Nova despesa
@@ -247,6 +255,8 @@ export function ContasList({
                             <Link
                               to={`/transferencias?conta=${account.id}`}
                               className="dropdown-menu__item"
+                              role="menuitem"
+                              onClick={close}
                             >
                               <ArrowLeftRight size={14} aria-hidden="true" />
                               Transferência
