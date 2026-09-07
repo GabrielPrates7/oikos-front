@@ -7,3 +7,13 @@
   gap: 12px;
   margin-top: 8px;
 }
+
+.compra-form__locked-note {
+  font-size: 13px;
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  border: 1px solid var(--color-warning);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}

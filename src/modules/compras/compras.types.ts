@@ -18,4 +18,7 @@ export interface Purchase {
   category_name: string
   category_icon: string | null
   payment_status: PurchasePaymentStatus
+  // true se QUALQUER parcela estiver numa fatura já paga — trava edição estrutural
+  // (valor/parcelas/data/cartão) e bloqueia exclusão, tanto aqui quanto no backend.
+  has_paid_installment: boolean
 }

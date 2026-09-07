@@ -38,6 +38,13 @@
   border-color: var(--color-accent-expense);
 }
 
+/* Sem isso, um campo disabled fica visualmente idêntico a um editável (mesma cor, mesma
+   opacidade) — só o comportamento muda, o que engana o usuário até ele tentar digitar. */
+.ui-input__field:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .ui-input__error {
   font-size: 13px;
   color: var(--color-accent-expense);

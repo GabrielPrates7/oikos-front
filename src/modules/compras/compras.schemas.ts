@@ -13,3 +13,12 @@ export const createSchema = z.object({
 })
 
 export type CreateCompraFormData = z.infer<typeof createSchema>
+
+// Igual ao de criação, mas com creditCardId — editar permite mover a compra de cartão.
+// Usado só por CompraEditForm; o dropdown nunca fica vazio (sempre pré-selecionado com um
+// cartão de verdade), então não precisa de opção em branco como o de categoria.
+export const updateSchema = createSchema.extend({
+  creditCardId: z.string().uuid('Selecione um cartão'),
+})
+
+export type UpdateCompraFormData = z.infer<typeof updateSchema>

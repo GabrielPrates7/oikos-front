@@ -135,6 +135,9 @@ export function FaturaDetalhePage() {
                   {item.category_icon ?? '📁'} {item.category_name} · Parcela{' '}
                   {item.installment_number}/{item.installments_count}
                 </span>
+                <Link to={`/cartoes/${card.id}`} className="fatura-detalhe-page__item-edit-link">
+                  Editar no cartão
+                </Link>
               </div>
               <span className="fatura-detalhe-page__item-amount">
                 {centsToBRL(item.amount_cents)}

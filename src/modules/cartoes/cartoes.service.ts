@@ -1,5 +1,5 @@
 import { apiFetch } from '../../services/api'
-import type { CreateCompraFormData } from '../compras/compras.schemas'
+import type { CreateCompraFormData, UpdateCompraFormData } from '../compras/compras.schemas'
 import type { Purchase } from '../compras/compras.types'
 import type { CreateCartaoFormData, UpdateCartaoFormData } from './cartoes.schemas'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
@@ -89,5 +89,37 @@ export const cartoesService = {
         is_fixed: data.isFixed,
       }),
     })
+  },
+
+  // locked (has_paid_installment) determina se os campos estruturais entram no payload —
+  // não só se aparecem desabilitados na UI. O backend trata a PRESENÇA dessas chaves como
+  // "isso é uma edição estrutural" (não compara valor novo x antigo), então mandar
+  // total_amount_cents/installments_count/purchase_date/credit_card_id junto numa compra
+  // travada faria até uma edição só de descrição bater no bloqueio de parcela paga.
+  async updatePurchase(
+    purchaseId: string,
+    data: UpdateCompraFormData,
+    locked: boolean,
+  ): Promise<void> {
+    const payload: Record<string, unknown> = {
+      category_id: data.categoryId,
+      description: data.description,
+      is_essential: data.isEssential,
+      is_fixed: data.isFixed,
+    }
+    if (!locked) {
+      payload.credit_card_id = data.creditCardId
+      payload.total_amount_cents = data.totalAmountCents
+      payload.installments_count = data.installmentsCount
+      payload.purchase_date = data.purchaseDate
+    }
+    await apiFetch(`/purchases/${purchaseId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+
+  async deletePurchase(purchaseId: string): Promise<void> {
+    await apiFetch(`/purchases/${purchaseId}`, { method: 'DELETE' })
   },
 }

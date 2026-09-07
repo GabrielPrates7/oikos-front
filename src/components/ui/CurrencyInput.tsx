@@ -7,6 +7,7 @@ interface CurrencyInputProps<T extends FieldValues> {
   name: Path<T>
   label: string
   error?: string
+  disabled?: boolean
 }
 
 // Controller (não register) porque o valor no form é um inteiro (centavos), mas o campo
@@ -16,6 +17,7 @@ export function CurrencyInput<T extends FieldValues>({
   name,
   label,
   error,
+  disabled,
 }: CurrencyInputProps<T>) {
   const errorId = error ? `${name}-error` : undefined
 
@@ -37,6 +39,7 @@ export function CurrencyInput<T extends FieldValues>({
               inputMode="numeric"
               className="ui-input__field"
               value={centsToBRL(cents)}
+              disabled={disabled}
               aria-invalid={!!error}
               aria-describedby={errorId}
               onChange={(event) => field.onChange(parseBRLToCents(event.target.value))}
