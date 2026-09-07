@@ -166,7 +166,12 @@ export function EntradasList({
             items={[
               {
                 label: 'Total exibido',
-                valueCents: visibleEntries.reduce((sum, entry) => sum + entry.amount_cents, 0),
+                // Mesmo critério do saldo da conta (accounts.repository.getBalance):
+                // pendente não conta até virar recebida de verdade.
+                valueCents: visibleEntries.reduce(
+                  (sum, entry) => sum + (entry.is_received ? entry.amount_cents : 0),
+                  0,
+                ),
               },
             ]}
           />

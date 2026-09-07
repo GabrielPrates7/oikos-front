@@ -208,8 +208,11 @@ export function DespesasList({
             items={[
               {
                 label: 'Total exibido',
+                // Mesmo critério do saldo da conta (accounts.repository.getBalance):
+                // pendente não conta até virar paga de verdade.
                 valueCents: visibleEntries.reduce(
-                  (sum, entry) => sum + (entry.type === 'expense' ? entry.data.amount_cents : 0),
+                  (sum, entry) =>
+                    sum + (entry.type === 'expense' && entry.data.is_paid ? entry.data.amount_cents : 0),
                   0,
                 ),
               },
