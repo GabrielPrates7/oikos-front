@@ -25,6 +25,10 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
+function today(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
 export function EntradasPage() {
   // Atalho "Movimentar" de ContasList/CartoesList chega como /entradas?conta=ID — lido só
   // uma vez (inicializador preguiçoso do useState) pra abrir direto no formulário de
@@ -144,6 +148,18 @@ export function EntradasPage() {
     }
   }
 
+  // Atalho da lista — pula o formulário inteiro, só isso muda. Sempre manda receivedDate
+  // junto com isReceived (mesma regra do formulário completo).
+  async function handleMarkAsReceived(entry: IncomeEntry) {
+    setLoadError(null)
+    try {
+      await entradasService.update(entry.id, { isReceived: true, receivedDate: today() })
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setLoadError(errorMessage(error, 'Não foi possível marcar a entrada como recebida.'))
+    }
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
@@ -193,6 +209,7 @@ export function EntradasPage() {
           onFiltersChange={setFilters}
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
+          onMarkAsReceived={handleMarkAsReceived}
         />
       )}
     </div>

@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { useEffect } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
 import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
@@ -48,6 +49,8 @@ export function DespesaForm({
     register,
     handleSubmit,
     control,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<CreateDespesaFormData>({
     resolver: zodResolver(createSchema),
@@ -60,8 +63,25 @@ export function DespesaForm({
       expenseDate: initialData?.expense_date ?? today(),
       isEssential: initialData?.is_essential,
       isFixed: initialData?.is_fixed,
+      isPaid: initialData?.is_paid,
+      isPlanned: initialData?.is_planned,
+      // Registro antigo (de antes desse campo existir) pode ter is_paid=true com paid_date
+      // nulo — cai pra data do lançamento em vez de deixar o campo em branco.
+      paidDate: initialData?.paid_date ?? initialData?.expense_date ?? today(),
     },
   })
+
+  const isPaid = useWatch({ control, name: 'isPaid' })
+  const expenseDate = useWatch({ control, name: 'expenseDate' })
+
+  // Padrão pedido: data de pagamento = mesma data do lançamento, no momento em que o
+  // campo aparece (alternar pra "Pago" com a data ainda vazia) — não sobrescreve se já
+  // tinha algo (edição de um registro que já tem sua própria data de pagamento).
+  useEffect(() => {
+    if (isPaid && !getValues('paidDate')) {
+      setValue('paidDate', expenseDate)
+    }
+  }, [isPaid, expenseDate, getValues, setValue])
 
   const accountOptions = [
     { value: '', label: 'Selecione uma conta' },
@@ -116,6 +136,46 @@ export function DespesaForm({
         type="date"
         error={errors.expenseDate?.message}
         {...register('expenseDate')}
+      />
+      <Controller
+        control={control}
+        name="isPaid"
+        render={({ field }) => (
+          <BooleanToggle
+            label="Pago(a) ou pendente?"
+            value={field.value}
+            options={[
+              { value: true, label: 'Pago(a)' },
+              { value: false, label: 'Pendente' },
+            ]}
+            onChange={field.onChange}
+            error={errors.isPaid?.message}
+          />
+        )}
+      />
+      {isPaid && (
+        <Input
+          label="Data do pagamento"
+          type="date"
+          error={errors.paidDate?.message}
+          {...register('paidDate')}
+        />
+      )}
+      <Controller
+        control={control}
+        name="isPlanned"
+        render={({ field }) => (
+          <BooleanToggle
+            label="Planejado?"
+            value={field.value}
+            options={[
+              { value: true, label: 'Planejado' },
+              { value: false, label: 'Não planejado' },
+            ]}
+            onChange={field.onChange}
+            error={errors.isPlanned?.message}
+          />
+        )}
       />
       <Controller
         control={control}

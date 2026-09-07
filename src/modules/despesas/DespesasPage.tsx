@@ -25,6 +25,10 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
+function today(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
 export function DespesasPage() {
   // Atalho "Movimentar" de ContasList/CartoesList chega como /despesas?conta=ID — lido só
   // uma vez (inicializador preguiçoso do useState) pra abrir direto no formulário de
@@ -141,6 +145,18 @@ export function DespesasPage() {
     }
   }
 
+  // Atalho da lista — pula o formulário inteiro, só isso muda. Sempre manda paidDate junto
+  // com isPaid (mesma regra do formulário completo, ver despesas.service.toApiPayload).
+  async function handleMarkAsPaid(entry: Expense) {
+    setLoadError(null)
+    try {
+      await despesasService.update(entry.id, { isPaid: true, paidDate: today() })
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setLoadError(errorMessage(error, 'Não foi possível marcar a despesa como paga.'))
+    }
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
@@ -193,6 +209,7 @@ export function DespesasPage() {
           onFiltersChange={setFilters}
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
+          onMarkAsPaid={handleMarkAsPaid}
         />
       )}
     </div>

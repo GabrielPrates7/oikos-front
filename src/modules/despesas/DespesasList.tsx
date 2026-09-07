@@ -1,4 +1,4 @@
-import { Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
+import { CircleDollarSign, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
@@ -17,6 +17,7 @@ interface DespesasListProps {
   onFiltersChange: (filters: ExpenseFilters) => void
   onEdit: (entry: Expense) => void
   onDelete: (entry: Expense) => void
+  onMarkAsPaid: (entry: Expense) => void
 }
 
 const PAYMENT_METHOD_OPTIONS = (
@@ -35,6 +36,7 @@ export function DespesasList({
   onFiltersChange,
   onEdit,
   onDelete,
+  onMarkAsPaid,
 }: DespesasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   // Busca client-side — o volume de despesas de um usuário não justifica ida ao servidor
@@ -253,7 +255,12 @@ export function DespesasList({
                   const category = categoriesById.get(expense.category_id)
                   const isConfirming = confirmingId === expense.id
                   return (
-                    <tr key={expense.id}>
+                    <tr
+                      key={expense.id}
+                      className={
+                        expense.is_paid ? undefined : 'despesas-list__row--pending'
+                      }
+                    >
                       <td className="despesas-list__description">
                         <div className="despesas-list__description-row">
                           <span>{expense.description}</span>
@@ -261,6 +268,9 @@ export function DespesasList({
                             <Tag size={12} aria-hidden="true" />
                             {expense.is_essential ? 'Essencial' : 'Supérfluo'}
                           </span>
+                          {!expense.is_paid && (
+                            <span className="despesas-list__pending-badge">Pendente</span>
+                          )}
                         </div>
                       </td>
                       <td className="despesas-list__meta">
@@ -293,6 +303,17 @@ export function DespesasList({
                           </>
                         ) : (
                           <>
+                            {!expense.is_paid && (
+                              <button
+                                type="button"
+                                className="despesas-list__mark-paid"
+                                aria-label={`Marcar ${expense.description} como pago`}
+                                onClick={() => onMarkAsPaid(expense)}
+                              >
+                                <CircleDollarSign size={14} aria-hidden="true" />
+                                Marcar como pago
+                              </button>
+                            )}
                             <button
                               type="button"
                               aria-label={`Editar ${expense.description}`}

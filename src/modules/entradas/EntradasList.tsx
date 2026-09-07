@@ -1,4 +1,4 @@
-import { Edit2, Search, Trash2 } from 'lucide-react'
+import { CircleDollarSign, Edit2, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
@@ -16,6 +16,7 @@ interface EntradasListProps {
   onFiltersChange: (filters: IncomeEntryFilters) => void
   onEdit: (entry: IncomeEntry) => void
   onDelete: (entry: IncomeEntry) => void
+  onMarkAsReceived: (entry: IncomeEntry) => void
 }
 
 export function EntradasList({
@@ -26,6 +27,7 @@ export function EntradasList({
   onFiltersChange,
   onEdit,
   onDelete,
+  onMarkAsReceived,
 }: EntradasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   // Busca client-side — o volume de entradas de um usuário não justifica ida ao servidor
@@ -186,8 +188,18 @@ export function EntradasList({
                   const category = categoriesById.get(entry.category_id)
                   const isConfirming = confirmingId === entry.id
                   return (
-                    <tr key={entry.id}>
-                      <td className="entradas-list__description">{entry.description}</td>
+                    <tr
+                      key={entry.id}
+                      className={entry.is_received ? undefined : 'entradas-list__row--pending'}
+                    >
+                      <td className="entradas-list__description">
+                        <div className="entradas-list__description-row">
+                          <span>{entry.description}</span>
+                          {!entry.is_received && (
+                            <span className="entradas-list__pending-badge">Pendente</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="entradas-list__meta">
                         {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
                       </td>
@@ -214,6 +226,17 @@ export function EntradasList({
                           </>
                         ) : (
                           <>
+                            {!entry.is_received && (
+                              <button
+                                type="button"
+                                className="entradas-list__mark-received"
+                                aria-label={`Marcar ${entry.description} como recebida`}
+                                onClick={() => onMarkAsReceived(entry)}
+                              >
+                                <CircleDollarSign size={14} aria-hidden="true" />
+                                Marcar como recebida
+                              </button>
+                            )}
                             <button
                               type="button"
                               aria-label={`Editar ${entry.description}`}

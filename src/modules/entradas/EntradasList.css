@@ -132,6 +132,13 @@
   white-space: nowrap;
 }
 
+.entradas-list__description-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
 .entradas-list__meta {
   color: var(--color-text-muted);
   font-size: 13px;
@@ -177,6 +184,47 @@
 .entradas-list__actions button:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Mesmo tratamento visual de DespesasList: pendente (aqui, "não recebida") usa a cor de
+   despesa de propósito — sinaliza "precisa de atenção", não a direção do dinheiro. */
+.entradas-list__row--pending {
+  background: color-mix(in srgb, var(--color-accent-expense) 8%, transparent);
+}
+
+.entradas-list__row--pending td:first-child {
+  box-shadow: inset 4px 0 0 var(--color-accent-expense);
+}
+
+.entradas-list__pending-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-accent-expense);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--color-accent-expense);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.entradas-list__actions .entradas-list__mark-received {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  color: var(--color-accent-income);
+  border: 1px solid var(--color-accent-income);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.entradas-list__actions .entradas-list__mark-received:hover {
+  color: var(--color-accent-income);
+  background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
 }
 
 .entradas-list__confirm-delete,

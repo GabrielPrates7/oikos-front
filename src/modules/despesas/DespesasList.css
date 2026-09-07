@@ -199,6 +199,48 @@
   outline-offset: 2px;
 }
 
+/* Linha pendente ganha tinta de fundo + borda esquerda na cor de despesa (mesmo sinal do
+   valor) — indicador visual que não depende só do badge de texto. box-shadow inset no
+   primeiro <td> em vez de border-left no <tr>, que border-collapse não renderiza. */
+.despesas-list__row--pending {
+  background: color-mix(in srgb, var(--color-accent-expense) 8%, transparent);
+}
+
+.despesas-list__row--pending td:first-child {
+  box-shadow: inset 4px 0 0 var(--color-accent-expense);
+}
+
+.despesas-list__pending-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-accent-expense);
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--color-accent-expense);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.despesas-list__actions .despesas-list__mark-paid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  color: var(--color-accent-income);
+  border: 1px solid var(--color-accent-income);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.despesas-list__actions .despesas-list__mark-paid:hover {
+  color: var(--color-accent-income);
+  background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+}
+
 .despesas-list__confirm-delete,
 .despesas-list__cancel-delete {
   width: auto;

@@ -11,6 +11,14 @@ function toApiPayload(data: Partial<CreateEntradaFormData>): Record<string, unkn
   if (data.description !== undefined) payload.description = data.description
   if (data.amountCents !== undefined) payload.amount_cents = data.amountCents
   if (data.entryDate !== undefined) payload.entry_date = data.entryDate
+  if (data.receiptMethod !== undefined) payload.receipt_method = data.receiptMethod
+  if (data.isPlanned !== undefined) payload.is_planned = data.isPlanned
+  // received_date sempre acompanha is_received — mesmo motivo do paid_date em
+  // despesas.service (a API rejeita received_date presente com is_received=false).
+  if (data.isReceived !== undefined) {
+    payload.is_received = data.isReceived
+    payload.received_date = data.isReceived ? (data.receivedDate ?? null) : null
+  }
   return payload
 }
 

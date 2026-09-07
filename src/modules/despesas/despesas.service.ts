@@ -14,6 +14,14 @@ function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unkn
   if (data.expenseDate !== undefined) payload.expense_date = data.expenseDate
   if (data.isEssential !== undefined) payload.is_essential = data.isEssential
   if (data.isFixed !== undefined) payload.is_fixed = data.isFixed
+  if (data.isPlanned !== undefined) payload.is_planned = data.isPlanned
+  // paid_date sempre acompanha is_paid — null explícito quando pendente, mesmo que o
+  // formulário ainda tenha algum valor "sobrando" no campo (que nem aparece na tela nesse
+  // caso). A API rejeita paid_date presente com is_paid=false, então isso importa de verdade.
+  if (data.isPaid !== undefined) {
+    payload.is_paid = data.isPaid
+    payload.paid_date = data.isPaid ? (data.paidDate ?? null) : null
+  }
   return payload
 }
 
