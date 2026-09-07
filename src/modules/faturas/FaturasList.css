@@ -1,6 +1,7 @@
 .faturas-list__filters {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-end;
   gap: 12px;
   margin-bottom: 20px;
 }
@@ -9,6 +10,10 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.faturas-list__filter-field--search {
+  flex: 1 1 220px;
 }
 
 .faturas-list__filter-field label {
@@ -31,6 +36,37 @@
 .faturas-list__filter-field select:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+.faturas-list__search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.faturas-list__search-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.faturas-list__search-input input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: text;
+}
+
+.faturas-list__search-input input:focus-visible {
+  outline: none;
 }
 
 .faturas-list__batch-bar {

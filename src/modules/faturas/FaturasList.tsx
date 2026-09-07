@@ -1,19 +1,25 @@
+import { Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { centsToBRL } from '../../utils/currency'
-import { formatDateBR, formatReferenceMonth } from '../../utils/date'
+import { currentMonthString, formatDateBR, formatReferenceMonth } from '../../utils/date'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { InvoiceStatusBadge } from './InvoiceStatusBadge'
 import type { InvoiceListItem } from './faturas.types'
 import './FaturasList.css'
+
+type SortOrder = 'highest' | 'lowest'
 
 interface FaturasListProps {
   invoices: InvoiceListItem[]
   cards: CreditCard[]
   selectedCardId: string
   onCardFilterChange: (cardId: string) => void
+  search: string
+  onSearchChange: (search: string) => void
   selectedInvoiceIds: Set<string>
   onToggleInvoiceSelected: (invoiceId: string) => void
   onToggleSelectAll: () => void
@@ -21,11 +27,19 @@ interface FaturasListProps {
   onQuickPay: (invoiceId: string) => void
 }
 
+// reference_month vem como 'YYYY-MM-01' — reduz pra 'YYYY-MM' pra comparar com
+// currentMonthString() e com o valor do <select>.
+function monthKey(referenceMonth: string): string {
+  return referenceMonth.slice(0, 7)
+}
+
 export function FaturasList({
   invoices,
   cards,
   selectedCardId,
   onCardFilterChange,
+  search,
+  onSearchChange,
   selectedInvoiceIds,
   onToggleInvoiceSelected,
   onToggleSelectAll,
@@ -33,14 +47,47 @@ export function FaturasList({
   onQuickPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
+  // Padrão é o mês corrente (mesmo critério do Dashboard/Relatórios) — 'all' mostra tudo.
+  const [monthFilter, setMonthFilter] = useState(() => currentMonthString())
+  const [sortOrder, setSortOrder] = useState<SortOrder>('highest')
+
+  const availableMonths = useMemo(() => {
+    const months = new Set(invoices.map((invoice) => monthKey(invoice.reference_month)))
+    return Array.from(months).sort((a, b) => b.localeCompare(a))
+  }, [invoices])
+
+  const visibleInvoices = useMemo(() => {
+    const filtered =
+      monthFilter === 'all'
+        ? invoices
+        : invoices.filter((invoice) => monthKey(invoice.reference_month) === monthFilter)
+    const sorted = [...filtered].sort((a, b) =>
+      sortOrder === 'highest' ? b.totalCents - a.totalCents : a.totalCents - b.totalCents,
+    )
+    return sorted
+  }, [invoices, monthFilter, sortOrder])
+
   // Só faturas ainda não pagas entram no lote — pagar de novo não faz sentido.
-  const payableInvoices = invoices.filter((invoice) => invoice.displayStatus !== 'paid')
+  const payableInvoices = visibleInvoices.filter((invoice) => invoice.displayStatus !== 'paid')
   const allSelected =
     payableInvoices.length > 0 && payableInvoices.every((invoice) => selectedInvoiceIds.has(invoice.id))
 
   return (
     <div className="faturas-list">
       <div className="faturas-list__filters">
+        <div className="faturas-list__filter-field faturas-list__filter-field--search">
+          <label htmlFor="filter-search">Buscar</label>
+          <div className="faturas-list__search-input">
+            <Search size={14} aria-hidden="true" />
+            <input
+              id="filter-search"
+              type="text"
+              placeholder="Buscar por descrição da compra..."
+              value={search}
+              onChange={(event) => onSearchChange(event.target.value)}
+            />
+          </div>
+        </div>
         <div className="faturas-list__filter-field">
           <label htmlFor="filter-card">Cartão</label>
           <select
@@ -56,12 +103,38 @@ export function FaturasList({
             ))}
           </select>
         </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-month">Mês</label>
+          <select
+            id="filter-month"
+            value={monthFilter}
+            onChange={(event) => setMonthFilter(event.target.value)}
+          >
+            <option value="all">Todos os meses</option>
+            {availableMonths.map((month) => (
+              <option key={month} value={month}>
+                {formatReferenceMonth(`${month}-01`)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-sort">Ordenar por</label>
+          <select
+            id="filter-sort"
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+          >
+            <option value="highest">Maior valor primeiro</option>
+            <option value="lowest">Menor valor primeiro</option>
+          </select>
+        </div>
       </div>
 
       {invoices.length === 0 ? (
         <div className="faturas-list__empty">
-          {selectedCardId ? (
-            <p>Nenhuma fatura encontrada pra esse cartão.</p>
+          {selectedCardId || search ? (
+            <p>Nenhuma fatura encontrada pra esse filtro.</p>
           ) : (
             <>
               <p>Você ainda não tem nenhuma fatura.</p>
@@ -69,13 +142,17 @@ export function FaturasList({
             </>
           )}
         </div>
+      ) : visibleInvoices.length === 0 ? (
+        <div className="faturas-list__empty">
+          <p>Nenhuma fatura encontrada com esses filtros.</p>
+        </div>
       ) : (
         <>
           <ListTotal
             items={[
               {
                 label: 'Total exibido',
-                valueCents: invoices.reduce((sum, invoice) => sum + invoice.totalCents, 0),
+                valueCents: visibleInvoices.reduce((sum, invoice) => sum + invoice.totalCents, 0),
               },
             ]}
           />
@@ -99,7 +176,7 @@ export function FaturasList({
             </div>
           )}
           <div className="faturas-grid">
-            {invoices.map((invoice) => {
+            {visibleInvoices.map((invoice) => {
               const card = cardsById.get(invoice.credit_card_id)
               const isPayable = invoice.displayStatus !== 'paid'
               return (

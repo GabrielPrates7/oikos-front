@@ -7,6 +7,7 @@ export interface InvoiceItem {
   description: string
   category_name: string
   category_icon: string | null
+  is_essential: boolean
 }
 
 export interface Invoice {

@@ -1,5 +1,5 @@
 .tabs {
-  border-bottom: 1px solid var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-accent-deep);
 }
 
 .tabs__list {

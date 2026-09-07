@@ -4,9 +4,13 @@ import type { Invoice, InvoiceDetail, InvoiceListItem, InvoicePayment } from './
 
 export const faturasService = {
   // totalCents já vem pronto do backend (subquery na própria listagem) — sem fetch por
-  // fatura.
-  async list(creditCardId?: string): Promise<InvoiceListItem[]> {
-    const query = creditCardId ? `?creditCardId=${creditCardId}` : ''
+  // fatura. search é resolvido no servidor (compara descrição de compra via ILIKE) porque
+  // essa informação não existe na listagem carregada no cliente.
+  async list(creditCardId?: string, search?: string): Promise<InvoiceListItem[]> {
+    const params = new URLSearchParams()
+    if (creditCardId) params.set('creditCardId', creditCardId)
+    if (search) params.set('search', search)
+    const query = params.toString() ? `?${params.toString()}` : ''
     const result = await apiFetch<{ invoices: InvoiceListItem[] }>(`/invoices${query}`)
     return result.invoices
   },

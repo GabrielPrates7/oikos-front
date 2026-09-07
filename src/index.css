@@ -47,3 +47,10 @@ a {
 button {
   font-family: inherit;
 }
+
+/* Halo verde adicional em todo foco de teclado, por cima do outline de cada componente —
+   um único lugar pra reforçar a presença de verde no app inteiro em vez de repetir isso
+   em cada arquivo CSS individualmente. */
+:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-deep) 35%, transparent);
+}

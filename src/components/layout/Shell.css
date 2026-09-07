@@ -3,6 +3,13 @@
   display: flex;
 }
 
+/* Sobrescreve --sidebar-width (definido em tokens.css) só dentro do Shell quando a
+   sidebar está recolhida — cascateia pra .sidebar (largura) e .shell__main::before
+   (offset do brilho), sem precisar duplicar o valor em dois lugares. */
+.shell--sidebar-collapsed {
+  --sidebar-width: 72px;
+}
+
 .shell__main {
   position: relative;
   flex: 1;
@@ -11,18 +18,28 @@
   min-width: 0;
 }
 
-/* Brilho ambiente sutil atrás do conteúdo principal, nunca atrás da Sidebar — fixed cobre
-   a viewport inteira, mas em telas >=768px começa exatamente onde a Sidebar termina
-   (--sidebar-width), então a cor sólida da Sidebar nunca fica sob o gradiente. */
+/* Brilho ambiente atrás do conteúdo principal, nunca atrás da Sidebar — fixed cobre a
+   viewport inteira, mas em telas >=768px começa exatamente onde a Sidebar termina
+   (--sidebar-width), então a cor sólida da Sidebar nunca fica sob o gradiente. Dois
+   pontos: um mais forte no canto superior esquerdo (onde o olho bate primeiro) e um
+   mais discreto no canto inferior direito — ambos com o centro DENTRO da área visível
+   (diferente da primeira tentativa, que centrava acima do viewport e nunca aparecia).
+*/
 .shell__main::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(
-    circle at 15% -10%,
-    color-mix(in srgb, var(--color-accent) 5%, transparent),
-    transparent 60%
-  );
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      color-mix(in srgb, var(--color-accent-bright) 12%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 90% 95%,
+      color-mix(in srgb, var(--color-accent) 8%, transparent),
+      transparent 40%
+    );
   pointer-events: none;
   z-index: 0;
 }
@@ -39,8 +56,16 @@
   z-index: 1;
 }
 
+/* Conteúdo ocupa o espaço disponível de verdade em telas largas, mas com teto — sem isso
+   ele fica preso na largura fixa de cada página (720-1040px, ver *.Page.css) plantada no
+   canto esquerdo, sobrando uma faixa enorme vazia à direita em 1440/1920px. O teto de
+   1400px com centralização garante uma margem confortável em telas ultra-largas em vez
+   de esticar o conteúdo até a borda. */
 .shell__content {
   flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 24px;
   padding-bottom: 88px;
 }

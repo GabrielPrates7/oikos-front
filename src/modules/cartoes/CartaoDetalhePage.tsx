@@ -1,9 +1,10 @@
-import { Plus, Tag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
+import { EssentialBadge } from '../../components/ui/EssentialBadge'
 import { ApiError } from '../../services/api'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
@@ -171,10 +172,7 @@ export function CartaoDetalhePage() {
                   <span className="cartao-detalhe-page__purchase-description">
                     {purchase.description}
                   </span>
-                  <span className="cartao-detalhe-page__essential-badge">
-                    <Tag size={12} aria-hidden="true" />
-                    {purchase.is_essential ? 'Essencial' : 'Supérfluo'}
-                  </span>
+                  <EssentialBadge isEssential={purchase.is_essential} />
                   <PurchaseStatusBadge status={purchase.payment_status} />
                 </div>
                 <span className="cartao-detalhe-page__purchase-meta">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { EssentialBadge } from '../../components/ui/EssentialBadge'
 import { ApiError } from '../../services/api'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR, formatReferenceMonth } from '../../utils/date'
@@ -126,7 +127,10 @@ export function FaturaDetalhePage() {
           {invoice.items.map((item, index) => (
             <li key={`${item.description}-${index}`} className="fatura-detalhe-page__item-row">
               <div className="fatura-detalhe-page__item-info">
-                <span className="fatura-detalhe-page__item-description">{item.description}</span>
+                <div className="fatura-detalhe-page__item-description-row">
+                  <span className="fatura-detalhe-page__item-description">{item.description}</span>
+                  <EssentialBadge isEssential={item.is_essential} />
+                </div>
                 <span className="fatura-detalhe-page__item-meta">
                   {item.category_icon ?? '📁'} {item.category_name} · Parcela{' '}
                   {item.installment_number}/{item.installments_count}

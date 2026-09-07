@@ -40,6 +40,11 @@ export function FaturasPage() {
   // Filtro inicial vem do link "Ver faturas" do Detalhe do cartão (?cartao=ID) — só lido
   // na primeira montagem, depois o Select controla o filtro normalmente.
   const [selectedCardId, setSelectedCardId] = useState(() => searchParams.get('cartao') ?? '')
+  const [search, setSearch] = useState('')
+  // Debounced — a busca vai pro servidor (ILIKE na descrição das compras dentro da fatura,
+  // não está disponível no item já carregado no cliente), diferente do padrão client-side
+  // usado em Entradas/Despesas.
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([])
   const [cards, setCards] = useState<CreditCard[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -79,13 +84,18 @@ export function FaturasPage() {
   }, [])
 
   useEffect(() => {
+    const handle = setTimeout(() => setDebouncedSearch(search.trim()), 300)
+    return () => clearTimeout(handle)
+  }, [search])
+
+  useEffect(() => {
     let active = true
 
     async function load() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await faturasService.list(selectedCardId || undefined)
+        const result = await faturasService.list(selectedCardId || undefined, debouncedSearch || undefined)
         if (active) {
           setInvoices(result)
         }
@@ -105,7 +115,7 @@ export function FaturasPage() {
     return () => {
       active = false
     }
-  }, [selectedCardId, refreshKey])
+  }, [selectedCardId, debouncedSearch, refreshKey])
 
   function handleCardFilterChange(cardId: string) {
     setSelectedCardId(cardId)
@@ -250,6 +260,8 @@ export function FaturasPage() {
           cards={cards}
           selectedCardId={selectedCardId}
           onCardFilterChange={handleCardFilterChange}
+          search={search}
+          onSearchChange={setSearch}
           selectedInvoiceIds={selectedInvoiceIds}
           onToggleInvoiceSelected={handleToggleInvoiceSelected}
           onToggleSelectAll={handleToggleSelectAll}
