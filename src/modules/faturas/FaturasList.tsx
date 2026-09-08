@@ -47,9 +47,11 @@ export function FaturasList({
   onQuickPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
-  // Padrão não é só "mês corrente": fatura não paga de mês anterior nunca deveria sumir
-  // sozinha por causa do filtro de mês (só some quando é paga, aí sim é passado). 'all'
-  // mostra tudo, um mês específico filtra só aquele mês (sem esse bônus de não-pagas).
+  // Padrão não é só "mês corrente": fatura não paga de mês ANTERIOR nunca deveria sumir
+  // sozinha por causa do filtro de mês (só some quando é paga, aí sim é passado). Mês
+  // FUTURO nunca entra no padrão, nem aberta — isso é só "Todos os meses" (comparação de
+  // string funciona porque monthKey já é 'YYYY-MM', mesma ordem lexicográfica e
+  // cronológica). 'all' mostra tudo, um mês específico filtra só aquele mês.
   const [monthFilter, setMonthFilter] = useState('default')
   const [sortOrder, setSortOrder] = useState<SortOrder>('highest')
 
@@ -62,10 +64,9 @@ export function FaturasList({
     const filtered = invoices.filter((invoice) => {
       if (monthFilter === 'all') return true
       if (monthFilter === 'default') {
-        return (
-          monthKey(invoice.reference_month) === currentMonthString() ||
-          invoice.displayStatus !== 'paid'
-        )
+        const invoiceMonth = monthKey(invoice.reference_month)
+        const current = currentMonthString()
+        return invoiceMonth === current || (invoiceMonth < current && invoice.displayStatus !== 'paid')
       }
       return monthKey(invoice.reference_month) === monthFilter
     })
