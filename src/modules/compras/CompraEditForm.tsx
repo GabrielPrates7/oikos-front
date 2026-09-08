@@ -51,6 +51,11 @@ export function CompraEditForm({
       purchaseDate: purchase.purchase_date,
       isEssential: purchase.is_essential,
       isFixed: purchase.is_fixed,
+      // Backend não aceita is_planned em update (só no create, ver purchases.schema) — só
+      // precisa estar aqui pra satisfazer a validação do form (updateSchema herda o campo
+      // obrigatório de createSchema via .extend()). Sem toggle visível, o valor enviado é
+      // descartado silenciosamente pelo schema do servidor.
+      isPlanned: purchase.is_planned,
       creditCardId: purchase.credit_card_id,
     },
   })

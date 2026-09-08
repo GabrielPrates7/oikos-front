@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
+import type { CreditCard } from '../cartoes/cartoes.types'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { createSchema, type CreateDespesaFormData } from './despesas.schemas'
@@ -28,6 +29,10 @@ interface DespesaFormProps {
   // nunca junto com initialData (edição já traz a conta certa em initialData.account_id).
   defaultAccountId?: string
   accounts: Account[]
+  // Só cartões ativos — usado quando "Forma de pagamento" é "Cartão de crédito". Uma
+  // despesa já lançada nunca vira compra de cartão editando, então isso só importa na
+  // criação (ver paymentMethodOptions abaixo).
+  cards: CreditCard[]
   categories: Category[]
   error?: string | null
   submitting: boolean
@@ -39,6 +44,7 @@ export function DespesaForm({
   initialData,
   defaultAccountId,
   accounts,
+  cards,
   categories,
   error,
   submitting,
@@ -68,11 +74,15 @@ export function DespesaForm({
       // Registro antigo (de antes desse campo existir) pode ter is_paid=true com paid_date
       // nulo — cai pra data do lançamento em vez de deixar o campo em branco.
       paidDate: initialData?.paid_date ?? initialData?.expense_date ?? today(),
+      creditCardId: '',
+      installmentsCount: 1,
     },
   })
 
+  const paymentMethod = useWatch({ control, name: 'paymentMethod' })
   const isPaid = useWatch({ control, name: 'isPaid' })
   const expenseDate = useWatch({ control, name: 'expenseDate' })
+  const isCreditCard = paymentMethod === 'credit_card'
 
   // Padrão pedido: data de pagamento = mesma data do lançamento, no momento em que o
   // campo aparece (alternar pra "Pago" com a data ainda vazia) — não sobrescreve se já
@@ -83,9 +93,19 @@ export function DespesaForm({
     }
   }, [isPaid, expenseDate, getValues, setValue])
 
+  // "Cartão de crédito" só existe na criação — editar uma despesa já lançada não pode
+  // virar uma compra parcelada (são recursos diferentes, com edição/exclusão próprias).
+  const paymentMethodOptions = initialData
+    ? PAYMENT_METHOD_OPTIONS
+    : [...PAYMENT_METHOD_OPTIONS, { value: 'credit_card', label: 'Cartão de crédito' }]
+
   const accountOptions = [
     { value: '', label: 'Selecione uma conta' },
     ...accounts.map((account) => ({ value: account.id, label: account.name })),
+  ]
+  const cardOptions = [
+    { value: '', label: 'Selecione um cartão' },
+    ...cards.map((card) => ({ value: card.id, label: card.name })),
   ]
   const categoryOptions = [
     { value: '', label: 'Selecione uma categoria' },
@@ -114,12 +134,6 @@ export function DespesaForm({
         error={errors.amountCents?.message}
       />
       <Select
-        label="Conta"
-        options={accountOptions}
-        error={errors.accountId?.message}
-        {...register('accountId')}
-      />
-      <Select
         label="Categoria"
         options={categoryOptions}
         error={errors.categoryId?.message}
@@ -127,39 +141,67 @@ export function DespesaForm({
       />
       <Select
         label="Forma de pagamento"
-        options={PAYMENT_METHOD_OPTIONS}
+        options={paymentMethodOptions}
         error={errors.paymentMethod?.message}
         {...register('paymentMethod')}
       />
+      {isCreditCard ? (
+        <>
+          <Select
+            label="Cartão"
+            options={cardOptions}
+            error={errors.creditCardId?.message}
+            {...register('creditCardId')}
+          />
+          <Input
+            label="Parcelas"
+            type="number"
+            min={1}
+            error={errors.installmentsCount?.message}
+            {...register('installmentsCount', { valueAsNumber: true })}
+          />
+        </>
+      ) : (
+        <Select
+          label="Conta"
+          options={accountOptions}
+          error={errors.accountId?.message}
+          {...register('accountId')}
+        />
+      )}
       <Input
         label="Data"
         type="date"
         error={errors.expenseDate?.message}
         {...register('expenseDate')}
       />
-      <Controller
-        control={control}
-        name="isPaid"
-        render={({ field }) => (
-          <BooleanToggle
-            label="Pago(a) ou pendente?"
-            value={field.value}
-            options={[
-              { value: true, label: 'Pago(a)' },
-              { value: false, label: 'Pendente' },
-            ]}
-            onChange={field.onChange}
-            error={errors.isPaid?.message}
+      {!isCreditCard && (
+        <>
+          <Controller
+            control={control}
+            name="isPaid"
+            render={({ field }) => (
+              <BooleanToggle
+                label="Pago(a) ou pendente?"
+                value={field.value}
+                options={[
+                  { value: true, label: 'Pago(a)' },
+                  { value: false, label: 'Pendente' },
+                ]}
+                onChange={field.onChange}
+                error={errors.isPaid?.message}
+              />
+            )}
           />
-        )}
-      />
-      {isPaid && (
-        <Input
-          label="Data do pagamento"
-          type="date"
-          error={errors.paidDate?.message}
-          {...register('paidDate')}
-        />
+          {isPaid && (
+            <Input
+              label="Data do pagamento"
+              type="date"
+              error={errors.paidDate?.message}
+              {...register('paidDate')}
+            />
+          )}
+        </>
       )}
       <Controller
         control={control}

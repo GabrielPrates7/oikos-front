@@ -10,6 +10,7 @@ export const createSchema = z.object({
   purchaseDate: z.string().min(1, 'Informe uma data'),
   isEssential: z.boolean({ required_error: 'Selecione se é essencial ou supérfluo' }),
   isFixed: z.boolean({ required_error: 'Selecione se é um gasto fixo' }),
+  isPlanned: z.boolean({ required_error: 'Selecione se é planejada' }),
 })
 
 export type CreateCompraFormData = z.infer<typeof createSchema>

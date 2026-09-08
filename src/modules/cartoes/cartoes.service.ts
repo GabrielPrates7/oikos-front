@@ -1,6 +1,6 @@
 import { apiFetch } from '../../services/api'
 import type { CreateCompraFormData, UpdateCompraFormData } from '../compras/compras.schemas'
-import type { Purchase } from '../compras/compras.types'
+import type { Purchase, PurchaseInstallment, RawPurchase } from '../compras/compras.types'
 import type { CreateCartaoFormData, UpdateCartaoFormData } from './cartoes.schemas'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 
@@ -75,8 +75,14 @@ export const cartoesService = {
     return result.purchases
   },
 
-  async createPurchase(cardId: string, data: CreateCompraFormData): Promise<void> {
-    await apiFetch('/purchases', {
+  // Devolve a compra criada + as parcelas geradas (mesmo shape de POST /purchases desde a
+  // Fase 11) — o formulário único de lançamento usa isso pra montar a mensagem de sucesso
+  // (fatura/mês da parcela 1) sem precisar buscar a compra de novo.
+  async createPurchase(
+    cardId: string,
+    data: CreateCompraFormData,
+  ): Promise<{ purchase: RawPurchase; installments: PurchaseInstallment[] }> {
+    return apiFetch('/purchases', {
       method: 'POST',
       body: JSON.stringify({
         credit_card_id: cardId,
@@ -87,6 +93,7 @@ export const cartoesService = {
         purchase_date: data.purchaseDate,
         is_essential: data.isEssential,
         is_fixed: data.isFixed,
+        is_planned: data.isPlanned,
       }),
     })
   },

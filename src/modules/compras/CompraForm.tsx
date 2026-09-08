@@ -38,6 +38,7 @@ export function CompraForm({ categories, error, submitting, onSubmit, onCancel }
       purchaseDate: today(),
       isEssential: undefined,
       isFixed: undefined,
+      isPlanned: undefined,
     },
   })
 
@@ -115,6 +116,22 @@ export function CompraForm({ categories, error, submitting, onSubmit, onCancel }
             ]}
             onChange={field.onChange}
             error={errors.isFixed?.message}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="isPlanned"
+        render={({ field }) => (
+          <BooleanToggle
+            label="Planejada?"
+            value={field.value}
+            options={[
+              { value: true, label: 'Planejada' },
+              { value: false, label: 'Não planejada' },
+            ]}
+            onChange={field.onChange}
+            error={errors.isPlanned?.message}
           />
         )}
       />

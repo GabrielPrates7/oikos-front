@@ -2,13 +2,18 @@ import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
+import { SuccessMessage } from '../../components/feedback/SuccessMessage'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
-import { ApiError } from '../../services/api'
+import { cartoesService } from '../cartoes/cartoes.service'
+import type { CreditCard } from '../cartoes/cartoes.types'
 import { categoriasService } from '../categorias/categorias.service'
 import type { Category } from '../categorias/categorias.types'
 import { contasService } from '../contas/contas.service'
 import type { Account } from '../contas/contas.types'
+import { faturasService } from '../faturas/faturas.service'
+import { formatReferenceMonth } from '../../utils/date'
+import { ApiError } from '../../services/api'
 import { DespesaForm } from './DespesaForm'
 import { DespesasList } from './DespesasList'
 import { despesasService } from './despesas.service'
@@ -37,6 +42,7 @@ export function DespesasPage() {
   const [entries, setEntries] = useState<DespesaListEntry[]>([])
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
+  const [activeCards, setActiveCards] = useState<CreditCard[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filters, setFilters] = useState<ExpenseFilters>({})
   const [loading, setLoading] = useState(true)
@@ -47,6 +53,7 @@ export function DespesasPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
@@ -54,14 +61,17 @@ export function DespesasPage() {
 
     async function load() {
       try {
-        const [activeAccountsResult, allAccountsResult, categoriesResult] = await Promise.all([
-          contasService.list('active'),
-          contasService.list('all'),
-          categoriasService.list('expense'),
-        ])
+        const [activeAccountsResult, allAccountsResult, activeCardsResult, categoriesResult] =
+          await Promise.all([
+            contasService.list('active'),
+            contasService.list('all'),
+            cartoesService.list('active'),
+            categoriasService.list('expense'),
+          ])
         if (active) {
           setActiveAccounts(activeAccountsResult)
           setAllAccounts(allAccountsResult)
+          setActiveCards(activeCardsResult)
           setCategories(categoriesResult)
         }
       } catch (error) {
@@ -107,11 +117,39 @@ export function DespesasPage() {
     }
   }, [filters, refreshKey])
 
+  // "Cartão de crédito" nem aparece na edição (ver DespesaForm) — só a criação passa por
+  // aqui com paymentMethod === 'credit_card'. Compra vai pro mesmo POST /purchases que
+  // CartaoDetalhePage já usa (cartoesService.createPurchase), nunca POST /expenses — por
+  // isso ela nunca aparece em Despesas, só no histórico do cartão.
   async function handleCreate(data: CreateDespesaFormData) {
     setSubmitting(true)
     setFormError(null)
+    setSuccessMessage(null)
     try {
-      await despesasService.create(data)
+      if (data.paymentMethod === 'credit_card') {
+        const cardId = data.creditCardId as string
+        const installmentsCount = data.installmentsCount as number
+        const { installments } = await cartoesService.createPurchase(cardId, {
+          categoryId: data.categoryId,
+          description: data.description,
+          totalAmountCents: data.amountCents,
+          installmentsCount,
+          purchaseDate: data.expenseDate,
+          isEssential: data.isEssential,
+          isFixed: data.isFixed,
+          isPlanned: data.isPlanned,
+        })
+        const cardName = activeCards.find((card) => card.id === cardId)?.name ?? 'cartão'
+        const firstInstallment = [...installments].sort(
+          (a, b) => a.installment_number - b.installment_number,
+        )[0]
+        const invoice = await faturasService.getById(firstInstallment.invoice_id)
+        setSuccessMessage(
+          `Lançado na fatura do ${cardName} — parcela 1/${installmentsCount} em ${formatReferenceMonth(invoice.reference_month)}.`,
+        )
+      } else {
+        await despesasService.create(data)
+      }
       setMode({ type: 'list' })
       setRefreshKey((key) => key + 1)
     } catch (error) {
@@ -162,20 +200,26 @@ export function DespesasPage() {
     setMode({ type: 'list' })
   }
 
+  function handleOpenCreate() {
+    setSuccessMessage(null)
+    setMode({ type: 'create' })
+  }
+
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="despesas-page">
         <PageHeader title={mode.type === 'create' ? 'Nova despesa' : 'Editar despesa'} />
         <DespesaForm
           // react-hook-form registra o <select> como não-controlado: se a lista de contas
-          // ainda estiver vazia no primeiro render (dado assíncrono), o valor inicial não
-          // encontra a <option> correspondente e não "gruda" depois que ela aparece. A key
-          // muda quando activeAccounts termina de carregar, forçando um remount limpo com
-          // as options já prontas.
-          key={activeAccounts.length}
+          // ou cartões ainda estiver vazia no primeiro render (dado assíncrono), o valor
+          // inicial não encontra a <option> correspondente e não "gruda" depois que ela
+          // aparece. A key muda quando os dois terminam de carregar, forçando um remount
+          // limpo com as options já prontas.
+          key={`${activeAccounts.length}-${activeCards.length}`}
           initialData={mode.type === 'edit' ? mode.entry : undefined}
           defaultAccountId={mode.type === 'create' ? mode.defaultAccountId : undefined}
           accounts={activeAccounts}
+          cards={activeCards}
           categories={categories}
           error={formError}
           submitting={submitting}
@@ -193,13 +237,14 @@ export function DespesasPage() {
       <PageHeader
         title="Despesas"
         action={
-          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+          <Button type="button" onClick={handleOpenCreate}>
             <Plus size={16} aria-hidden="true" />
             Nova despesa
           </Button>
         }
       />
       <FormError message={loadError} />
+      <SuccessMessage message={successMessage} />
       {!loading && (
         <DespesasList
           entries={entries}
