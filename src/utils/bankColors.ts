@@ -17,7 +17,18 @@ const BANK_COLORS: Record<string, BankColor> = {
 const FALLBACK_COLOR: BankColor = { base: 'var(--color-accent)', muted: 'var(--color-bg-elevated)' }
 
 // Case-insensitive e tolerante a espaço extra — "Nubank", " nubank ", "NUBANK" todos batem.
-export function getBankColor(bankName: string | null | undefined): BankColor {
+//
+// colorOverride (account.color) tem prioridade sobre o mapa por nome do banco. Não dá pra
+// pré-computar um "muted" pra uma cor arbitrária escolhida pelo usuário (os presets acima
+// são curados à mão), então usamos color-mix em tempo de render pra escurecer a cor
+// escolhida — funciona em qualquer hex/var válido, sem precisar de matemática de cor em JS.
+export function getBankColor(
+  bankName: string | null | undefined,
+  colorOverride?: string | null,
+): BankColor {
+  if (colorOverride) {
+    return { base: colorOverride, muted: `color-mix(in srgb, ${colorOverride} 55%, black)` }
+  }
   if (!bankName) return FALLBACK_COLOR
   const key = bankName.trim().toLowerCase()
   return BANK_COLORS[key] ?? FALLBACK_COLOR

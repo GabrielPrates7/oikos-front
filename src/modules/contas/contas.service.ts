@@ -11,6 +11,10 @@ function toApiPayload(data: Partial<CreateContaFormData>): Record<string, unknow
   if (data.type !== undefined) payload.type = data.type
   if (data.initialBalanceCents !== undefined)
     payload.initial_balance_cents = data.initialBalanceCents
+  // '' (botão "usar cor padrão do banco") precisa virar null explícito, não sumir do
+  // payload — o repository só ignora chave ausente (undefined), null de verdade limpa a
+  // coluna.
+  if (data.color !== undefined) payload.color = data.color || null
   return payload
 }
 

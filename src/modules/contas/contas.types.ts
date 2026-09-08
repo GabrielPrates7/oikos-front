@@ -11,6 +11,7 @@ export interface Account {
   bank_name: string | null
   type: AccountType
   initial_balance_cents: number
+  color: string | null
   status: AccountStatus
   created_at: string
   updated_at: string

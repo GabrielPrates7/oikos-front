@@ -90,7 +90,7 @@ export function ContasList({
                 confirming?.id === account.id && confirming.action === 'archive'
               const isConfirmingDelete =
                 confirming?.id === account.id && confirming.action === 'delete'
-              const { base } = getBankColor(account.bank_name)
+              const { base } = getBankColor(account.bank_name, account.color)
               const initial = (account.bank_name ?? account.name).trim().charAt(0).toUpperCase()
 
               return (
