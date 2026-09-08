@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
@@ -13,6 +14,11 @@ interface CartoesListProps {
   cards: CreditCard[]
   statusFilter: CreditCardStatusFilter
   onStatusFilterChange: (status: CreditCardStatusFilter) => void
+  sumCreditLimitCents: number
+  sumAvailableLimitCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onEdit: (card: CreditCard) => void
   onArchive: (card: CreditCard) => void
   onActivate: (card: CreditCard) => void
@@ -36,6 +42,11 @@ export function CartoesList({
   cards,
   statusFilter,
   onStatusFilterChange,
+  sumCreditLimitCents,
+  sumAvailableLimitCents,
+  page,
+  totalPages,
+  onPageChange,
   onEdit,
   onArchive,
   onActivate,
@@ -79,20 +90,11 @@ export function CartoesList({
         <>
           <ListTotal
             items={[
-              {
-                label: 'Limite total',
-                valueCents: cards.reduce((sum, card) => sum + card.credit_limit_cents, 0),
-              },
-              {
-                label: 'Disponível total',
-                valueCents: cards.reduce((sum, card) => sum + card.availableLimitCents, 0),
-              },
+              { label: 'Limite total', valueCents: sumCreditLimitCents },
+              { label: 'Disponível total', valueCents: sumAvailableLimitCents },
               {
                 label: 'Usado total (a pagar)',
-                valueCents: cards.reduce(
-                  (sum, card) => sum + (card.credit_limit_cents - card.availableLimitCents),
-                  0,
-                ),
+                valueCents: sumCreditLimitCents - sumAvailableLimitCents,
               },
             ]}
           />
@@ -247,6 +249,7 @@ export function CartoesList({
               )
             })}
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
       )}
     </div>

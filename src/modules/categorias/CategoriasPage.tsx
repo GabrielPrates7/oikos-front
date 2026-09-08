@@ -4,6 +4,7 @@ import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { CategoriaForm } from './CategoriaForm'
 import { CategoriasList } from './CategoriasList'
 import { categoriasService } from './categorias.service'
@@ -27,7 +28,14 @@ function deleteErrorMessage(error: unknown): string {
 }
 
 export function CategoriasPage() {
-  const [categories, setCategories] = useState<Category[]>([])
+  // Despesas e Receitas são duas listas paginadas independentes na mesma tela — cada uma
+  // com seu próprio estado de página, sem afetar a outra.
+  const [expenseCategories, setExpenseCategories] = useState<Category[]>([])
+  const [expensePage, setExpensePage] = useState(1)
+  const [expenseTotal, setExpenseTotal] = useState(0)
+  const [incomeCategories, setIncomeCategories] = useState<Category[]>([])
+  const [incomePage, setIncomePage] = useState(1)
+  const [incomeTotal, setIncomeTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -42,9 +50,15 @@ export function CategoriasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await categoriasService.list()
+        const [expenseResult, incomeResult] = await Promise.all([
+          categoriasService.listPaginated('expense', { page: expensePage, pageSize: DEFAULT_PAGE_SIZE }),
+          categoriasService.listPaginated('income', { page: incomePage, pageSize: DEFAULT_PAGE_SIZE }),
+        ])
         if (active) {
-          setCategories(result)
+          setExpenseCategories(expenseResult.items)
+          setExpenseTotal(expenseResult.total)
+          setIncomeCategories(incomeResult.items)
+          setIncomeTotal(incomeResult.total)
         }
       } catch (error) {
         if (active) {
@@ -62,7 +76,7 @@ export function CategoriasPage() {
     return () => {
       active = false
     }
-  }, [refreshKey])
+  }, [expensePage, incomePage, refreshKey])
 
   async function handleCreate(data: CreateCategoriaFormData) {
     setSubmitting(true)
@@ -138,7 +152,14 @@ export function CategoriasPage() {
       <FormError message={loadError} />
       {!loading && (
         <CategoriasList
-          categories={categories}
+          expenseCategories={expenseCategories}
+          expensePage={expensePage}
+          expenseTotalPages={totalPages(expenseTotal, DEFAULT_PAGE_SIZE)}
+          onExpensePageChange={setExpensePage}
+          incomeCategories={incomeCategories}
+          incomePage={incomePage}
+          incomeTotalPages={totalPages(incomeTotal, DEFAULT_PAGE_SIZE)}
+          onIncomePageChange={setIncomePage}
           onEdit={(category) => setMode({ type: 'edit', category })}
           onDelete={handleDelete}
         />

@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { ContaForm } from './ContaForm'
 import { ContasList } from './ContasList'
 import { contasService } from './contas.service'
@@ -22,6 +23,9 @@ export function ContasPage() {
   const navError = useNavRedirectError()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [statusFilter, setStatusFilter] = useState<AccountStatusFilter>('active')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -39,9 +43,14 @@ export function ContasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await contasService.list(statusFilter)
+        const result = await contasService.listPaginated(statusFilter, {
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+        })
         if (active) {
-          setAccounts(result)
+          setAccounts(result.items)
+          setTotal(result.total)
+          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -59,7 +68,12 @@ export function ContasPage() {
     return () => {
       active = false
     }
-  }, [statusFilter, refreshKey])
+  }, [statusFilter, page, refreshKey])
+
+  function handleStatusFilterChange(next: AccountStatusFilter) {
+    setPage(1)
+    setStatusFilter(next)
+  }
 
   async function handleCreate(data: CreateContaFormData) {
     setSubmitting(true)
@@ -157,7 +171,11 @@ export function ContasPage() {
         <ContasList
           accounts={accounts}
           statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
+          onStatusFilterChange={handleStatusFilterChange}
+          sumCents={sumCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(account) => setMode({ type: 'edit', account })}
           onArchive={handleArchive}
           onActivate={handleActivate}

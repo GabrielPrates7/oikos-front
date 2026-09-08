@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { MetaForm } from './MetaForm'
 import { MetasList } from './MetasList'
 import { metasService } from './metas.service'
@@ -24,6 +25,8 @@ const GOAL_WITH_CONTRIBUTIONS_MESSAGE =
 export function MetasPage() {
   const navError = useNavRedirectError()
   const [goals, setGoals] = useState<FinancialGoal[]>([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -38,9 +41,10 @@ export function MetasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await metasService.list()
+        const result = await metasService.list({ page, pageSize: DEFAULT_PAGE_SIZE })
         if (active) {
-          setGoals(result)
+          setGoals(result.items)
+          setTotal(result.total)
         }
       } catch (error) {
         if (active) {
@@ -58,7 +62,7 @@ export function MetasPage() {
     return () => {
       active = false
     }
-  }, [refreshKey])
+  }, [page, refreshKey])
 
   async function handleCreate(data: CreateMetaFormData) {
     setSubmitting(true)
@@ -138,6 +142,9 @@ export function MetasPage() {
       {!loading && (
         <MetasList
           goals={goals}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(goal) => setMode({ type: 'edit', goal })}
           onDelete={handleDelete}
         />

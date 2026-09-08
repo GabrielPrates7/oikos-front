@@ -1,9 +1,18 @@
-// Shape comum das 4 listagens paginadas (entradas, despesas, transferências, faturas) —
-// espelha PaginatedResult do backend (oikos-back/src/utils/pagination.ts).
+// Shape das listagens paginadas com "total exibido" (entradas, despesas, transferências,
+// faturas, contas) — espelha PaginatedResult do backend (oikos-back/src/utils/pagination.ts).
 export interface PaginatedResult<T> {
   items: T[]
   total: number
   sumCents: number
+  page: number
+  pageSize: number
+}
+
+// Shape das listagens paginadas SEM "total exibido" (categorias, orçamentos, metas) —
+// espelha PaginatedList do backend. Cartões usa um shape próprio (duas somas), não este.
+export interface PaginatedList<T> {
+  items: T[]
+  total: number
   page: number
   pageSize: number
 }

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
 import { ACCOUNT_TYPE_LABELS } from './contas.types'
@@ -14,6 +15,10 @@ interface ContasListProps {
   accounts: Account[]
   statusFilter: AccountStatusFilter
   onStatusFilterChange: (status: AccountStatusFilter) => void
+  sumCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onEdit: (account: Account) => void
   onArchive: (account: Account) => void
   onActivate: (account: Account) => void
@@ -35,6 +40,10 @@ export function ContasList({
   accounts,
   statusFilter,
   onStatusFilterChange,
+  sumCents,
+  page,
+  totalPages,
+  onPageChange,
   onEdit,
   onArchive,
   onActivate,
@@ -76,14 +85,7 @@ export function ContasList({
         </div>
       ) : (
         <>
-          <ListTotal
-            items={[
-              {
-                label: 'Total exibido',
-                valueCents: accounts.reduce((sum, account) => sum + account.balanceCents, 0),
-              },
-            ]}
-          />
+          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
           <div className="contas-grid">
             {accounts.map((account) => {
               const isConfirmingArchive =
@@ -270,6 +272,7 @@ export function ContasList({
               )
             })}
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
       )}
     </div>

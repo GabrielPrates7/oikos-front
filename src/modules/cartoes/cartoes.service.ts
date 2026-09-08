@@ -4,6 +4,20 @@ import type { Purchase, PurchaseInstallment, RawPurchase } from '../compras/comp
 import type { CreateCartaoFormData, UpdateCartaoFormData } from './cartoes.schemas'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 
+export interface PageParams {
+  page: number
+  pageSize: number
+}
+
+export interface PaginatedCreditCards {
+  items: CreditCard[]
+  total: number
+  sumCreditLimitCents: number
+  sumAvailableLimitCents: number
+  page: number
+  pageSize: number
+}
+
 function toApiPayload(data: Partial<CreateCartaoFormData>): Record<string, unknown> {
   const payload: Record<string, unknown> = {}
   if (data.name !== undefined) payload.name = data.name
@@ -24,10 +38,42 @@ async function withAvailableLimit(card: RawCreditCard): Promise<CreditCard> {
 }
 
 export const cartoesService = {
+  // Lista completa (teto pragmático de 100 — cartão não costuma passar disso) — usada pelos
+  // formulários/filtros que precisam de TODOS os cartões pra popular um <select>, não só a
+  // tela de Cartões em si (que usa listPaginated).
   async list(status: CreditCardStatusFilter = 'active'): Promise<CreditCard[]> {
-    const query = status === 'active' ? '' : `?status=${status}`
-    const result = await apiFetch<{ creditCards: RawCreditCard[] }>(`/credit-cards${query}`)
+    const params = new URLSearchParams()
+    if (status !== 'active') params.set('status', status)
+    params.set('pageSize', '100')
+    const result = await apiFetch<{ creditCards: RawCreditCard[] }>(`/credit-cards?${params.toString()}`)
     return Promise.all(result.creditCards.map(withAvailableLimit))
+  },
+
+  async listPaginated(
+    status: CreditCardStatusFilter,
+    pagination: PageParams,
+  ): Promise<PaginatedCreditCards> {
+    const params = new URLSearchParams()
+    if (status !== 'active') params.set('status', status)
+    params.set('page', String(pagination.page))
+    params.set('pageSize', String(pagination.pageSize))
+    const result = await apiFetch<{
+      creditCards: RawCreditCard[]
+      total: number
+      sumCreditLimitCents: number
+      sumAvailableLimitCents: number
+      page: number
+      pageSize: number
+    }>(`/credit-cards?${params.toString()}`)
+    const items = await Promise.all(result.creditCards.map(withAvailableLimit))
+    return {
+      items,
+      total: result.total,
+      sumCreditLimitCents: result.sumCreditLimitCents,
+      sumAvailableLimitCents: result.sumAvailableLimitCents,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   },
 
   async create(data: CreateCartaoFormData): Promise<CreditCard> {

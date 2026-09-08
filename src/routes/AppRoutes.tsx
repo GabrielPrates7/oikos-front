@@ -4,7 +4,6 @@ import { LoginPage } from '../modules/auth/LoginPage'
 import { RegisterPage } from '../modules/auth/RegisterPage'
 import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
 import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
-import { PreferenciasTab } from '../modules/configuracoes/PreferenciasTab'
 import { ProfileForm } from '../modules/configuracoes/ProfileForm'
 import { CartaoDetalhePage } from '../modules/cartoes/CartaoDetalhePage'
 import { CartoesPage } from '../modules/cartoes/CartoesPage'
@@ -66,7 +65,9 @@ export function AppRoutes() {
         <Route path="/configuracoes" element={<ConfiguracoesPage />}>
           <Route index element={<Navigate to="perfil" replace />} />
           <Route path="perfil" element={<ProfileForm />} />
-          <Route path="preferencias" element={<PreferenciasTab />} />
+          {/* Aba removida — quem tinha /configuracoes/preferencias salva/favoritada cai no
+              Perfil em vez de 404. */}
+          <Route path="preferencias" element={<Navigate to="/configuracoes/perfil" replace />} />
           <Route path="seguranca" element={<ChangePasswordForm />} />
         </Route>
       </Route>

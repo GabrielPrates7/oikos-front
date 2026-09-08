@@ -1,6 +1,12 @@
 import { apiFetch } from '../../services/api'
+import type { PaginatedResult } from '../../utils/pagination'
 import type { CreateContaFormData, UpdateContaFormData } from './contas.schemas'
 import type { Account, AccountStatement, AccountStatusFilter } from './contas.types'
+
+export interface PageParams {
+  page: number
+  pageSize: number
+}
 
 // O backend espera snake_case (name, bank_name, type, initial_balance_cents) — o form usa
 // camelCase (convenção JS/TS), então essa é a camada que traduz entre os dois.
@@ -19,10 +25,39 @@ function toApiPayload(data: Partial<CreateContaFormData>): Record<string, unknow
 }
 
 export const contasService = {
+  // Lista completa (teto pragmático de 100 — conta não costuma passar disso) — usada pelos
+  // formulários/filtros que precisam de TODAS as contas pra popular um <select>, não só a
+  // tela de Contas em si (que usa listPaginated).
   async list(status: AccountStatusFilter = 'active'): Promise<Account[]> {
-    const query = status === 'active' ? '' : `?status=${status}`
-    const result = await apiFetch<{ accounts: Account[] }>(`/accounts${query}`)
+    const params = new URLSearchParams()
+    if (status !== 'active') params.set('status', status)
+    params.set('pageSize', '100')
+    const result = await apiFetch<{ accounts: Account[] }>(`/accounts?${params.toString()}`)
     return result.accounts
+  },
+
+  async listPaginated(
+    status: AccountStatusFilter,
+    pagination: PageParams,
+  ): Promise<PaginatedResult<Account>> {
+    const params = new URLSearchParams()
+    if (status !== 'active') params.set('status', status)
+    params.set('page', String(pagination.page))
+    params.set('pageSize', String(pagination.pageSize))
+    const result = await apiFetch<{
+      accounts: Account[]
+      total: number
+      sumCents: number
+      page: number
+      pageSize: number
+    }>(`/accounts?${params.toString()}`)
+    return {
+      items: result.accounts,
+      total: result.total,
+      sumCents: result.sumCents,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   },
 
   async create(data: CreateContaFormData): Promise<Account> {

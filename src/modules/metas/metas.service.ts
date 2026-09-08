@@ -1,11 +1,27 @@
 import { apiFetch } from '../../services/api'
+import type { PaginatedList } from '../../utils/pagination'
 import type { CreateAporteFormData, CreateMetaFormData } from './metas.schemas'
 import type { FinancialGoal, GoalContribution, GoalDetail } from './metas.types'
 
+export interface PageParams {
+  page: number
+  pageSize: number
+}
+
 export const metasService = {
-  async list(): Promise<FinancialGoal[]> {
-    const result = await apiFetch<{ goals: FinancialGoal[] }>('/goals')
-    return result.goals
+  // Único consumidor é MetasPage (a própria tela paginada) — sem versão "lista completa"
+  // porque nenhum outro lugar do app precisa de todas as metas de uma vez.
+  async list(pagination: PageParams): Promise<PaginatedList<FinancialGoal>> {
+    const params = new URLSearchParams()
+    params.set('page', String(pagination.page))
+    params.set('pageSize', String(pagination.pageSize))
+    const result = await apiFetch<{
+      goals: FinancialGoal[]
+      total: number
+      page: number
+      pageSize: number
+    }>(`/goals?${params.toString()}`)
+    return { items: result.goals, total: result.total, page: result.page, pageSize: result.pageSize }
   },
 
   async getById(id: string): Promise<GoalDetail> {

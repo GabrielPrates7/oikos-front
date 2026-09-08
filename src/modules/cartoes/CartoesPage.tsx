@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { CartaoForm } from './CartaoForm'
 import { CartoesList } from './CartoesList'
 import { cartoesService } from './cartoes.service'
@@ -22,6 +23,10 @@ export function CartoesPage() {
   const navError = useNavRedirectError()
   const [cards, setCards] = useState<CreditCard[]>([])
   const [statusFilter, setStatusFilter] = useState<CreditCardStatusFilter>('active')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCreditLimitCents, setSumCreditLimitCents] = useState(0)
+  const [sumAvailableLimitCents, setSumAvailableLimitCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -36,9 +41,15 @@ export function CartoesPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await cartoesService.list(statusFilter)
+        const result = await cartoesService.listPaginated(statusFilter, {
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+        })
         if (active) {
-          setCards(result)
+          setCards(result.items)
+          setTotal(result.total)
+          setSumCreditLimitCents(result.sumCreditLimitCents)
+          setSumAvailableLimitCents(result.sumAvailableLimitCents)
         }
       } catch (error) {
         if (active) {
@@ -56,7 +67,12 @@ export function CartoesPage() {
     return () => {
       active = false
     }
-  }, [statusFilter, refreshKey])
+  }, [statusFilter, page, refreshKey])
+
+  function handleStatusFilterChange(next: CreditCardStatusFilter) {
+    setPage(1)
+    setStatusFilter(next)
+  }
 
   async function handleCreate(data: CreateCartaoFormData) {
     setSubmitting(true)
@@ -153,7 +169,12 @@ export function CartoesPage() {
         <CartoesList
           cards={cards}
           statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
+          onStatusFilterChange={handleStatusFilterChange}
+          sumCreditLimitCents={sumCreditLimitCents}
+          sumAvailableLimitCents={sumAvailableLimitCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(card) => setMode({ type: 'edit', card })}
           onArchive={handleArchive}
           onActivate={handleActivate}

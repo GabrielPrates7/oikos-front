@@ -1,6 +1,7 @@
 import { Edit2, Flag, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
 import type { FinancialGoal } from './metas.types'
@@ -8,11 +9,21 @@ import './MetasList.css'
 
 interface MetasListProps {
   goals: FinancialGoal[]
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onEdit: (goal: FinancialGoal) => void
   onDelete: (goal: FinancialGoal) => void
 }
 
-export function MetasList({ goals, onEdit, onDelete }: MetasListProps) {
+export function MetasList({
+  goals,
+  page,
+  totalPages,
+  onPageChange,
+  onEdit,
+  onDelete,
+}: MetasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -48,67 +59,77 @@ export function MetasList({ goals, onEdit, onDelete }: MetasListProps) {
   }
 
   return (
-    <div className="metas-grid" ref={containerRef}>
-      {goals.map((goal) => {
-        const isConfirming = confirmingId === goal.id
-        const percent =
-          goal.target_amount_cents > 0
-            ? Math.min(100, Math.round((goal.currentAmountCents / goal.target_amount_cents) * 100))
-            : 0
+    <>
+      <div className="metas-grid" ref={containerRef}>
+        {goals.map((goal) => {
+          const isConfirming = confirmingId === goal.id
+          const percent =
+            goal.target_amount_cents > 0
+              ? Math.min(
+                  100,
+                  Math.round((goal.currentAmountCents / goal.target_amount_cents) * 100),
+                )
+              : 0
 
-        return (
-          <div key={goal.id} className="metas-grid__card">
-            <div className="metas-grid__target-date">
-              <Flag size={14} aria-hidden="true" />
-              Até {formatDateBR(goal.target_date)}
-            </div>
-            <Link to={`/metas/${goal.id}`} className="metas-grid__name">
-              {goal.name}
-            </Link>
-            <div className="metas-grid__progress">
-              <div className="metas-grid__bar-track">
-                <div className="metas-grid__bar-fill" style={{ width: `${percent}%` }} />
+          return (
+            <div key={goal.id} className="metas-grid__card">
+              <div className="metas-grid__target-date">
+                <Flag size={14} aria-hidden="true" />
+                Até {formatDateBR(goal.target_date)}
               </div>
-              <span className="metas-grid__progress-text">
-                {centsToBRL(goal.currentAmountCents)} de {centsToBRL(goal.target_amount_cents)}
-                <span className="metas-grid__percent"> ({percent}%)</span>
-              </span>
-            </div>
+              <Link to={`/metas/${goal.id}`} className="metas-grid__name">
+                {goal.name}
+              </Link>
+              <div className="metas-grid__progress">
+                <div className="metas-grid__bar-track">
+                  <div className="metas-grid__bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+                <span className="metas-grid__progress-text">
+                  {centsToBRL(goal.currentAmountCents)} de {centsToBRL(goal.target_amount_cents)}
+                  <span className="metas-grid__percent"> ({percent}%)</span>
+                </span>
+              </div>
 
-            {isConfirming ? (
-              <div className="metas-grid__confirm">
-                <button
-                  type="button"
-                  className="metas-list__confirm-delete"
-                  onClick={() => handleDeleteClick(goal)}
-                >
-                  Confirmar exclusão?
-                </button>
-                <button
-                  type="button"
-                  className="metas-list__cancel-delete"
-                  onClick={() => setConfirmingId(null)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            ) : (
-              <div className="metas-grid__actions">
-                <button type="button" aria-label={`Editar ${goal.name}`} onClick={() => onEdit(goal)}>
-                  <Edit2 size={16} aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Excluir ${goal.name}`}
-                  onClick={() => handleDeleteClick(goal)}
-                >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
-              </div>
-            )}
-          </div>
-        )
-      })}
-    </div>
+              {isConfirming ? (
+                <div className="metas-grid__confirm">
+                  <button
+                    type="button"
+                    className="metas-list__confirm-delete"
+                    onClick={() => handleDeleteClick(goal)}
+                  >
+                    Confirmar exclusão?
+                  </button>
+                  <button
+                    type="button"
+                    className="metas-list__cancel-delete"
+                    onClick={() => setConfirmingId(null)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <div className="metas-grid__actions">
+                  <button
+                    type="button"
+                    aria-label={`Editar ${goal.name}`}
+                    onClick={() => onEdit(goal)}
+                  >
+                    <Edit2 size={16} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Excluir ${goal.name}`}
+                    onClick={() => handleDeleteClick(goal)}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+    </>
   )
 }

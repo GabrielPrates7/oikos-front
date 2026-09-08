@@ -1,11 +1,35 @@
 import { apiFetch } from '../../services/api'
+import type { PaginatedList } from '../../utils/pagination'
 import type { CreateOrcamentoFormData } from './orcamentos.schemas'
 import type { Budget } from './orcamentos.types'
 
+export interface PageParams {
+  page: number
+  pageSize: number
+}
+
 export const orcamentosService = {
+  // Lista completa (teto pragmático de 100 — orçamento é no máximo 1 por categoria de
+  // despesa, não costuma passar disso) — usada por quem precisa de TODOS os orçamentos do
+  // mês (ex: PorCategoriaTab), não só a tela de Orçamentos em si (que usa listPaginated).
   async list(month: string): Promise<Budget[]> {
-    const result = await apiFetch<{ budgets: Budget[] }>(`/budgets?month=${month}`)
+    const result = await apiFetch<{ budgets: Budget[] }>(`/budgets?month=${month}&pageSize=100`)
     return result.budgets
+  },
+
+  async listPaginated(month: string, pagination: PageParams): Promise<PaginatedList<Budget>> {
+    const params = new URLSearchParams({ month })
+    params.set('page', String(pagination.page))
+    params.set('pageSize', String(pagination.pageSize))
+    const result = await apiFetch<{ budgets: Budget[]; total: number; page: number; pageSize: number }>(
+      `/budgets?${params.toString()}`,
+    )
+    return {
+      items: result.budgets,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   },
 
   async create(month: string, data: CreateOrcamentoFormData): Promise<Budget> {

@@ -3,7 +3,6 @@ import './ConfiguracoesPage.css'
 
 const TABS = [
   { path: '/configuracoes/perfil', label: 'Perfil' },
-  { path: '/configuracoes/preferencias', label: 'Preferências' },
   { path: '/configuracoes/seguranca', label: 'Segurança' },
 ]
 

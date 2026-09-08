@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { currentMonthString } from '../../utils/date'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { categoriasService } from '../categorias/categorias.service'
 import type { Category } from '../categorias/categorias.types'
 import { MonthSwitcher } from '../dashboard/MonthSwitcher'
@@ -24,7 +25,14 @@ function errorMessage(error: unknown, fallback: string): string {
 export function OrcamentosPage() {
   const [month, setMonth] = useState(() => currentMonthString())
   const [budgets, setBudgets] = useState<Budget[]>([])
+  // Lista COMPLETA (não paginada) dos orçamentos do mês, só pra saber quais categorias já
+  // têm orçamento — usada pelo formulário de criação (availableCategories abaixo). Usar a
+  // página atual de `budgets` faria categorias já orçadas em outra página reaparecerem como
+  // disponíveis.
+  const [allBudgetedCategoryIds, setAllBudgetedCategoryIds] = useState<Set<string>>(new Set())
   const [categories, setCategories] = useState<Category[]>([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -39,12 +47,15 @@ export function OrcamentosPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const [budgetsResult, categoriesResult] = await Promise.all([
+        const [budgetsResult, allBudgets, categoriesResult] = await Promise.all([
+          orcamentosService.listPaginated(month, { page, pageSize: DEFAULT_PAGE_SIZE }),
           orcamentosService.list(month),
           categoriasService.list('expense'),
         ])
         if (active) {
-          setBudgets(budgetsResult)
+          setBudgets(budgetsResult.items)
+          setTotal(budgetsResult.total)
+          setAllBudgetedCategoryIds(new Set(allBudgets.map((budget) => budget.category_id)))
           setCategories(categoriesResult)
         }
       } catch (error) {
@@ -63,7 +74,12 @@ export function OrcamentosPage() {
     return () => {
       active = false
     }
-  }, [month, refreshKey])
+  }, [month, page, refreshKey])
+
+  function handleMonthChange(next: string) {
+    setPage(1)
+    setMonth(next)
+  }
 
   async function handleCreate(data: CreateOrcamentoFormData) {
     setSubmitting(true)
@@ -109,14 +125,13 @@ export function OrcamentosPage() {
 
   // Categorias sem orçamento cadastrado neste mês — evita duplicar sem depender só do 409
   // do backend. Em edição, a própria categoria do orçamento continua disponível na lista.
-  const budgetedCategoryIds = new Set(budgets.map((budget) => budget.category_id))
   const availableCategories =
     mode.type === 'edit'
       ? categories.filter(
           (category) =>
-            !budgetedCategoryIds.has(category.id) || category.id === mode.budget.category_id,
+            !allBudgetedCategoryIds.has(category.id) || category.id === mode.budget.category_id,
         )
-      : categories.filter((category) => !budgetedCategoryIds.has(category.id))
+      : categories.filter((category) => !allBudgetedCategoryIds.has(category.id))
 
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
@@ -142,7 +157,7 @@ export function OrcamentosPage() {
         title="Orçamentos"
         action={
           <div className="orcamentos-page__header-actions">
-            <MonthSwitcher month={month} onChange={setMonth} />
+            <MonthSwitcher month={month} onChange={handleMonthChange} />
             {availableCategories.length > 0 && (
               <Button type="button" onClick={() => setMode({ type: 'create' })}>
                 <Plus size={16} aria-hidden="true" />
@@ -157,6 +172,9 @@ export function OrcamentosPage() {
         <OrcamentosList
           budgets={budgets}
           categories={categories}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(budget) => setMode({ type: 'edit', budget })}
           onDelete={handleDelete}
         />

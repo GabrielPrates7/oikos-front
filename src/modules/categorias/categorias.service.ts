@@ -1,12 +1,42 @@
 import { apiFetch } from '../../services/api'
+import type { PaginatedList } from '../../utils/pagination'
 import type { CreateCategoriaFormData, UpdateCategoriaFormData } from './categorias.schemas'
 import type { Category, CategoryType } from './categorias.types'
 
+export interface PageParams {
+  page: number
+  pageSize: number
+}
+
 export const categoriasService = {
+  // Lista completa (teto pragmático de 100 — categoria não costuma passar disso) — usada
+  // pelos formulários/filtros que precisam de TODAS as categorias pra popular um <select>,
+  // não só a tela de Categorias em si (que usa listPaginated).
   async list(type?: CategoryType): Promise<Category[]> {
-    const query = type ? `?type=${type}` : ''
-    const result = await apiFetch<{ categories: Category[] }>(`/categories${query}`)
+    const params = new URLSearchParams()
+    if (type) params.set('type', type)
+    params.set('pageSize', '100')
+    const result = await apiFetch<{ categories: Category[] }>(`/categories?${params.toString()}`)
     return result.categories
+  },
+
+  async listPaginated(type: CategoryType, pagination: PageParams): Promise<PaginatedList<Category>> {
+    const params = new URLSearchParams()
+    params.set('type', type)
+    params.set('page', String(pagination.page))
+    params.set('pageSize', String(pagination.pageSize))
+    const result = await apiFetch<{
+      categories: Category[]
+      total: number
+      page: number
+      pageSize: number
+    }>(`/categories?${params.toString()}`)
+    return {
+      items: result.categories,
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   },
 
   async create(data: CreateCategoriaFormData): Promise<Category> {
