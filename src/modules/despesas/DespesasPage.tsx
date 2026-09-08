@@ -5,6 +5,7 @@ import { FormError } from '../../components/feedback/FormError'
 import { SuccessMessage } from '../../components/feedback/SuccessMessage'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { categoriasService } from '../categorias/categorias.service'
@@ -45,6 +46,9 @@ export function DespesasPage() {
   const [activeCards, setActiveCards] = useState<CreditCard[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filters, setFilters] = useState<ExpenseFilters>({})
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
@@ -95,9 +99,14 @@ export function DespesasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await despesasService.listWithInvoicePayments(filters)
+        const result = await despesasService.listWithInvoicePayments(filters, {
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+        })
         if (active) {
-          setEntries(result)
+          setEntries(result.items)
+          setTotal(result.total)
+          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -115,7 +124,12 @@ export function DespesasPage() {
     return () => {
       active = false
     }
-  }, [filters, refreshKey])
+  }, [filters, page, refreshKey])
+
+  function handleFiltersChange(next: ExpenseFilters) {
+    setPage(1)
+    setFilters(next)
+  }
 
   // "Cartão de crédito" nem aparece na edição (ver DespesaForm) — só a criação passa por
   // aqui com paymentMethod === 'credit_card'. Compra vai pro mesmo POST /purchases que
@@ -251,7 +265,11 @@ export function DespesasPage() {
           accounts={allAccounts}
           categories={categories}
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={handleFiltersChange}
+          sumCents={sumCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
           onMarkAsPaid={handleMarkAsPaid}

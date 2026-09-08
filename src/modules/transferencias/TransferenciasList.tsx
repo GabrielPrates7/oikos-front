@@ -1,5 +1,7 @@
 import { Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
@@ -11,6 +13,10 @@ interface TransferenciasListProps {
   accounts: Account[]
   filters: TransferFilters
   onFiltersChange: (filters: TransferFilters) => void
+  sumCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onDelete: (transfer: Transfer) => void
 }
 
@@ -19,6 +25,10 @@ export function TransferenciasList({
   accounts,
   filters,
   onFiltersChange,
+  sumCents,
+  page,
+  totalPages,
+  onPageChange,
   onDelete,
 }: TransferenciasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
@@ -113,62 +123,66 @@ export function TransferenciasList({
           )}
         </div>
       ) : (
-        <ul className="transferencias-list__rows" ref={rowsRef}>
-          {transfers.map((transfer) => {
-            const fromAccount = accountsById.get(transfer.from_account_id)
-            const toAccount = accountsById.get(transfer.to_account_id)
-            const isConfirming = confirmingId === transfer.id
-            return (
-              <li key={transfer.id} className="transferencias-list__row">
-                <span className="transferencias-list__date">
-                  {formatDateBR(transfer.transfer_date)}
-                </span>
-                <div className="transferencias-list__info">
-                  {transfer.description && (
-                    <span className="transferencias-list__description">
-                      {transfer.description}
-                    </span>
-                  )}
-                  <span className="transferencias-list__accounts">
-                    De: {fromAccount?.name ?? 'Conta removida'} → Para:{' '}
-                    {toAccount?.name ?? 'Conta removida'}
+        <>
+          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
+          <ul className="transferencias-list__rows" ref={rowsRef}>
+            {transfers.map((transfer) => {
+              const fromAccount = accountsById.get(transfer.from_account_id)
+              const toAccount = accountsById.get(transfer.to_account_id)
+              const isConfirming = confirmingId === transfer.id
+              return (
+                <li key={transfer.id} className="transferencias-list__row">
+                  <span className="transferencias-list__date">
+                    {formatDateBR(transfer.transfer_date)}
                   </span>
-                </div>
-                <span className="transferencias-list__amount">
-                  {centsToBRL(transfer.amount_cents)}
-                </span>
-                <div className="transferencias-list__actions">
-                  {isConfirming ? (
-                    <>
+                  <div className="transferencias-list__info">
+                    {transfer.description && (
+                      <span className="transferencias-list__description">
+                        {transfer.description}
+                      </span>
+                    )}
+                    <span className="transferencias-list__accounts">
+                      De: {fromAccount?.name ?? 'Conta removida'} → Para:{' '}
+                      {toAccount?.name ?? 'Conta removida'}
+                    </span>
+                  </div>
+                  <span className="transferencias-list__amount">
+                    {centsToBRL(transfer.amount_cents)}
+                  </span>
+                  <div className="transferencias-list__actions">
+                    {isConfirming ? (
+                      <>
+                        <button
+                          type="button"
+                          className="transferencias-list__confirm-delete"
+                          onClick={() => handleDeleteClick(transfer)}
+                        >
+                          Confirmar exclusão?
+                        </button>
+                        <button
+                          type="button"
+                          className="transferencias-list__cancel-delete"
+                          onClick={() => setConfirmingId(null)}
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    ) : (
                       <button
                         type="button"
-                        className="transferencias-list__confirm-delete"
+                        aria-label={`Excluir transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
                         onClick={() => handleDeleteClick(transfer)}
                       >
-                        Confirmar exclusão?
+                        <Trash2 size={16} aria-hidden="true" />
                       </button>
-                      <button
-                        type="button"
-                        className="transferencias-list__cancel-delete"
-                        onClick={() => setConfirmingId(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      aria-label={`Excluir transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
-                      onClick={() => handleDeleteClick(transfer)}
-                    >
-                      <Trash2 size={16} aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+        </>
       )}
     </div>
   )

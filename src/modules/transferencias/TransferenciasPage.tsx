@@ -5,6 +5,7 @@ import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { contasService } from '../contas/contas.service'
 import type { Account } from '../contas/contas.types'
 import { TransferenciaForm } from './TransferenciaForm'
@@ -29,6 +30,9 @@ export function TransferenciasPage() {
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [filters, setFilters] = useState<TransferFilters>({})
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
@@ -73,9 +77,14 @@ export function TransferenciasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await transferenciasService.list(filters)
+        const result = await transferenciasService.list(filters, {
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+        })
         if (active) {
-          setTransfers(result)
+          setTransfers(result.items)
+          setTotal(result.total)
+          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -93,7 +102,12 @@ export function TransferenciasPage() {
     return () => {
       active = false
     }
-  }, [filters, refreshKey])
+  }, [filters, page, refreshKey])
+
+  function handleFiltersChange(next: TransferFilters) {
+    setPage(1)
+    setFilters(next)
+  }
 
   async function handleCreate(data: CreateTransferenciaFormData) {
     setSubmitting(true)
@@ -160,7 +174,11 @@ export function TransferenciasPage() {
           transfers={transfers}
           accounts={allAccounts}
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={handleFiltersChange}
+          sumCents={sumCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onDelete={handleDelete}
         />
       )}

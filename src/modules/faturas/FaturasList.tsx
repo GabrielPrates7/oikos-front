@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { currentMonthString, formatDateBR, formatReferenceMonth } from '../../utils/date'
 import type { CreditCard } from '../cartoes/cartoes.types'
@@ -20,6 +21,10 @@ interface FaturasListProps {
   onCardFilterChange: (cardId: string) => void
   search: string
   onSearchChange: (search: string) => void
+  sumCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   selectedInvoiceIds: Set<string>
   onToggleInvoiceSelected: (invoiceId: string) => void
   onToggleSelectAll: () => void
@@ -40,6 +45,10 @@ export function FaturasList({
   onCardFilterChange,
   search,
   onSearchChange,
+  sumCents,
+  page,
+  totalPages,
+  onPageChange,
   selectedInvoiceIds,
   onToggleInvoiceSelected,
   onToggleSelectAll,
@@ -52,8 +61,17 @@ export function FaturasList({
   // FUTURO nunca entra no padrão, nem aberta — isso é só "Todos os meses" (comparação de
   // string funciona porque monthKey já é 'YYYY-MM', mesma ordem lexicográfica e
   // cronológica). 'all' mostra tudo, um mês específico filtra só aquele mês.
-  const [monthFilter, setMonthFilter] = useState('default')
+  //
+  // Limitação conhecida pós-paginação: esse filtro (e o de ordenação abaixo) opera só sobre
+  // a página atual de faturas vinda do servidor (creditCardId/search são os únicos filtros
+  // que o backend aplica antes de paginar) — não existe "mês" como filtro server-side ainda.
+  const [monthFilter, setMonthFilterState] = useState('default')
   const [sortOrder, setSortOrder] = useState<SortOrder>('highest')
+
+  function setMonthFilter(next: string) {
+    onPageChange(1)
+    setMonthFilterState(next)
+  }
 
   const availableMonths = useMemo(() => {
     const months = new Set(invoices.map((invoice) => monthKey(invoice.reference_month)))
@@ -158,14 +176,7 @@ export function FaturasList({
         </div>
       ) : (
         <>
-          <ListTotal
-            items={[
-              {
-                label: 'Total exibido',
-                valueCents: visibleInvoices.reduce((sum, invoice) => sum + invoice.totalCents, 0),
-              },
-            ]}
-          />
+          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
           {payableInvoices.length > 0 && (
             <div className="faturas-list__batch-bar">
               <label className="faturas-list__select-all">
@@ -250,6 +261,7 @@ export function FaturasList({
               )
             })}
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
       )}
     </div>

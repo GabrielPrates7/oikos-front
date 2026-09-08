@@ -1,8 +1,14 @@
 import { apiFetch } from '../../services/api'
+import type { PaginatedResult } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import { faturasService } from '../faturas/faturas.service'
 import type { CreateDespesaFormData, UpdateDespesaFormData } from './despesas.schemas'
 import type { DespesaListEntry, Expense, ExpenseFilters } from './despesas.types'
+
+export interface PageParams {
+  page: number
+  pageSize: number
+}
 
 function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unknown> {
   const payload: Record<string, unknown> = {}
@@ -25,15 +31,16 @@ function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unkn
   return payload
 }
 
-function buildQuery(filters: ExpenseFilters): string {
+function buildQuery(filters: ExpenseFilters, pagination: PageParams): string {
   const params = new URLSearchParams()
   if (filters.accountId) params.set('accountId', filters.accountId)
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
   if (filters.paymentMethod) params.set('paymentMethod', filters.paymentMethod)
   if (filters.from) params.set('from', filters.from)
   if (filters.to) params.set('to', filters.to)
-  const query = params.toString()
-  return query ? `?${query}` : ''
+  params.set('page', String(pagination.page))
+  params.set('pageSize', String(pagination.pageSize))
+  return `?${params.toString()}`
 }
 
 function entryDate(entry: DespesaListEntry): string {
@@ -41,9 +48,24 @@ function entryDate(entry: DespesaListEntry): string {
 }
 
 export const despesasService = {
-  async list(filters: ExpenseFilters = {}): Promise<Expense[]> {
-    const result = await apiFetch<{ expenses: Expense[] }>(`/expenses${buildQuery(filters)}`)
-    return result.expenses
+  async list(
+    filters: ExpenseFilters = {},
+    pagination: PageParams,
+  ): Promise<PaginatedResult<Expense>> {
+    const result = await apiFetch<{
+      expenses: Expense[]
+      total: number
+      sumCents: number
+      page: number
+      pageSize: number
+    }>(`/expenses${buildQuery(filters, pagination)}`)
+    return {
+      items: result.expenses,
+      total: result.total,
+      sumCents: result.sumCents,
+      page: result.page,
+      pageSize: result.pageSize,
+    }
   },
 
   async create(data: CreateDespesaFormData): Promise<Expense> {
@@ -66,25 +88,47 @@ export const despesasService = {
     await apiFetch(`/expenses/${id}`, { method: 'DELETE' })
   },
 
-  // Mescla despesas reais com pagamentos de fatura (só informativo — não tem categoria nem
-  // forma de pagamento própria, então some da lista se um desses dois filtros estiver
-  // ativo, já que nunca poderia satisfazê-los de verdade). GET /invoices não devolve o
-  // pagamento em si, só o status — por isso o detalhe de cada fatura paga é buscado à
+  // Mescla despesas reais (paginadas) com pagamentos de fatura (só informativo — não tem
+  // categoria nem forma de pagamento própria, então some da lista se um desses dois filtros
+  // estiver ativo, já que nunca poderia satisfazê-los de verdade). GET /invoices não devolve
+  // o pagamento em si, só o status — por isso o detalhe de cada fatura paga é buscado à
   // parte (N+1 pequeno e limitado ao período filtrado, sem endpoint de lote disponível).
-  async listWithInvoicePayments(filters: ExpenseFilters = {}): Promise<DespesaListEntry[]> {
-    const expenses = await despesasService.list(filters)
-    const expenseEntries: DespesaListEntry[] = expenses.map((expense) => ({
+  //
+  // total/sumCents/page/pageSize vêm só da paginação de expenses — pagamento de fatura
+  // nunca contou no total (mesma regra de antes da paginação) e é anexado por cima da
+  // página atual de despesas, então "Página X de Y" reflete só a paginação de expenses.
+  // pageSize:100 abaixo é o teto do endpoint de faturas — cobre o uso real (fatura é mensal
+  // por cartão), mas um histórico com mais de 100 faturas pagas não seria varrido por
+  // inteiro aqui.
+  async listWithInvoicePayments(
+    filters: ExpenseFilters = {},
+    pagination: PageParams,
+  ): Promise<PaginatedResult<DespesaListEntry>> {
+    const expensesResult = await despesasService.list(filters, pagination)
+    const expenseEntries: DespesaListEntry[] = expensesResult.items.map((expense) => ({
       type: 'expense',
       data: expense,
     }))
-
-    if (filters.categoryId || filters.paymentMethod) {
-      return expenseEntries.sort((a, b) => entryDate(b).localeCompare(entryDate(a)))
+    const base = {
+      total: expensesResult.total,
+      sumCents: expensesResult.sumCents,
+      page: expensesResult.page,
+      pageSize: expensesResult.pageSize,
     }
 
-    const [invoices, cards] = await Promise.all([faturasService.list(), cartoesService.list('all')])
+    if (filters.categoryId || filters.paymentMethod) {
+      return {
+        items: expenseEntries.sort((a, b) => entryDate(b).localeCompare(entryDate(a))),
+        ...base,
+      }
+    }
+
+    const [invoicesResult, cards] = await Promise.all([
+      faturasService.list(undefined, undefined, { page: 1, pageSize: 100 }),
+      cartoesService.list('all'),
+    ])
     const cardsById = new Map(cards.map((card) => [card.id, card]))
-    const paidInvoices = invoices.filter((invoice) => invoice.displayStatus === 'paid')
+    const paidInvoices = invoicesResult.items.filter((invoice) => invoice.displayStatus === 'paid')
     const paidDetails = await Promise.all(paidInvoices.map((invoice) => faturasService.getById(invoice.id)))
 
     const invoiceEntries: DespesaListEntry[] = []
@@ -104,8 +148,11 @@ export const despesasService = {
       })
     }
 
-    return [...expenseEntries, ...invoiceEntries].sort((a, b) =>
-      entryDate(b).localeCompare(entryDate(a)),
-    )
+    return {
+      items: [...expenseEntries, ...invoiceEntries].sort((a, b) =>
+        entryDate(b).localeCompare(entryDate(a)),
+      ),
+      ...base,
+    }
   },
 }

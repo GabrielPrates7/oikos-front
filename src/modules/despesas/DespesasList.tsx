@@ -1,6 +1,7 @@
 import { CircleDollarSign, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
@@ -15,6 +16,10 @@ interface DespesasListProps {
   categories: Category[]
   filters: ExpenseFilters
   onFiltersChange: (filters: ExpenseFilters) => void
+  sumCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onEdit: (entry: Expense) => void
   onDelete: (entry: Expense) => void
   onMarkAsPaid: (entry: Expense) => void
@@ -34,6 +39,10 @@ export function DespesasList({
   categories,
   filters,
   onFiltersChange,
+  sumCents,
+  page,
+  totalPages,
+  onPageChange,
   onEdit,
   onDelete,
   onMarkAsPaid,
@@ -204,20 +213,7 @@ export function DespesasList({
         </div>
       ) : (
         <>
-          <ListTotal
-            items={[
-              {
-                label: 'Total exibido',
-                // Mesmo critério do saldo da conta (accounts.repository.getBalance):
-                // pendente não conta até virar paga de verdade.
-                valueCents: visibleEntries.reduce(
-                  (sum, entry) =>
-                    sum + (entry.type === 'expense' && entry.data.is_paid ? entry.data.amount_cents : 0),
-                  0,
-                ),
-              },
-            ]}
-          />
+          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
           <div className="despesas-list__table-wrap">
             <table className="despesas-list__table">
               <thead>
@@ -340,6 +336,7 @@ export function DespesasList({
               </tbody>
             </table>
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
       )}
     </div>

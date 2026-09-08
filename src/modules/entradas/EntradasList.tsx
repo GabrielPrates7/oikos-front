@@ -1,6 +1,7 @@
 import { CircleDollarSign, Edit2, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
+import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
@@ -14,6 +15,10 @@ interface EntradasListProps {
   categories: Category[]
   filters: IncomeEntryFilters
   onFiltersChange: (filters: IncomeEntryFilters) => void
+  sumCents: number
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
   onEdit: (entry: IncomeEntry) => void
   onDelete: (entry: IncomeEntry) => void
   onMarkAsReceived: (entry: IncomeEntry) => void
@@ -25,13 +30,18 @@ export function EntradasList({
   categories,
   filters,
   onFiltersChange,
+  sumCents,
+  page,
+  totalPages,
+  onPageChange,
   onEdit,
   onDelete,
   onMarkAsReceived,
 }: EntradasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
-  // Busca client-side — o volume de entradas de um usuário não justifica ida ao servidor
-  // (mesma decisão em DespesasList).
+  // Busca client-side, só dentro da página atual — igual antes da paginação em volume
+  // (mesma decisão em DespesasList), mas agora restrita aos 20 itens já carregados, já que
+  // a busca nunca foi enviada ao servidor.
   const [search, setSearch] = useState('')
   const rowsRef = useRef<HTMLTableSectionElement>(null)
 
@@ -162,19 +172,7 @@ export function EntradasList({
         </div>
       ) : (
         <>
-          <ListTotal
-            items={[
-              {
-                label: 'Total exibido',
-                // Mesmo critério do saldo da conta (accounts.repository.getBalance):
-                // pendente não conta até virar recebida de verdade.
-                valueCents: visibleEntries.reduce(
-                  (sum, entry) => sum + (entry.is_received ? entry.amount_cents : 0),
-                  0,
-                ),
-              },
-            ]}
-          />
+          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
           <div className="entradas-list__table-wrap">
             <table className="entradas-list__table">
               <thead>
@@ -265,6 +263,7 @@ export function EntradasList({
               </tbody>
             </table>
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
         </>
       )}
     </div>

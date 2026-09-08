@@ -5,6 +5,7 @@ import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { categoriasService } from '../categorias/categorias.service'
 import type { Category } from '../categorias/categorias.types'
 import { contasService } from '../contas/contas.service'
@@ -40,6 +41,9 @@ export function EntradasPage() {
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [filters, setFilters] = useState<IncomeEntryFilters>({})
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
@@ -88,9 +92,11 @@ export function EntradasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await entradasService.list(filters)
+        const result = await entradasService.list(filters, { page, pageSize: DEFAULT_PAGE_SIZE })
         if (active) {
-          setEntries(result)
+          setEntries(result.items)
+          setTotal(result.total)
+          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -108,7 +114,14 @@ export function EntradasPage() {
     return () => {
       active = false
     }
-  }, [filters, refreshKey])
+  }, [filters, page, refreshKey])
+
+  // Qualquer mudança de filtro pode reduzir o total de páginas — sem isso, trocar de filtro
+  // enquanto na página 3 podia deixar a tela "presa" numa página que não existe mais.
+  function handleFiltersChange(next: IncomeEntryFilters) {
+    setPage(1)
+    setFilters(next)
+  }
 
   async function handleCreate(data: CreateEntradaFormData) {
     setSubmitting(true)
@@ -206,7 +219,11 @@ export function EntradasPage() {
           accounts={allAccounts}
           categories={categories}
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={handleFiltersChange}
+          sumCents={sumCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
           onMarkAsReceived={handleMarkAsReceived}

@@ -5,6 +5,7 @@ import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
 import { useNavRedirectError } from '../../hooks/useNavRedirectError'
 import { ApiError } from '../../services/api'
+import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { contasService } from '../contas/contas.service'
@@ -48,6 +49,9 @@ export function FaturasPage() {
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([])
   const [cards, setCards] = useState<CreditCard[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<Set<string>>(new Set())
@@ -95,9 +99,15 @@ export function FaturasPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await faturasService.list(selectedCardId || undefined, debouncedSearch || undefined)
+        const result = await faturasService.list(
+          selectedCardId || undefined,
+          debouncedSearch || undefined,
+          { page, pageSize: DEFAULT_PAGE_SIZE },
+        )
         if (active) {
-          setInvoices(result)
+          setInvoices(result.items)
+          setTotal(result.total)
+          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -115,11 +125,17 @@ export function FaturasPage() {
     return () => {
       active = false
     }
-  }, [selectedCardId, debouncedSearch, refreshKey])
+  }, [selectedCardId, debouncedSearch, page, refreshKey])
 
   function handleCardFilterChange(cardId: string) {
+    setPage(1)
     setSelectedCardId(cardId)
     setSelectedInvoiceIds(new Set())
+  }
+
+  function handleSearchChange(next: string) {
+    setPage(1)
+    setSearch(next)
   }
 
   function handleToggleInvoiceSelected(invoiceId: string) {
@@ -261,7 +277,11 @@ export function FaturasPage() {
           selectedCardId={selectedCardId}
           onCardFilterChange={handleCardFilterChange}
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={handleSearchChange}
+          sumCents={sumCents}
+          page={page}
+          totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
+          onPageChange={setPage}
           selectedInvoiceIds={selectedInvoiceIds}
           onToggleInvoiceSelected={handleToggleInvoiceSelected}
           onToggleSelectAll={handleToggleSelectAll}
