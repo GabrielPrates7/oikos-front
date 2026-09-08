@@ -123,8 +123,10 @@ export const despesasService = {
       }
     }
 
+    // month: 'all' é obrigatório aqui — sem isso, o padrão do backend (mês atual + não
+    // paga de mês anterior) esconderia pagamentos de faturas mais antigas dessa mesclagem.
     const [invoicesResult, cards] = await Promise.all([
-      faturasService.list(undefined, undefined, { page: 1, pageSize: 100 }),
+      faturasService.list({ month: 'all' }, { page: 1, pageSize: 100 }),
       cartoesService.list('all'),
     ])
     const cardsById = new Map(cards.map((card) => [card.id, card]))

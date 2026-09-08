@@ -14,9 +14,22 @@ import { formatReferenceMonth } from '../../utils/date'
 import { FaturasList } from './FaturasList'
 import { PagarLoteForm } from './PagarLoteForm'
 import { faturasService } from './faturas.service'
+import type { InvoiceSort } from './faturas.service'
 import type { PayFormData } from './pagamento.schema'
 import type { InvoiceListItem } from './faturas.types'
 import './FaturasPage.css'
+
+// reference_month vem como 'YYYY-MM-01' — reduz pra 'YYYY-MM' pro <select> de mês.
+function monthKey(referenceMonth: string): string {
+  return referenceMonth.slice(0, 7)
+}
+
+// Valor do <select> de mês na UI: 'default' (mês atual + não paga de mês anterior) ou
+// 'all' viram undefined/'all' na chamada da API; qualquer outro valor é um 'YYYY-MM' exato.
+// Ver invoices.repository.buildWhere no backend pra regra completa.
+function monthFilterToApiParam(monthFilter: string): string | undefined {
+  return monthFilter === 'default' ? undefined : monthFilter
+}
 
 interface BatchPayEntry {
   invoiceId: string
@@ -49,6 +62,9 @@ export function FaturasPage() {
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([])
   const [cards, setCards] = useState<CreditCard[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [monthFilter, setMonthFilterState] = useState('default')
+  const [availableMonths, setAvailableMonths] = useState<string[]>([])
+  const [sortOrder, setSortOrder] = useState<InvoiceSort>('value_desc')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [sumCents, setSumCents] = useState(0)
@@ -100,8 +116,12 @@ export function FaturasPage() {
       setLoadError(null)
       try {
         const result = await faturasService.list(
-          selectedCardId || undefined,
-          debouncedSearch || undefined,
+          {
+            creditCardId: selectedCardId || undefined,
+            search: debouncedSearch || undefined,
+            month: monthFilterToApiParam(monthFilter),
+            sort: sortOrder,
+          },
           { page, pageSize: DEFAULT_PAGE_SIZE },
         )
         if (active) {
@@ -125,7 +145,37 @@ export function FaturasPage() {
     return () => {
       active = false
     }
-  }, [selectedCardId, debouncedSearch, page, refreshKey])
+  }, [selectedCardId, debouncedSearch, monthFilter, sortOrder, page, refreshKey])
+
+  // Opções do <select> de mês precisam do universo INTEIRO de meses (creditCardId/search
+  // aplicados, mas sem filtro de mês nem paginação) — não dá pra derivar da página atual
+  // igual antes da paginação existir. pageSize:100 é o mesmo teto pragmático usado em
+  // despesas.service (fatura é mensal por cartão, cobre o uso real).
+  useEffect(() => {
+    let active = true
+
+    async function loadMonths() {
+      try {
+        const result = await faturasService.list(
+          { creditCardId: selectedCardId || undefined, search: debouncedSearch || undefined, month: 'all' },
+          { page: 1, pageSize: 100 },
+        )
+        if (active) {
+          const months = new Set(result.items.map((invoice) => monthKey(invoice.reference_month)))
+          setAvailableMonths(Array.from(months).sort((a, b) => b.localeCompare(a)))
+        }
+      } catch {
+        // Não bloqueia a tela por causa disso — o <select> só fica sem as opções de mês
+        // específico, "Mês atual + não pagas" e "Todos os meses" continuam funcionando.
+      }
+    }
+
+    void loadMonths()
+
+    return () => {
+      active = false
+    }
+  }, [selectedCardId, debouncedSearch, refreshKey])
 
   function handleCardFilterChange(cardId: string) {
     setPage(1)
@@ -136,6 +186,16 @@ export function FaturasPage() {
   function handleSearchChange(next: string) {
     setPage(1)
     setSearch(next)
+  }
+
+  function handleMonthFilterChange(next: string) {
+    setPage(1)
+    setMonthFilterState(next)
+  }
+
+  function handleSortOrderChange(next: InvoiceSort) {
+    setPage(1)
+    setSortOrder(next)
   }
 
   function handleToggleInvoiceSelected(invoiceId: string) {
@@ -278,6 +338,11 @@ export function FaturasPage() {
           onCardFilterChange={handleCardFilterChange}
           search={search}
           onSearchChange={handleSearchChange}
+          monthFilter={monthFilter}
+          onMonthFilterChange={handleMonthFilterChange}
+          availableMonths={availableMonths}
+          sortOrder={sortOrder}
+          onSortOrderChange={handleSortOrderChange}
           sumCents={sumCents}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}

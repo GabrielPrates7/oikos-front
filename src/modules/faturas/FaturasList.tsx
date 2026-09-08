@@ -1,18 +1,16 @@
 import { Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
-import { currentMonthString, formatDateBR, formatReferenceMonth } from '../../utils/date'
+import { formatDateBR, formatReferenceMonth } from '../../utils/date'
+import type { InvoiceSort } from './faturas.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { InvoiceStatusBadge } from './InvoiceStatusBadge'
 import type { InvoiceListItem } from './faturas.types'
 import './FaturasList.css'
-
-type SortOrder = 'highest' | 'lowest'
 
 interface FaturasListProps {
   invoices: InvoiceListItem[]
@@ -21,6 +19,11 @@ interface FaturasListProps {
   onCardFilterChange: (cardId: string) => void
   search: string
   onSearchChange: (search: string) => void
+  monthFilter: string
+  onMonthFilterChange: (month: string) => void
+  availableMonths: string[]
+  sortOrder: InvoiceSort
+  onSortOrderChange: (sort: InvoiceSort) => void
   sumCents: number
   page: number
   totalPages: number
@@ -32,12 +35,6 @@ interface FaturasListProps {
   onQuickPay: (invoiceId: string) => void
 }
 
-// reference_month vem como 'YYYY-MM-01' — reduz pra 'YYYY-MM' pra comparar com
-// currentMonthString() e com o valor do <select>.
-function monthKey(referenceMonth: string): string {
-  return referenceMonth.slice(0, 7)
-}
-
 export function FaturasList({
   invoices,
   cards,
@@ -45,6 +42,11 @@ export function FaturasList({
   onCardFilterChange,
   search,
   onSearchChange,
+  monthFilter,
+  onMonthFilterChange,
+  availableMonths,
+  sortOrder,
+  onSortOrderChange,
   sumCents,
   page,
   totalPages,
@@ -56,46 +58,12 @@ export function FaturasList({
   onQuickPay,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
-  // Padrão não é só "mês corrente": fatura não paga de mês ANTERIOR nunca deveria sumir
-  // sozinha por causa do filtro de mês (só some quando é paga, aí sim é passado). Mês
-  // FUTURO nunca entra no padrão, nem aberta — isso é só "Todos os meses" (comparação de
-  // string funciona porque monthKey já é 'YYYY-MM', mesma ordem lexicográfica e
-  // cronológica). 'all' mostra tudo, um mês específico filtra só aquele mês.
-  //
-  // Limitação conhecida pós-paginação: esse filtro (e o de ordenação abaixo) opera só sobre
-  // a página atual de faturas vinda do servidor (creditCardId/search são os únicos filtros
-  // que o backend aplica antes de paginar) — não existe "mês" como filtro server-side ainda.
-  const [monthFilter, setMonthFilterState] = useState('default')
-  const [sortOrder, setSortOrder] = useState<SortOrder>('highest')
-
-  function setMonthFilter(next: string) {
-    onPageChange(1)
-    setMonthFilterState(next)
-  }
-
-  const availableMonths = useMemo(() => {
-    const months = new Set(invoices.map((invoice) => monthKey(invoice.reference_month)))
-    return Array.from(months).sort((a, b) => b.localeCompare(a))
-  }, [invoices])
-
-  const visibleInvoices = useMemo(() => {
-    const filtered = invoices.filter((invoice) => {
-      if (monthFilter === 'all') return true
-      if (monthFilter === 'default') {
-        const invoiceMonth = monthKey(invoice.reference_month)
-        const current = currentMonthString()
-        return invoiceMonth === current || (invoiceMonth < current && invoice.displayStatus !== 'paid')
-      }
-      return monthKey(invoice.reference_month) === monthFilter
-    })
-    const sorted = [...filtered].sort((a, b) =>
-      sortOrder === 'highest' ? b.totalCents - a.totalCents : a.totalCents - b.totalCents,
-    )
-    return sorted
-  }, [invoices, monthFilter, sortOrder])
+  // Filtro de mês, ordenação e paginação são todos resolvidos no servidor agora (mesmo
+  // WHERE/ORDER BY, LIMIT/OFFSET por cima) — invoices já chega filtrada, ordenada e paginada,
+  // sem reprocessamento client-side.
 
   // Só faturas ainda não pagas entram no lote — pagar de novo não faz sentido.
-  const payableInvoices = visibleInvoices.filter((invoice) => invoice.displayStatus !== 'paid')
+  const payableInvoices = invoices.filter((invoice) => invoice.displayStatus !== 'paid')
   const allSelected =
     payableInvoices.length > 0 && payableInvoices.every((invoice) => selectedInvoiceIds.has(invoice.id))
 
@@ -135,7 +103,7 @@ export function FaturasList({
           <select
             id="filter-month"
             value={monthFilter}
-            onChange={(event) => setMonthFilter(event.target.value)}
+            onChange={(event) => onMonthFilterChange(event.target.value)}
           >
             <option value="default">Mês atual + não pagas</option>
             <option value="all">Todos os meses</option>
@@ -151,28 +119,24 @@ export function FaturasList({
           <select
             id="filter-sort"
             value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+            onChange={(event) => onSortOrderChange(event.target.value as InvoiceSort)}
           >
-            <option value="highest">Maior valor primeiro</option>
-            <option value="lowest">Menor valor primeiro</option>
+            <option value="value_desc">Maior valor primeiro</option>
+            <option value="value_asc">Menor valor primeiro</option>
           </select>
         </div>
       </div>
 
       {invoices.length === 0 ? (
         <div className="faturas-list__empty">
-          {selectedCardId || search ? (
-            <p>Nenhuma fatura encontrada pra esse filtro.</p>
+          {selectedCardId || search || monthFilter !== 'default' ? (
+            <p>Nenhuma fatura encontrada com esses filtros.</p>
           ) : (
             <>
               <p>Você ainda não tem nenhuma fatura.</p>
               <p>Faturas aparecem aqui assim que você registrar uma compra num cartão.</p>
             </>
           )}
-        </div>
-      ) : visibleInvoices.length === 0 ? (
-        <div className="faturas-list__empty">
-          <p>Nenhuma fatura encontrada com esses filtros.</p>
         </div>
       ) : (
         <>
@@ -197,7 +161,7 @@ export function FaturasList({
             </div>
           )}
           <div className="faturas-grid">
-            {visibleInvoices.map((invoice) => {
+            {invoices.map((invoice) => {
               const card = cardsById.get(invoice.credit_card_id)
               const isPayable = invoice.displayStatus !== 'paid'
               return (
