@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
+import { nextMonthSameDay } from '../../utils/date'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
@@ -25,6 +26,10 @@ const PAYMENT_METHOD_OPTIONS = (
 
 interface DespesaFormProps {
   initialData?: Expense
+  // Preenchido só na criação, vindo do botão "Duplicar" de DespesasList — nunca junto com
+  // initialData (edição não duplica). Mesmos dados do original, exceto a data (sugerida pro
+  // mês seguinte, editável) — ver cálculo de expenseDate abaixo.
+  duplicateFrom?: Expense
   // Preenchido só na criação, vindo do atalho "Movimentar" de ContasList/CartoesList —
   // nunca junto com initialData (edição já traz a conta certa em initialData.account_id).
   defaultAccountId?: string
@@ -42,6 +47,7 @@ interface DespesaFormProps {
 
 export function DespesaForm({
   initialData,
+  duplicateFrom,
   defaultAccountId,
   accounts,
   cards,
@@ -51,6 +57,10 @@ export function DespesaForm({
   onSubmit,
   onCancel,
 }: DespesaFormProps) {
+  // Edição usa o registro original; duplicar usa a cópia como fonte de todos os campos,
+  // exceto a data (calculada à parte, abaixo).
+  const source = initialData ?? duplicateFrom
+
   const {
     register,
     handleSubmit,
@@ -61,19 +71,21 @@ export function DespesaForm({
   } = useForm<CreateDespesaFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      accountId: initialData?.account_id ?? defaultAccountId ?? '',
-      categoryId: initialData?.category_id ?? '',
-      description: initialData?.description ?? '',
-      amountCents: initialData?.amount_cents ?? 0,
-      paymentMethod: initialData?.payment_method ?? 'debit',
-      expenseDate: initialData?.expense_date ?? today(),
-      isEssential: initialData?.is_essential,
-      isFixed: initialData?.is_fixed,
-      isPaid: initialData?.is_paid,
-      isPlanned: initialData?.is_planned,
+      accountId: source?.account_id ?? defaultAccountId ?? '',
+      categoryId: source?.category_id ?? '',
+      description: source?.description ?? '',
+      amountCents: source?.amount_cents ?? 0,
+      paymentMethod: source?.payment_method ?? 'debit',
+      expenseDate: duplicateFrom
+        ? nextMonthSameDay(duplicateFrom.expense_date)
+        : (initialData?.expense_date ?? today()),
+      isEssential: source?.is_essential,
+      isFixed: source?.is_fixed,
+      isPaid: source?.is_paid,
+      isPlanned: source?.is_planned,
       // Registro antigo (de antes desse campo existir) pode ter is_paid=true com paid_date
       // nulo — cai pra data do lançamento em vez de deixar o campo em branco.
-      paidDate: initialData?.paid_date ?? initialData?.expense_date ?? today(),
+      paidDate: source?.paid_date ?? source?.expense_date ?? today(),
       creditCardId: '',
       installmentsCount: 1,
     },

@@ -1,4 +1,4 @@
-import { CircleDollarSign, Edit2, Search, Trash2 } from 'lucide-react'
+import { CircleDollarSign, Copy, Edit2, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { Pagination } from '../../components/ui/Pagination'
@@ -22,6 +22,13 @@ interface EntradasListProps {
   onEdit: (entry: IncomeEntry) => void
   onDelete: (entry: IncomeEntry) => void
   onMarkAsReceived: (entry: IncomeEntry) => void
+  onDuplicate: (entry: IncomeEntry) => void
+}
+
+// Mesmo padrão de DespesasList.monthFilterToApiParam — 'default' (mês atual) vira undefined
+// na chamada da API, 'all' passa direto.
+function monthFilterToApiParam(monthFilter: string): string | undefined {
+  return monthFilter === 'default' ? undefined : monthFilter
 }
 
 export function EntradasList({
@@ -37,6 +44,7 @@ export function EntradasList({
   onEdit,
   onDelete,
   onMarkAsReceived,
+  onDuplicate,
 }: EntradasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   // Busca client-side, só dentro da página atual — igual antes da paginação em volume
@@ -74,7 +82,13 @@ export function EntradasList({
 
   const accountsById = new Map(accounts.map((account) => [account.id, account]))
   const categoriesById = new Map(categories.map((category) => [category.id, category]))
-  const hasFilters = !!(filters.accountId || filters.categoryId || filters.from || filters.to)
+  const hasFilters = !!(
+    filters.accountId ||
+    filters.categoryId ||
+    filters.from ||
+    filters.to ||
+    filters.month === 'all'
+  )
 
   const visibleEntries = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -131,6 +145,17 @@ export function EntradasList({
           </select>
         </div>
         <div className="entradas-list__filter-field">
+          <label htmlFor="filter-month">Mês</label>
+          <select
+            id="filter-month"
+            value={filters.month ?? 'default'}
+            onChange={(event) => handleFilterChange({ month: monthFilterToApiParam(event.target.value) })}
+          >
+            <option value="default">Mês atual</option>
+            <option value="all">Todos os meses</option>
+          </select>
+        </div>
+        <div className="entradas-list__filter-field">
           <label htmlFor="filter-from">De</label>
           <input
             id="filter-from"
@@ -152,7 +177,15 @@ export function EntradasList({
           <button
             type="button"
             className="entradas-list__clear-filters"
-            onClick={() => handleFilterChange({ accountId: undefined, categoryId: undefined, from: undefined, to: undefined })}
+            onClick={() =>
+              handleFilterChange({
+                accountId: undefined,
+                categoryId: undefined,
+                from: undefined,
+                to: undefined,
+                month: undefined,
+              })
+            }
           >
             Limpar filtros
           </button>
@@ -240,6 +273,13 @@ export function EntradasList({
                                 Marcar como recebida
                               </button>
                             )}
+                            <button
+                              type="button"
+                              aria-label={`Duplicar ${entry.description}`}
+                              onClick={() => onDuplicate(entry)}
+                            >
+                              <Copy size={16} aria-hidden="true" />
+                            </button>
                             <button
                               type="button"
                               aria-label={`Editar ${entry.description}`}

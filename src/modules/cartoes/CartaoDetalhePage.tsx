@@ -22,7 +22,7 @@ import './CartaoDetalhePage.css'
 
 type Mode =
   | { type: 'view' }
-  | { type: 'create-purchase' }
+  | { type: 'create-purchase'; duplicateFrom?: Purchase }
   | { type: 'edit-purchase'; purchase: Purchase }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -131,6 +131,15 @@ export function CartaoDetalhePage() {
     setMode({ type: 'edit-purchase', purchase })
   }
 
+  // Duplicar nunca edita a compra original — sempre abre o formulário de criação, só
+  // pré-preenchido (ver CompraForm.duplicateFrom). Mesmo padrão de DespesasPage/EntradasPage.
+  function handleDuplicateClick(purchase: Purchase) {
+    setConfirmingDeleteId(null)
+    setActionError(null)
+    setFormError(null)
+    setMode({ type: 'create-purchase', duplicateFrom: purchase })
+  }
+
   function handleDeleteClick(purchase: Purchase) {
     if (confirmingDeleteId === purchase.id) {
       void handleConfirmDelete(purchase)
@@ -160,6 +169,7 @@ export function CartaoDetalhePage() {
         <PageHeader title="Nova compra" />
         <CompraForm
           categories={categories}
+          duplicateFrom={mode.duplicateFrom}
           error={formError}
           submitting={submitting}
           onCancel={handleCancelForm}
@@ -278,6 +288,9 @@ export function CartaoDetalhePage() {
                     </>
                   ) : (
                     <>
+                      <button type="button" onClick={() => handleDuplicateClick(purchase)}>
+                        Duplicar
+                      </button>
                       <button type="button" onClick={() => handleEditClick(purchase)}>
                         Editar
                       </button>

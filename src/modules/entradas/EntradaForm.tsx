@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
+import { nextMonthSameDay } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { createSchema, type CreateEntradaFormData } from './entradas.schemas'
@@ -24,6 +25,10 @@ const RECEIPT_METHOD_OPTIONS = (
 
 interface EntradaFormProps {
   initialData?: IncomeEntry
+  // Preenchido só na criação, vindo do botão "Duplicar" de EntradasList — mesmos dados do
+  // original, exceto a data (sugerida pro mês seguinte, editável). Mesmo padrão de
+  // DespesaForm.duplicateFrom.
+  duplicateFrom?: IncomeEntry
   // Preenchido só na criação, vindo do atalho "Movimentar" de ContasList — nunca junto
   // com initialData (edição já traz a conta certa em initialData.account_id).
   defaultAccountId?: string
@@ -37,6 +42,7 @@ interface EntradaFormProps {
 
 export function EntradaForm({
   initialData,
+  duplicateFrom,
   defaultAccountId,
   accounts,
   categories,
@@ -45,6 +51,10 @@ export function EntradaForm({
   onSubmit,
   onCancel,
 }: EntradaFormProps) {
+  // Edição usa o registro original; duplicar usa a cópia como fonte de todos os campos,
+  // exceto a data (calculada à parte, abaixo).
+  const source = initialData ?? duplicateFrom
+
   const {
     register,
     handleSubmit,
@@ -55,17 +65,19 @@ export function EntradaForm({
   } = useForm<CreateEntradaFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      accountId: initialData?.account_id ?? defaultAccountId ?? '',
-      categoryId: initialData?.category_id ?? '',
-      description: initialData?.description ?? '',
-      amountCents: initialData?.amount_cents ?? 0,
-      entryDate: initialData?.entry_date ?? today(),
-      receiptMethod: initialData?.receipt_method ?? 'pix',
-      isReceived: initialData?.is_received,
-      isPlanned: initialData?.is_planned,
+      accountId: source?.account_id ?? defaultAccountId ?? '',
+      categoryId: source?.category_id ?? '',
+      description: source?.description ?? '',
+      amountCents: source?.amount_cents ?? 0,
+      entryDate: duplicateFrom
+        ? nextMonthSameDay(duplicateFrom.entry_date)
+        : (initialData?.entry_date ?? today()),
+      receiptMethod: source?.receipt_method ?? 'pix',
+      isReceived: source?.is_received,
+      isPlanned: source?.is_planned,
       // Registro antigo (de antes desse campo existir) pode ter is_received=true com
       // received_date nulo — cai pra data do lançamento em vez de deixar em branco.
-      receivedDate: initialData?.received_date ?? initialData?.entry_date ?? today(),
+      receivedDate: source?.received_date ?? source?.entry_date ?? today(),
     },
   })
 

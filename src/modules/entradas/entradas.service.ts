@@ -34,6 +34,7 @@ function buildQuery(filters: IncomeEntryFilters, pagination: PageParams): string
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
   if (filters.from) params.set('from', filters.from)
   if (filters.to) params.set('to', filters.to)
+  if (filters.month !== undefined) params.set('month', filters.month)
   params.set('page', String(pagination.page))
   params.set('pageSize', String(pagination.pageSize))
   return `?${params.toString()}`

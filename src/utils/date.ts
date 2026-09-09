@@ -58,6 +58,31 @@ export function currentMonthString(): string {
   return `${year}-${month}`
 }
 
+// Espelha oikos-back/src/utils/date-range.ts (monthRange) — usado no cliente pra filtrar
+// entradas mescladas (pagamento/fatura em aberto) pelo mesmo mês em vista na lista, sem
+// depender de uma ida ao servidor só pra saber os limites do mês.
+export function monthRange(month: string): { monthStart: string; monthEnd: string } {
+  const [yearStr, monthStr] = month.split('-')
+  const year = Number(yearStr)
+  const monthNum = Number(monthStr)
+  const daysInMonth = new Date(year, monthNum, 0).getDate()
+  return {
+    monthStart: `${yearStr}-${monthStr}-01`,
+    monthEnd: `${yearStr}-${monthStr}-${String(daysInMonth).padStart(2, '0')}`,
+  }
+}
+
+// Duplicar lançamento: sugere a mesma data no mês seguinte. Mês seguinte sem esse dia (ex:
+// 31 de janeiro) cai pro último dia disponível — mesmo clamp usado no parcelamento de cartão.
+export function nextMonthSameDay(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const nextMonth = month === 12 ? 1 : month + 1
+  const nextYear = month === 12 ? year + 1 : year
+  const daysInNextMonth = new Date(nextYear, nextMonth, 0).getDate()
+  const clampedDay = Math.min(day, daysInNextMonth)
+  return `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`
+}
+
 const MONTH_ABBR_PT = [
   'Jan',
   'Fev',

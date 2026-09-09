@@ -1,9 +1,10 @@
 import { apiFetch } from '../../services/api'
+import { currentMonthString, monthRange } from '../../utils/date'
 import type { PaginatedResult } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import { faturasService } from '../faturas/faturas.service'
 import type { CreateDespesaFormData, UpdateDespesaFormData } from './despesas.schemas'
-import type { DespesaListEntry, Expense, ExpenseFilters } from './despesas.types'
+import type { DespesaListEntry, Expense, ExpenseFilters, MonthlySummary } from './despesas.types'
 
 export interface PageParams {
   page: number
@@ -38,6 +39,7 @@ function buildQuery(filters: ExpenseFilters, pagination: PageParams): string {
   if (filters.paymentMethod) params.set('paymentMethod', filters.paymentMethod)
   if (filters.from) params.set('from', filters.from)
   if (filters.to) params.set('to', filters.to)
+  if (filters.month !== undefined) params.set('month', filters.month)
   params.set('page', String(pagination.page))
   params.set('pageSize', String(pagination.pageSize))
   return `?${params.toString()}`
@@ -45,6 +47,20 @@ function buildQuery(filters: ExpenseFilters, pagination: PageParams): string {
 
 function entryDate(entry: DespesaListEntry): string {
   return entry.type === 'expense' ? entry.data.expense_date : entry.date
+}
+
+// Limites de data efetivos da mesclagem de fatura (pagamento/em aberto): from/to explícitos
+// sempre ganham (mesma regra do backend, ver expenses.controller.resolveDateRange); sem
+// eles, usa o mês do filtro (ou mês atual, se nenhum foi escolhido ainda). null = sem limite
+// nenhum ('all').
+function resolveInvoiceDateBounds(filters: ExpenseFilters): { from?: string; to?: string } | null {
+  if (filters.from || filters.to) {
+    return { from: filters.from, to: filters.to }
+  }
+  const month = filters.month ?? currentMonthString()
+  if (month === 'all') return null
+  const { monthStart, monthEnd } = monthRange(month)
+  return { from: monthStart, to: monthEnd }
 }
 
 export const despesasService = {
@@ -125,11 +141,22 @@ export const despesasService = {
 
     // month: 'all' é obrigatório aqui — sem isso, o padrão do backend (mês atual + não
     // paga de mês anterior) esconderia pagamentos de faturas mais antigas dessa mesclagem.
+    // O filtro de mês real da mesclagem é aplicado depois, client-side, via
+    // resolveInvoiceDateBounds — dá pra reaproveitar a MESMA busca pras faturas pagas
+    // (payment_date) e não pagas (due_date), sem duas idas ao servidor.
     const [invoicesResult, cards] = await Promise.all([
       faturasService.list({ month: 'all' }, { page: 1, pageSize: 100 }),
       cartoesService.list('all'),
     ])
     const cardsById = new Map(cards.map((card) => [card.id, card]))
+    const bounds = resolveInvoiceDateBounds(filters)
+    function inBounds(dateStr: string): boolean {
+      if (!bounds) return true
+      if (bounds.from && dateStr < bounds.from) return false
+      if (bounds.to && dateStr > bounds.to) return false
+      return true
+    }
+
     const paidInvoices = invoicesResult.items.filter((invoice) => invoice.displayStatus === 'paid')
     const paidDetails = await Promise.all(paidInvoices.map((invoice) => faturasService.getById(invoice.id)))
 
@@ -138,8 +165,7 @@ export const despesasService = {
       const payment = detail.payment
       if (!payment) continue
       if (filters.accountId && payment.account_id !== filters.accountId) continue
-      if (filters.from && payment.payment_date < filters.from) continue
-      if (filters.to && payment.payment_date > filters.to) continue
+      if (!inBounds(payment.payment_date)) continue
       const card = cardsById.get(detail.credit_card_id)
       invoiceEntries.push({
         type: 'invoice_payment',
@@ -150,11 +176,37 @@ export const despesasService = {
       })
     }
 
+    // Fatura não paga não tem conta associada ainda (só existe quando ela é paga) — some da
+    // mesclagem se o filtro de conta estiver ativo, mesma regra de categoria/forma de
+    // pagamento acima.
+    const unpaidEntries: DespesaListEntry[] = []
+    if (!filters.accountId) {
+      const unpaidInvoices = invoicesResult.items.filter((invoice) => invoice.displayStatus !== 'paid')
+      for (const invoice of unpaidInvoices) {
+        if (!inBounds(invoice.due_date)) continue
+        const card = cardsById.get(invoice.credit_card_id)
+        unpaidEntries.push({
+          type: 'unpaid_invoice',
+          id: invoice.id,
+          date: invoice.due_date,
+          amountCents: invoice.totalCents,
+          description: `Fatura ${card?.name ?? 'cartão removido'}`,
+        })
+      }
+    }
+
     return {
-      items: [...expenseEntries, ...invoiceEntries].sort((a, b) =>
+      items: [...expenseEntries, ...invoiceEntries, ...unpaidEntries].sort((a, b) =>
         entryDate(b).localeCompare(entryDate(a)),
       ),
       ...base,
     }
+  },
+
+  // Totais do mês (geral/pago/falta pagar) — independentes da paginação da lista, sempre
+  // pro mês inteiro. month undefined deixa o backend decidir (mês atual).
+  async getMonthlySummary(month?: string): Promise<MonthlySummary> {
+    const query = month !== undefined ? `?month=${encodeURIComponent(month)}` : ''
+    return apiFetch<MonthlySummary>(`/expenses/monthly-summary${query}`)
   },
 }

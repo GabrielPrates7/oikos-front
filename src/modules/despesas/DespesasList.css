@@ -140,7 +140,8 @@
 /* Neutro de propósito — não repete o verde/terracota já usado pro valor, só sinaliza a
    classificação essencial/supérfluo sem competir visualmente com ele. */
 .despesas-list__essential-badge,
-.despesas-list__invoice-payment-badge {
+.despesas-list__invoice-payment-badge,
+.despesas-list__invoice-open-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -150,6 +151,18 @@
   border-radius: 999px;
   padding: 2px 8px;
   white-space: nowrap;
+}
+
+.despesas-list__view-invoice {
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.despesas-list__view-invoice:hover {
+  text-decoration: underline;
 }
 
 .despesas-list__meta {

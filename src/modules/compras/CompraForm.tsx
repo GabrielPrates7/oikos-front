@@ -6,8 +6,10 @@ import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
+import { nextMonthSameDay } from '../../utils/date'
 import type { Category } from '../categorias/categorias.types'
 import { createSchema, type CreateCompraFormData } from './compras.schemas'
+import type { Purchase } from './compras.types'
 import './CompraForm.css'
 
 function today(): string {
@@ -16,13 +18,24 @@ function today(): string {
 
 interface CompraFormProps {
   categories: Category[]
+  // Preenchido só vindo do botão "Duplicar" do histórico de compras — mesmos dados da
+  // compra original, exceto a data (sugerida pro mês seguinte, editável). Mesmo padrão de
+  // DespesaForm/EntradaForm.duplicateFrom; sempre cria uma compra nova ao confirmar.
+  duplicateFrom?: Purchase
   error?: string | null
   submitting: boolean
   onSubmit: (data: CreateCompraFormData) => Promise<void>
   onCancel: () => void
 }
 
-export function CompraForm({ categories, error, submitting, onSubmit, onCancel }: CompraFormProps) {
+export function CompraForm({
+  categories,
+  duplicateFrom,
+  error,
+  submitting,
+  onSubmit,
+  onCancel,
+}: CompraFormProps) {
   const {
     register,
     handleSubmit,
@@ -31,14 +44,14 @@ export function CompraForm({ categories, error, submitting, onSubmit, onCancel }
   } = useForm<CreateCompraFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      categoryId: '',
-      description: '',
-      totalAmountCents: 0,
-      installmentsCount: 1,
-      purchaseDate: today(),
-      isEssential: undefined,
-      isFixed: undefined,
-      isPlanned: undefined,
+      categoryId: duplicateFrom?.category_id ?? '',
+      description: duplicateFrom?.description ?? '',
+      totalAmountCents: duplicateFrom?.total_amount_cents ?? 0,
+      installmentsCount: duplicateFrom?.installments_count ?? 1,
+      purchaseDate: duplicateFrom ? nextMonthSameDay(duplicateFrom.purchase_date) : today(),
+      isEssential: duplicateFrom?.is_essential,
+      isFixed: duplicateFrom?.is_fixed,
+      isPlanned: duplicateFrom?.is_planned,
     },
   })
 

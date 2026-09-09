@@ -15,11 +15,14 @@ export interface IncomeEntry {
   created_at: string
 }
 
+// undefined = mês atual (default do backend); 'all' = sem filtro de mês. Ignorado pelo
+// backend quando from/to explícitos estão presentes (mesma regra de expenses.types).
 export interface IncomeEntryFilters {
   accountId?: string
   categoryId?: string
   from?: string
   to?: string
+  month?: string
 }
 
 export const RECEIPT_METHOD_LABELS: Record<ReceiptMethod, string> = {

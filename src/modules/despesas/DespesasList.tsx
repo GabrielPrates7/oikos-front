@@ -1,5 +1,6 @@
-import { CircleDollarSign, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
+import { CircleDollarSign, Copy, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ListTotal } from '../../components/ui/ListTotal'
 import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
@@ -7,7 +8,13 @@ import { formatDateBR } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { PAYMENT_METHOD_LABELS } from './despesas.types'
-import type { DespesaListEntry, Expense, ExpenseFilters, PaymentMethod } from './despesas.types'
+import type {
+  DespesaListEntry,
+  Expense,
+  ExpenseFilters,
+  MonthlySummary,
+  PaymentMethod,
+} from './despesas.types'
 import './DespesasList.css'
 
 interface DespesasListProps {
@@ -16,13 +23,21 @@ interface DespesasListProps {
   categories: Category[]
   filters: ExpenseFilters
   onFiltersChange: (filters: ExpenseFilters) => void
-  sumCents: number
+  summary: MonthlySummary
   page: number
   totalPages: number
   onPageChange: (page: number) => void
   onEdit: (entry: Expense) => void
   onDelete: (entry: Expense) => void
   onMarkAsPaid: (entry: Expense) => void
+  onDuplicate: (entry: Expense) => void
+}
+
+// Valor do <select> de mês na UI: 'default' (mês atual) vira undefined na chamada da API;
+// 'all' (sem filtro de mês) passa direto. Mesmo padrão de FaturasPage.monthFilterToApiParam,
+// só sem a lista de meses específicos (não pedida aqui).
+function monthFilterToApiParam(monthFilter: string): string | undefined {
+  return monthFilter === 'default' ? undefined : monthFilter
 }
 
 const PAYMENT_METHOD_OPTIONS = (
@@ -39,13 +54,14 @@ export function DespesasList({
   categories,
   filters,
   onFiltersChange,
-  sumCents,
+  summary,
   page,
   totalPages,
   onPageChange,
   onEdit,
   onDelete,
   onMarkAsPaid,
+  onDuplicate,
 }: DespesasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   // Busca client-side — o volume de despesas de um usuário não justifica ida ao servidor
@@ -87,7 +103,8 @@ export function DespesasList({
     filters.categoryId ||
     filters.paymentMethod ||
     filters.from ||
-    filters.to
+    filters.to ||
+    filters.month === 'all'
   )
 
   const visibleEntries = useMemo(() => {
@@ -164,6 +181,17 @@ export function DespesasList({
           </select>
         </div>
         <div className="despesas-list__filter-field">
+          <label htmlFor="filter-month">Mês</label>
+          <select
+            id="filter-month"
+            value={filters.month ?? 'default'}
+            onChange={(event) => handleFilterChange({ month: monthFilterToApiParam(event.target.value) })}
+          >
+            <option value="default">Mês atual</option>
+            <option value="all">Todos os meses</option>
+          </select>
+        </div>
+        <div className="despesas-list__filter-field">
           <label htmlFor="filter-from">De</label>
           <input
             id="filter-from"
@@ -192,6 +220,7 @@ export function DespesasList({
                 paymentMethod: undefined,
                 from: undefined,
                 to: undefined,
+                month: undefined,
               })
             }
           >
@@ -213,7 +242,13 @@ export function DespesasList({
         </div>
       ) : (
         <>
-          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
+          <ListTotal
+            items={[
+              { label: 'Geral', valueCents: summary.totalGeralCents },
+              { label: 'Já pago', valueCents: summary.totalPagoCents },
+              { label: 'Falta pagar', valueCents: summary.totalFaltaPagarCents },
+            ]}
+          />
           <div className="despesas-list__table-wrap">
             <table className="despesas-list__table">
               <thead>
@@ -245,6 +280,31 @@ export function DespesasList({
                         <td className="despesas-list__meta">—</td>
                         <td className="despesas-list__amount">{centsToBRL(entry.amountCents)}</td>
                         <td className="despesas-list__actions" />
+                      </tr>
+                    )
+                  }
+
+                  if (entry.type === 'unpaid_invoice') {
+                    return (
+                      <tr key={`unpaid-invoice-${entry.id}`}>
+                        <td className="despesas-list__description">
+                          <div className="despesas-list__description-row">
+                            <span>{entry.description}</span>
+                            <span className="despesas-list__invoice-open-badge">
+                              <Receipt size={12} aria-hidden="true" />
+                              Fatura em aberto
+                            </span>
+                          </div>
+                        </td>
+                        <td className="despesas-list__meta">—</td>
+                        <td className="despesas-list__meta">{formatDateBR(entry.date)}</td>
+                        <td className="despesas-list__meta">—</td>
+                        <td className="despesas-list__amount">{centsToBRL(entry.amountCents)}</td>
+                        <td className="despesas-list__actions">
+                          <Link to={`/faturas/${entry.id}`} className="despesas-list__view-invoice">
+                            Ver fatura
+                          </Link>
+                        </td>
                       </tr>
                     )
                   }
@@ -313,6 +373,13 @@ export function DespesasList({
                                 Marcar como pago
                               </button>
                             )}
+                            <button
+                              type="button"
+                              aria-label={`Duplicar ${expense.description}`}
+                              onClick={() => onDuplicate(expense)}
+                            >
+                              <Copy size={16} aria-hidden="true" />
+                            </button>
                             <button
                               type="button"
                               aria-label={`Editar ${expense.description}`}

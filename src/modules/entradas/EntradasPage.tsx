@@ -19,7 +19,7 @@ import './EntradasPage.css'
 
 type Mode =
   | { type: 'list' }
-  | { type: 'create'; defaultAccountId?: string }
+  | { type: 'create'; defaultAccountId?: string; duplicateFrom?: IncomeEntry }
   | { type: 'edit'; entry: IncomeEntry }
 
 function errorMessage(error: unknown, fallback: string): string {
@@ -178,6 +178,12 @@ export function EntradasPage() {
     setMode({ type: 'list' })
   }
 
+  // Duplicar nunca edita o original — sempre abre o formulário de criação, só pré-preenchido
+  // (ver EntradaForm.duplicateFrom). Mesmo padrão de DespesasPage.handleDuplicate.
+  function handleDuplicate(entry: IncomeEntry) {
+    setMode({ type: 'create', duplicateFrom: entry })
+  }
+
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="entradas-page">
@@ -187,6 +193,7 @@ export function EntradasPage() {
           // o valor inicial contra as options que já existem no primeiro render.
           key={activeAccounts.length}
           initialData={mode.type === 'edit' ? mode.entry : undefined}
+          duplicateFrom={mode.type === 'create' ? mode.duplicateFrom : undefined}
           defaultAccountId={mode.type === 'create' ? mode.defaultAccountId : undefined}
           accounts={activeAccounts}
           categories={categories}
@@ -227,6 +234,7 @@ export function EntradasPage() {
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
           onMarkAsReceived={handleMarkAsReceived}
+          onDuplicate={handleDuplicate}
         />
       )}
     </div>

@@ -19,13 +19,19 @@ import { DespesaForm } from './DespesaForm'
 import { DespesasList } from './DespesasList'
 import { despesasService } from './despesas.service'
 import type { CreateDespesaFormData } from './despesas.schemas'
-import type { DespesaListEntry, Expense, ExpenseFilters } from './despesas.types'
+import type { DespesaListEntry, Expense, ExpenseFilters, MonthlySummary } from './despesas.types'
 import './DespesasPage.css'
 
 type Mode =
   | { type: 'list' }
-  | { type: 'create'; defaultAccountId?: string }
+  | { type: 'create'; defaultAccountId?: string; duplicateFrom?: Expense }
   | { type: 'edit'; entry: Expense }
+
+const EMPTY_SUMMARY: MonthlySummary = {
+  totalGeralCents: 0,
+  totalPagoCents: 0,
+  totalFaltaPagarCents: 0,
+}
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
@@ -48,7 +54,7 @@ export function DespesasPage() {
   const [filters, setFilters] = useState<ExpenseFilters>({})
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [sumCents, setSumCents] = useState(0)
+  const [summary, setSummary] = useState<MonthlySummary>(EMPTY_SUMMARY)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
@@ -106,7 +112,6 @@ export function DespesasPage() {
         if (active) {
           setEntries(result.items)
           setTotal(result.total)
-          setSumCents(result.sumCents)
         }
       } catch (error) {
         if (active) {
@@ -125,6 +130,31 @@ export function DespesasPage() {
       active = false
     }
   }, [filters, page, refreshKey])
+
+  // Totais do mês são independentes da paginação da lista — recarregam junto (mesmo
+  // gatilho de filtros/refresh), mas não competem com "loading" da lista em si.
+  useEffect(() => {
+    let active = true
+
+    async function loadSummary() {
+      try {
+        const result = await despesasService.getMonthlySummary(filters.month)
+        if (active) {
+          setSummary(result)
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(errorMessage(error, 'Não foi possível carregar os totais do mês.'))
+        }
+      }
+    }
+
+    void loadSummary()
+
+    return () => {
+      active = false
+    }
+  }, [filters.month, refreshKey])
 
   function handleFiltersChange(next: ExpenseFilters) {
     setPage(1)
@@ -219,6 +249,13 @@ export function DespesasPage() {
     setMode({ type: 'create' })
   }
 
+  // Duplicar nunca edita o original — sempre abre o formulário de criação, só pré-preenchido
+  // (ver DespesaForm.duplicateFrom). A data sugerida (mês seguinte) é calculada lá dentro.
+  function handleDuplicate(entry: Expense) {
+    setSuccessMessage(null)
+    setMode({ type: 'create', duplicateFrom: entry })
+  }
+
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="despesas-page">
@@ -231,6 +268,7 @@ export function DespesasPage() {
           // limpo com as options já prontas.
           key={`${activeAccounts.length}-${activeCards.length}`}
           initialData={mode.type === 'edit' ? mode.entry : undefined}
+          duplicateFrom={mode.type === 'create' ? mode.duplicateFrom : undefined}
           defaultAccountId={mode.type === 'create' ? mode.defaultAccountId : undefined}
           accounts={activeAccounts}
           cards={activeCards}
@@ -266,13 +304,14 @@ export function DespesasPage() {
           categories={categories}
           filters={filters}
           onFiltersChange={handleFiltersChange}
-          sumCents={sumCents}
+          summary={summary}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}
           onEdit={(entry) => setMode({ type: 'edit', entry })}
           onDelete={handleDelete}
           onMarkAsPaid={handleMarkAsPaid}
+          onDuplicate={handleDuplicate}
         />
       )}
     </div>

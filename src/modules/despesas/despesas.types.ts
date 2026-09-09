@@ -17,12 +17,21 @@ export interface Expense {
   created_at: string
 }
 
+// undefined = mês atual (default do backend); 'all' = sem filtro de mês. Ignorado pelo
+// backend quando from/to explícitos estão presentes (ver expenses.controller.resolveDateRange).
 export interface ExpenseFilters {
   accountId?: string
   categoryId?: string
   paymentMethod?: PaymentMethod
   from?: string
   to?: string
+  month?: string
+}
+
+export interface MonthlySummary {
+  totalGeralCents: number
+  totalPagoCents: number
+  totalFaltaPagarCents: number
 }
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -42,4 +51,18 @@ export interface InvoicePaymentEntry {
   description: string
 }
 
-export type DespesaListEntry = { type: 'expense'; data: Expense } | InvoicePaymentEntry
+// Fatura não paga do mês, mesclada como linha informativa — sem categoria/conta própria
+// (ainda não foi paga), nunca editável/excluível por aqui, sem botão de pagar rápido
+// (link "Ver fatura" leva pra tela de Faturas), e nunca somada no total exibido.
+export interface UnpaidInvoiceEntry {
+  type: 'unpaid_invoice'
+  id: string
+  date: string
+  amountCents: number
+  description: string
+}
+
+export type DespesaListEntry =
+  | { type: 'expense'; data: Expense }
+  | InvoicePaymentEntry
+  | UnpaidInvoiceEntry
