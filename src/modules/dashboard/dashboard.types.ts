@@ -40,7 +40,11 @@ export interface DashboardSummary {
   month: string
   totals: DashboardTotals
   totalBalanceCents: number
-  totalPendingInvoicesCents: number
+  // Mesmo conceito de Já pago/Falta pagar de Despesas, mas escopado pelo mês do
+  // MonthSwitcher — substitui o antigo totalPendingInvoicesCents (que era global, sem
+  // filtro de mês).
+  jaPagoCents: number
+  faltaPagarCents: number
   accounts: DashboardAccountSummary[]
   creditCards: DashboardCreditCardSummary[]
   expensesByCategory: DashboardCategoryExpense[]

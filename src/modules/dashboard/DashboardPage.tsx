@@ -60,7 +60,8 @@ export function DashboardPage() {
           <div className="dashboard-panel">
             <SummaryCards
               totalBalanceCents={summary.totalBalanceCents}
-              totalPendingInvoicesCents={summary.totalPendingInvoicesCents}
+              jaPagoCents={summary.jaPagoCents}
+              faltaPagarCents={summary.faltaPagarCents}
               totals={summary.totals}
             />
           </div>

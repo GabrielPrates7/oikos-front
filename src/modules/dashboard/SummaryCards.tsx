@@ -4,15 +4,21 @@ import './SummaryCards.css'
 
 interface SummaryCardsProps {
   totalBalanceCents: number
-  totalPendingInvoicesCents: number
+  jaPagoCents: number
+  faltaPagarCents: number
   totals: DashboardTotals
 }
 
+// Mesmo conceito de Despesas: Resultado = Entradas - Já pago (não Entradas - despesas
+// totais, que incluiria despesas ainda pendentes como se já tivessem saído da conta).
 export function SummaryCards({
   totalBalanceCents,
-  totalPendingInvoicesCents,
+  jaPagoCents,
+  faltaPagarCents,
   totals,
 }: SummaryCardsProps) {
+  const netCents = totals.incomeCents - jaPagoCents
+
   return (
     <div className="summary-cards">
       <div className="summary-cards__balance">
@@ -27,29 +33,30 @@ export function SummaryCards({
           </span>
         </div>
         <div className="summary-cards__stat">
-          <span className="summary-cards__stat-label">Despesas</span>
+          <span className="summary-cards__stat-label">Já pago</span>
           <span className="summary-cards__stat-value summary-cards__stat-value--expense">
-            {centsToBRL(totals.expenseCents)}
+            {centsToBRL(jaPagoCents)}
           </span>
         </div>
         <div className="summary-cards__stat">
           <span className="summary-cards__stat-label">Resultado</span>
           <span
             className={`summary-cards__stat-value ${
-              totals.netCents >= 0
+              netCents >= 0
                 ? 'summary-cards__stat-value--income'
                 : 'summary-cards__stat-value--expense'
             }`}
           >
-            {centsToBRL(totals.netCents)}
+            {centsToBRL(netCents)}
           </span>
         </div>
         <div className="summary-cards__stat">
-          <span className="summary-cards__stat-label">A pagar</span>
-          {/* Obrigação futura (faturas ainda não pagas), não uma perda já realizada — por
-              isso um terracota mais discreto que o de Despesas, não o mesmo peso visual. */}
+          <span className="summary-cards__stat-label">Falta pagar</span>
+          {/* Obrigação futura (despesas pendentes + faturas ainda não pagas do mês), não
+              uma perda já realizada — por isso um terracota mais discreto que o de Já
+              pago, não o mesmo peso visual. */}
           <span className="summary-cards__stat-value summary-cards__stat-value--pending">
-            {centsToBRL(totalPendingInvoicesCents)}
+            {centsToBRL(faltaPagarCents)}
           </span>
         </div>
       </div>
