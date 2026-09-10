@@ -286,7 +286,10 @@ export function DespesasList({
 
                   if (entry.type === 'unpaid_invoice') {
                     return (
-                      <tr key={`unpaid-invoice-${entry.id}`}>
+                      <tr
+                        key={`unpaid-invoice-${entry.id}`}
+                        className="despesas-list__row--pending"
+                      >
                         <td className="despesas-list__description">
                           <div className="despesas-list__description-row">
                             <span>{entry.description}</span>
