@@ -1,4 +1,4 @@
-import { Bar, BarChart, Cell, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { centsToBRL } from '../../utils/currency'
 import {
   CHART_COLOR_ACCENT,
@@ -7,7 +7,6 @@ import {
   CHART_COLOR_EXPENSE,
   CHART_COLOR_TEXT_MUTED,
   CHART_COLOR_TEXT_PRIMARY,
-  CHART_COLOR_WARNING,
 } from '../../utils/chartColors'
 import './BudgetComparisonChart.css'
 
@@ -23,18 +22,13 @@ interface BudgetComparisonChartProps {
   emptyMessage: string
 }
 
-// Mesmos três níveis de OrcamentosList: até 70% verde ("no limite"), 70-100% âmbar
-// ("atenção"), acima de 100% terracota ("excedido").
-function realizadoColor(plannedCents: number, spentCents: number): string {
-  const percentageUsed = plannedCents > 0 ? (spentCents / plannedCents) * 100 : 0
-  if (percentageUsed > 100) return CHART_COLOR_EXPENSE
-  if (percentageUsed >= 70) return CHART_COLOR_WARNING
-  return CHART_COLOR_ACCENT
-}
-
 // Barra dupla horizontal por categoria orçada — mesma orientação de CategoryBarChart, só
-// que com duas séries lado a lado (planejado sempre verde, realizado muda de cor conforme
-// o percentual usado do limite daquela categoria).
+// que com duas séries lado a lado. Realizado é SEMPRE terracota sólido, cor fixa — já
+// tentamos variar por severidade (verde/âmbar/terracota, os 3 níveis de OrcamentosList),
+// mas sempre que o gasto ficava abaixo de 70% do planejado a cor calculada colidia com o
+// verde do Planejado, deixando as duas barras idênticas no gráfico (o objetivo aqui é só
+// comparar as duas barras visualmente, severidade por categoria já existe em
+// OrcamentosList).
 export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonChartProps) {
   if (data.length === 0) {
     return <p className="budget-comparison-chart__empty">{emptyMessage}</p>
@@ -44,7 +38,6 @@ export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonCh
     name: `${item.icon ?? '📁'} ${item.name}`,
     Planejado: item.plannedCents,
     Realizado: item.spentCents,
-    realizadoColor: realizadoColor(item.plannedCents, item.spentCents),
   }))
 
   const height = Math.max(160, chartData.length * 70)
@@ -80,18 +73,7 @@ export function BudgetComparisonChart({ data, emptyMessage }: BudgetComparisonCh
         />
         <Legend wrapperStyle={{ fontSize: 12, color: CHART_COLOR_TEXT_MUTED }} />
         <Bar dataKey="Planejado" fill={CHART_COLOR_ACCENT} radius={[0, 4, 4, 0]} isAnimationActive={false} />
-        {/* fill aqui é só o fallback pro swatch da Legend (que lê a cor da Bar, não das
-            Cell filhas) — a cor real de cada barra vem das Cell abaixo. */}
-        <Bar
-          dataKey="Realizado"
-          fill={CHART_COLOR_ACCENT}
-          radius={[0, 4, 4, 0]}
-          isAnimationActive={false}
-        >
-          {chartData.map((entry) => (
-            <Cell key={entry.name} fill={entry.realizadoColor} />
-          ))}
-        </Bar>
+        <Bar dataKey="Realizado" fill={CHART_COLOR_EXPENSE} radius={[0, 4, 4, 0]} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   )
