@@ -2,10 +2,12 @@ import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YA
 import { centsToBRL } from '../../utils/currency'
 import {
   assignCategoryColors,
+  CATEGORY_GRADIENT_NAMES,
   CHART_COLOR_BG_ELEVATED,
   CHART_COLOR_BG_SURFACE,
   CHART_COLOR_TEXT_MUTED,
   CHART_COLOR_TEXT_PRIMARY,
+  lightenHex,
 } from '../../utils/chartColors'
 import './CategoryBarChart.css'
 
@@ -62,6 +64,7 @@ export function CategoryBarChart({
     .sort((a, b) => b.totalCents - a.totalCents)
     .map((item) => ({
       name: `${item.icon ?? '📁'} ${item.name}`,
+      rawName: item.name,
       valueCents: item.totalCents,
       displayLabel:
         item.percentOfTotal !== undefined
@@ -79,6 +82,27 @@ export function CategoryBarChart({
         layout="vertical"
         margin={{ top: 4, right: 72, bottom: showAxis ? 4 : 0, left: 4 }}
       >
+        {/* Só as categorias marcadas em CATEGORY_GRADIENT_NAMES (as de maior valor na
+            imagem de referência) ganham um <linearGradient> aqui — as demais usam a cor
+            sólida direto no Cell, sem def correspondente. */}
+        <defs>
+          {categorical &&
+            chartData.map((entry, index) =>
+              CATEGORY_GRADIENT_NAMES.has(entry.rawName) ? (
+                <linearGradient
+                  key={`gradient-${entry.name}`}
+                  id={`category-gradient-${index}`}
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="0"
+                >
+                  <stop offset="0%" stopColor={entry.categoryColor ?? color} />
+                  <stop offset="100%" stopColor={lightenHex(entry.categoryColor ?? color, 0.4)} />
+                </linearGradient>
+              ) : null,
+            )}
+        </defs>
         <XAxis
           type="number"
           hide={!showAxis}
@@ -116,7 +140,14 @@ export function CategoryBarChart({
         <Bar dataKey="valueCents" radius={[0, 4, 4, 0]} isAnimationActive={false} barSize={barSize}>
           {chartData.map((entry, index) =>
             categorical ? (
-              <Cell key={entry.name} fill={entry.categoryColor ?? color} />
+              <Cell
+                key={entry.name}
+                fill={
+                  CATEGORY_GRADIENT_NAMES.has(entry.rawName)
+                    ? `url(#category-gradient-${index})`
+                    : (entry.categoryColor ?? color)
+                }
+              />
             ) : (
               <Cell key={entry.name} fill={color} fillOpacity={Math.max(MIN_OPACITY, 1 - index * 0.12)} />
             ),

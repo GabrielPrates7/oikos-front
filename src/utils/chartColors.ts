@@ -101,6 +101,20 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(value >> 16) & 255, (value >> 8) & 255, value & 255]
 }
 
+// As 4 categorias da imagem de referência com valor mais alto ganham gradiente (as
+// curtas — Contas, Corte de Cabelo, Lazer — continuam sólidas, como na imagem). Nomes
+// fixos porque o gradiente é uma escolha visual pra essas categorias específicas, não uma
+// regra derivada (ex.: "valor > X") que mudaria sozinha com os dados do usuário.
+export const CATEGORY_GRADIENT_NAMES = new Set(['Empréstimo', 'Dízimo', 'Outros', 'Academia'])
+
+// Clareia um hex misturando com branco — 2º stop do gradiente das barras acima, mesma
+// cor-base do 1º stop (não troca o hardcode de cor já validado, só adiciona um tom).
+export function lightenHex(hex: string, amount: number): string {
+  const [r, g, b] = hexToRgb(hex)
+  const mix = (channel: number) => Math.round(channel + (255 - channel) * amount)
+  return `#${[mix(r), mix(g), mix(b)].map((channel) => channel.toString(16).padStart(2, '0')).join('')}`
+}
+
 // N variações de opacidade da mesma cor base — mesma convenção de "mais escura/opaca =
 // maior valor" já usada em CategoryBarChart, só que via rgba() em vez de fillOpacity
 // (Pie/Cell do recharts precisa de uma cor sólida por fatia, não de uma prop separada).
