@@ -1,6 +1,7 @@
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { centsToBRL } from '../../utils/currency'
 import {
+  assignCategoryColors,
   CHART_COLOR_BG_ELEVATED,
   CHART_COLOR_BG_SURFACE,
   CHART_COLOR_TEXT_MUTED,
@@ -14,6 +15,10 @@ export interface CategoryBarChartItem {
   name: string
   icon: string | null
   totalCents: number
+  // Opcional — só o Dashboard calcula isso (percentOfTotal vem do backend, relativo ao
+  // jaPagoCents do mês). Quando ausente, o rótulo mostra só o valor (comportamento
+  // inalterado em Relatórios).
+  percentOfTotal?: number
 }
 
 interface CategoryBarChartProps {
@@ -25,11 +30,16 @@ interface CategoryBarChartProps {
   barSize?: number
   rowHeight?: number
   showAxis?: boolean
+  // Uma cor por linha (CATEGORY_PALETTE, ciclando) em vez da mesma `color` variando
+  // opacidade — só o Dashboard usa isso, pra bater com a imagem de referência do redesign.
+  // Relatórios mantém o comportamento antigo (não passa esta prop).
+  categorical?: boolean
 }
 
-// Barras horizontais, uma cor só variando opacidade (mais escura = maior valor),
-// ordenado do maior pro menor. Reusado em Dashboard (Despesas por categoria, sempre
-// verde) e Relatórios (Por categoria, cor muda com o toggle Despesas/Entradas).
+// Barras horizontais. Por padrão, uma cor só variando opacidade (mais escura = maior
+// valor) — usado em Relatórios (Por categoria, cor muda com o toggle Despesas/Entradas).
+// Com categorical=true (Dashboard), cada linha ganha sua própria cor da CATEGORY_PALETTE.
+// Sempre ordenado do maior pro menor.
 export function CategoryBarChart({
   data,
   color,
@@ -37,16 +47,27 @@ export function CategoryBarChart({
   barSize,
   rowHeight = 40,
   showAxis = true,
+  categorical = false,
 }: CategoryBarChartProps) {
   if (data.length === 0) {
     return <p className="category-bar-chart__empty">{emptyMessage}</p>
   }
+
+  // Atribuída pro conjunto INTEIRO de uma vez (não item a item) — é o que permite detectar
+  // e resolver colisão de hash entre duas categorias do mesmo gráfico (ver
+  // assignCategoryColors em chartColors.ts).
+  const categoryColors = categorical ? assignCategoryColors(data.map((item) => item.name)) : null
 
   const chartData = [...data]
     .sort((a, b) => b.totalCents - a.totalCents)
     .map((item) => ({
       name: `${item.icon ?? '📁'} ${item.name}`,
       valueCents: item.totalCents,
+      displayLabel:
+        item.percentOfTotal !== undefined
+          ? `${item.percentOfTotal}% ${centsToBRL(item.totalCents)}`
+          : centsToBRL(item.totalCents),
+      categoryColor: categoryColors?.get(item.name),
     }))
 
   const height = Math.max(140, chartData.length * rowHeight)
@@ -93,13 +114,16 @@ export function CategoryBarChart({
             rótulos nunca aparecem, porque o estado de animação nunca resolve pra false
             nesse fluxo. */}
         <Bar dataKey="valueCents" radius={[0, 4, 4, 0]} isAnimationActive={false} barSize={barSize}>
-          {chartData.map((entry, index) => (
-            <Cell key={entry.name} fill={color} fillOpacity={Math.max(MIN_OPACITY, 1 - index * 0.12)} />
-          ))}
+          {chartData.map((entry, index) =>
+            categorical ? (
+              <Cell key={entry.name} fill={entry.categoryColor ?? color} />
+            ) : (
+              <Cell key={entry.name} fill={color} fillOpacity={Math.max(MIN_OPACITY, 1 - index * 0.12)} />
+            ),
+          )}
           <LabelList
-            dataKey="valueCents"
+            dataKey="displayLabel"
             position="right"
-            formatter={(value: unknown) => centsToBRL(typeof value === 'number' ? value : 0)}
             style={{ fill: CHART_COLOR_TEXT_PRIMARY, fontSize: 12, fontWeight: 600 }}
           />
         </Bar>
