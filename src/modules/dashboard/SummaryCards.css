@@ -1,53 +1,40 @@
+/* 7 cards — auto-fit deixa quantas colunas couberem numa linha só sem espremer o texto
+   (140px é a largura mínima confortável pro maior valor esperado, tipo "R$ 15.234,50"),
+   quebrando pra 2ª linha sozinho quando não sobra espaço. */
 .summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+/* Abaixo de 480px, auto-fit começa a produzir uma coluna por linha (7 linhas — rolagem
+   longa demais pro celular). Fixa 2 colunas, mesma convenção já usada nos 4 números
+   anteriores desta tela. */
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.summary-cards__stat-card {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-bg-elevated);
+  min-width: 0;
 }
 
-.summary-cards__balance {
+.summary-cards__stat-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.summary-cards__balance-label {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-/* O "momento de destaque" da tela: maior número exibido no app até aqui (28px é o maior
-   usado em Cartões/Faturas), pra deixar claro que o saldo total é a informação principal
-   do Dashboard. */
-.summary-cards__balance-value {
-  font-family: var(--font-display);
-  font-size: 44px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-
-/* nowrap + overflow-x: auto — os três ficam sempre numa linha só (pedido explícito), com
-   scroll horizontal como rede de segurança em telas muito estreitas em vez de quebrar
-   e deixar uma divisória solta no meio da linha seguinte. */
-.summary-cards__month {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
-
-.summary-cards__stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0 16px;
-  border-left: 1px solid var(--color-bg-elevated);
-  white-space: nowrap;
-}
-
-.summary-cards__stat:first-child {
-  padding-left: 0;
-  border-left: none;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
 }
 
 .summary-cards__stat-label {
@@ -55,46 +42,118 @@
   color: var(--color-text-muted);
 }
 
-/* Mais forte que texto de corpo (14-15px no resto do app), pra dar peso aos três números
-   sem competir com o saldo total (44px, "momento de destaque" da tela). */
+/* Nunca trunca com "..." — um valor cortado é pior que uma fonte um pouco menor ou uma
+   segunda linha (o card cresce em altura pra caber, o grid não empurra os vizinhos porque
+   cada linha do grid já se ajusta à altura do maior card nela). Sem `color` aqui de
+   propósito: herda a cor temática do card (currentcolor definido em
+   .summary-cards__stat-card--X) — na imagem de referência o valor grande É colorido na cor
+   de destaque do card, só Falta Pagar é neutro (ver override abaixo). */
 .summary-cards__stat-value {
-  font-size: 21px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.summary-cards__stat-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.summary-cards__stat-sub--inline-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Legenda de escopo/base de cálculo — bem discreta de propósito, não é informação
+   principal do card, só existe pra deixar visível que Lucro/Patrimônio Líquido/Taxa de
+   Poupança partem de bases diferentes de outros números parecidos em outros cards. */
+.summary-cards__stat-caption {
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.summary-cards__stat-bar-track {
+  margin-top: 2px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-bg-base);
+  overflow: hidden;
+}
+
+.summary-cards__stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+/* Cada card tinge ícone/barra com sua própria cor temática via currentcolor — fundo/borda
+   ganham um tingimento mais forte que um hint sutil (imagem de referência usa gradientes
+   bem visíveis, não uma pincelada de cor), pra não virarem 7 blocos idênticos de cinza.
+   O valor em si fica em --color-text-primary (quase branco) em todos — na imagem só o
+   ÍCONE/barra/percentual carregam a cor do card, o número grande é sempre bem legível. */
+.summary-cards__stat-card--saldo {
+  color: var(--color-accent-bright);
+  background: color-mix(in srgb, var(--color-accent-bright) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-bright) 35%, transparent);
+}
+
+.summary-cards__stat-card--entradas {
+  color: var(--color-accent-income);
+  background: color-mix(in srgb, var(--color-accent-income) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-income) 35%, transparent);
+}
+
+.summary-cards__stat-card--ja-pago {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-warning) 35%, transparent);
+}
+
+.summary-cards__stat-card--lucro-positivo {
+  color: var(--color-accent-income);
+  background: color-mix(in srgb, var(--color-accent-income) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-income) 35%, transparent);
+}
+
+.summary-cards__stat-card--lucro-negativo {
+  color: var(--color-accent-expense);
+  background: color-mix(in srgb, var(--color-accent-expense) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-expense) 35%, transparent);
+}
+
+/* Neutro/cinza na imagem de referência (não terracota) — é uma obrigação futura, não uma
+   perda já realizada, então não carrega o mesmo alarme visual de Lucro negativo. */
+.summary-cards__stat-card--falta-pagar {
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-text-muted) 12%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+}
+
+/* Único card com o valor em branco/neutro (não na cor de destaque do card) — na imagem de
+   referência, Falta Pagar é o único número do topo que não carrega cor própria. */
+.summary-cards__stat-card--falta-pagar .summary-cards__stat-value {
   color: var(--color-text-primary);
 }
 
-/* 4 números não cabem numa linha só em telas de celular sem espremer a fonte a ponto de
-   ficar difícil de ler — vira grade 2x2 aqui (sem divisórias, que não fariam sentido
-   quebradas em duas linhas), mantendo tamanho de fonte confortável. Não empurra o layout
-   além dos 480px porque tablet/desktop já cabem numa linha só sem esse ajuste. */
-@media (max-width: 480px) {
-  .summary-cards__month {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px 12px;
-    overflow-x: visible;
-  }
-
-  .summary-cards__stat {
-    padding: 0;
-    border-left: none;
-    white-space: normal;
-  }
+.summary-cards__stat-card--patrimonio {
+  color: var(--color-accent-info);
+  background: color-mix(in srgb, var(--color-accent-info) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-info) 35%, transparent);
 }
 
-.summary-cards__stat-value--income {
-  color: var(--color-accent-income);
+.summary-cards__stat-card--poupanca {
+  color: var(--color-accent-gold);
+  background: color-mix(in srgb, var(--color-accent-gold) 16%, var(--color-bg-surface));
+  border-color: color-mix(in srgb, var(--color-accent-gold) 35%, transparent);
 }
 
-.summary-cards__stat-value--expense {
-  color: var(--color-accent-expense);
-}
-
-/* Terracota mais discreto (opacidade reduzida) que o de Despesas — é uma obrigação
-   futura (faturas ainda não pagas), não uma perda já realizada, não precisa do mesmo
-   peso visual. */
-.summary-cards__stat-value--pending {
-  color: var(--color-accent-expense);
-  opacity: 0.75;
+.summary-cards__stat-icon {
+  background: color-mix(in srgb, currentcolor 25%, transparent);
 }

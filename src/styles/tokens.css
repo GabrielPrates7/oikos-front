@@ -8,6 +8,10 @@
   --color-accent-income: #6baf82;
   --color-accent-expense: #b2543a;
   --color-warning: #d9a441;
+  /* Só usados pelos cards de Patrimônio Líquido/Taxa de Poupança do Dashboard — os únicos
+     dois conceitos sem uma cor semântica já existente (não são "receita" nem "despesa"). */
+  --color-accent-info: #5b8fd6;
+  --color-accent-gold: #d4af37;
   --color-text-primary: #edeae2;
   --color-text-muted: #9ca79e;
   --font-display: 'Fraunces', serif;

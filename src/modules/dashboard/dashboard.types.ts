@@ -22,6 +22,7 @@ export interface DashboardCategoryExpense {
   name: string
   icon: string | null
   totalCents: number
+  percentOfTotal: number
 }
 
 export type DashboardTransactionType = 'income' | 'expense' | 'transfer' | 'invoice_payment'
@@ -44,7 +45,15 @@ export interface DashboardSummary {
   // MonthSwitcher — substitui o antigo totalPendingInvoicesCents (que era global, sem
   // filtro de mês).
   jaPagoCents: number
+  jaPagoPercent: number
   faltaPagarCents: number
+  faltaPagarPercent: number
+  lucroCents: number
+  lucroMargemPercent: number
+  patrimonioLiquidoCents: number
+  patrimonioLiquidoPercent: number
+  poupancaCents: number
+  taxaPoupancaPercent: number
   accounts: DashboardAccountSummary[]
   creditCards: DashboardCreditCardSummary[]
   expensesByCategory: DashboardCategoryExpense[]
