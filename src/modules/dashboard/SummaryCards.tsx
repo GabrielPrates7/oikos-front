@@ -1,4 +1,4 @@
-import { BarChart3, CheckCircle2, Coins, Landmark, TrendingDown, TrendingUp, Vault, Wallet } from 'lucide-react'
+import { Banknote, BarChart3, CheckCircle2, Coins, Landmark, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { centsToBRL } from '../../utils/currency'
 import type { DashboardSummary } from './dashboard.types'
 import './SummaryCards.css'
@@ -34,7 +34,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
 
       <div className="summary-cards__stat-card summary-cards__stat-card--entradas">
         <div className="summary-cards__stat-icon">
-          <Vault size={18} aria-hidden="true" />
+          <Banknote size={18} aria-hidden="true" />
         </div>
         <span className="summary-cards__stat-label">Entradas</span>
         <span className="summary-cards__stat-value">{centsToBRL(summary.totals.incomeCents)}</span>
