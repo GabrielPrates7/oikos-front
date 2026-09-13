@@ -92,3 +92,21 @@ export interface FixedVsNonFixedResult {
   fixedCents: number
   nonFixedCents: number
 }
+
+export interface SpendingTrendPoint {
+  month: string
+  totalCents: number
+  movingAvgCents: number
+}
+
+export interface SpendingTrendCategoryItem {
+  categoryId: string
+  name: string
+  icon: string | null
+  points: SpendingTrendPoint[]
+}
+
+export interface SpendingTrendsResult {
+  months: string[]
+  categories: SpendingTrendCategoryItem[]
+}

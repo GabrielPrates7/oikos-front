@@ -18,6 +18,7 @@ export function CategoryBreakdownChart({ data }: CategoryBreakdownChartProps) {
         barSize={22}
         rowHeight={52}
         showAxis={false}
+        categorical
       />
     </div>
   )

@@ -1,0 +1,91 @@
+.monthly-evolution-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+}
+
+.monthly-evolution-summary__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.monthly-evolution-summary__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.monthly-evolution-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.monthly-evolution-summary__row:last-child {
+  border-bottom: none;
+}
+
+/* Resultado precisa de uma segunda linha (a legenda de base de cálculo) — vira coluna só
+   pra essa linha, com o label+valor originais preservados dentro de .row-main. */
+.monthly-evolution-summary__row--result {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.monthly-evolution-summary__row-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.monthly-evolution-summary__caption {
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.monthly-evolution-summary__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.monthly-evolution-summary__value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.monthly-evolution-summary__value--income {
+  color: var(--color-accent-income);
+}
+
+.monthly-evolution-summary__value--expense {
+  color: var(--color-accent-expense);
+}
+
+.monthly-evolution-summary__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.monthly-evolution-summary__link:hover {
+  text-decoration: underline;
+}

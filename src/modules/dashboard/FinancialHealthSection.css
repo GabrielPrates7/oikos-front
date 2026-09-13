@@ -1,0 +1,41 @@
+.financial-health-section__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 20px;
+}
+
+/* 3 itens igualmente alargados (sem o 4º "Alocação de Ativos" da imagem original) — cada
+   um ocupa 1/3 do espaço numa tela larga, empilhando em telas estreitas. */
+.financial-health-section__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* Breakpoint mais alto que o normal (768/1024px) de propósito: este grid vive dentro da
+   coluna mais estreita de dashboard-page__bottom-grid (1fr de um 1fr/2fr), não na largura
+   cheia da página — só vale a pena 3 colunas quando sobra espaço de verdade. */
+@media (min-width: 1440px) {
+  .financial-health-section__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .financial-health-section__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.financial-health-section__item {
+  min-width: 0;
+}
+
+.financial-health-section__item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+}

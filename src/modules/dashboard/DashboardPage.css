@@ -33,3 +33,58 @@
     grid-template-columns: 3fr 2fr;
   }
 }
+
+/* Últimas transações (mais estreita) + Análise de Saúde Financeira (mais larga — precisa
+   caber 3 itens lado a lado em telas grandes, ver FinancialHealthSection.css). */
+.dashboard-page__bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-page__bottom-grid {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.dashboard-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Botão dourado da imagem de referência — único botão com esse tratamento no app
+   (o padrão do resto das telas é ui-button, verde-sálvia); aqui de propósito pra combinar
+   com o card de Taxa de Poupança (--color-accent-gold) e chamar atenção como CTA
+   principal da tela mais visitada do app. */
+.dashboard-page__nova-transacao-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--color-accent-gold), color-mix(in srgb, var(--color-accent-gold) 60%, black));
+  color: #1a1408;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dashboard-page__nova-transacao-button:hover {
+  filter: brightness(1.08);
+}
+
+.dashboard-page__nova-transacao-button:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 2px;
+}
+
+.dashboard-page__nova-transacao-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

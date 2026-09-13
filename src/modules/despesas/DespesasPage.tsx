@@ -58,7 +58,10 @@ export function DespesasPage() {
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
-    return conta ? { type: 'create', defaultAccountId: conta } : { type: 'list' }
+    // ?nova=1 vem do menu "Nova Transação" do Dashboard — mesma ideia de ?conta=ID, mas sem
+    // conta pré-selecionada.
+    if (conta) return { type: 'create', defaultAccountId: conta }
+    return searchParams.get('nova') ? { type: 'create' } : { type: 'list' }
   })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)

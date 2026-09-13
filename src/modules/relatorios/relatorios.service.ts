@@ -8,6 +8,7 @@ import type {
   FixedVsNonFixedResult,
   MonthlyEvolutionResult,
   ReportCategoryType,
+  SpendingTrendsResult,
 } from './relatorios.types'
 
 export const relatoriosService = {
@@ -39,5 +40,13 @@ export const relatoriosService = {
 
   async getFixedVsNonFixed(month: string): Promise<FixedVsNonFixedResult> {
     return apiFetch<FixedVsNonFixedResult>(`/reports/fixed-vs-non-fixed?month=${month}`)
+  },
+
+  // Só as categorias de maior variância nos últimos monthsBack meses — usado pelo card
+  // "Tendências de Gastos Mensais" do Dashboard.
+  async getSpendingTrends(month: string, monthsBack = 6): Promise<SpendingTrendsResult> {
+    return apiFetch<SpendingTrendsResult>(
+      `/reports/spending-trends?month=${month}&monthsBack=${monthsBack}`,
+    )
   },
 }
