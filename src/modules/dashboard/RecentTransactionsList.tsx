@@ -3,11 +3,16 @@ import { formatDateBR } from '../../utils/date'
 import type { DashboardRecentTransaction, DashboardTransactionType } from './dashboard.types'
 import './RecentTransactionsList.css'
 
+// Fallback só pra tipos sem categoria (transferência, fatura, aporte) — quando a
+// transação TEM categoria (entrada/despesa), o ícone vem de tx.categoryIcon, o mesmo
+// campo category.icon já usado em "Despesas por categoria" (CategoryBarChart), não um
+// mapeamento duplicado.
 const TYPE_ICONS: Record<DashboardTransactionType, string> = {
   income: '↗',
   expense: '↘',
   transfer: '⇄',
   invoice_payment: '💳',
+  goal_contribution: '🎯',
 }
 
 interface RecentTransactionsListProps {
@@ -28,7 +33,7 @@ export function RecentTransactionsList({ transactions }: RecentTransactionsListP
                 className={`recent-transactions__icon recent-transactions__icon--${tx.type}`}
                 aria-hidden="true"
               >
-                {TYPE_ICONS[tx.type]}
+                {tx.categoryIcon ?? TYPE_ICONS[tx.type]}
               </span>
               <div className="recent-transactions__info">
                 <span className="recent-transactions__description">{tx.description}</span>

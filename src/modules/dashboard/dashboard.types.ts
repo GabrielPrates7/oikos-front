@@ -25,7 +25,12 @@ export interface DashboardCategoryExpense {
   percentOfTotal: number
 }
 
-export type DashboardTransactionType = 'income' | 'expense' | 'transfer' | 'invoice_payment'
+export type DashboardTransactionType =
+  | 'income'
+  | 'expense'
+  | 'transfer'
+  | 'invoice_payment'
+  | 'goal_contribution'
 
 export interface DashboardRecentTransaction {
   type: DashboardTransactionType
@@ -35,6 +40,7 @@ export interface DashboardRecentTransaction {
   date: string
   accountName: string
   categoryName?: string
+  categoryIcon?: string | null
 }
 
 export interface DashboardSummary {

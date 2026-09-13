@@ -57,6 +57,11 @@
   background: color-mix(in srgb, var(--color-accent-expense) 15%, transparent);
 }
 
+.recent-transactions__icon--goal_contribution {
+  color: var(--color-accent-gold);
+  background: color-mix(in srgb, var(--color-accent-gold) 15%, transparent);
+}
+
 .recent-transactions__info {
   flex: 1 1 200px;
   display: flex;
