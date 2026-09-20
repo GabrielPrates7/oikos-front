@@ -1,6 +1,10 @@
+import { BarChart3 } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
+import { PageHeader } from '../../components/layout/PageHeader'
 import { Tabs } from '../../components/layout/Tabs'
+import { ReportsFilterProvider } from './ReportsFilterProvider'
 import './RelatoriosPage.css'
+import './ReportsTheme.css'
 
 const TABS = [
   { path: '/relatorios/visao-geral', label: 'Visão Geral' },
@@ -12,10 +16,12 @@ const TABS = [
 export function RelatoriosPage() {
   return (
     <div className="relatorios-page">
-      <h1 className="relatorios-page__title">Relatórios</h1>
+      <PageHeader title="Relatórios" icon={<BarChart3 size={22} aria-hidden="true" />} />
       <Tabs items={TABS} />
       <div className="relatorios-page__content">
-        <Outlet />
+        <ReportsFilterProvider>
+          <Outlet />
+        </ReportsFilterProvider>
       </div>
     </div>
   )

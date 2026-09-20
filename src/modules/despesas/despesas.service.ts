@@ -22,6 +22,7 @@ function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unkn
   if (data.isEssential !== undefined) payload.is_essential = data.isEssential
   if (data.isFixed !== undefined) payload.is_fixed = data.isFixed
   if (data.isPlanned !== undefined) payload.is_planned = data.isPlanned
+  if (data.countInTotals !== undefined) payload.count_in_totals = data.countInTotals
   // paid_date sempre acompanha is_paid — null explícito quando pendente, mesmo que o
   // formulário ainda tenha algum valor "sobrando" no campo (que nem aparece na tela nesse
   // caso). A API rejeita paid_date presente com is_paid=false, então isso importa de verdade.
@@ -208,5 +209,12 @@ export const despesasService = {
   async getMonthlySummary(month?: string): Promise<MonthlySummary> {
     const query = month !== undefined ? `?month=${encodeURIComponent(month)}` : ''
     return apiFetch<MonthlySummary>(`/expenses/monthly-summary${query}`)
+  },
+
+  // Anos com pelo menos uma despesa de verdade — popula o filtro "Ano" sem lista fixa
+  // arbitrária.
+  async getYears(): Promise<number[]> {
+    const result = await apiFetch<{ years: number[] }>('/expenses/years')
+    return result.years
   },
 }

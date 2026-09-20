@@ -97,13 +97,47 @@
   color: var(--color-text-muted);
 }
 
+/* Rolagem SEM barra visível (o menu continua rolando: roda, touchpad, setas, Tab). Nada de
+   overflow: hidden no eixo Y e nada de scrollbar-gutter — sem barra, os itens ganham a largura
+   que ela ocupava. O rodapé (.sidebar__footer) é irmão deste contêiner, não fica dentro dele.
+
+   Indicador de conteúdo escondido ("scroll shadows", CSS puro): 2 camadas local (cor sólida do
+   fundo do menu — o MESMO token de .sidebar —, que andam com o conteúdo e cobrem a sombra
+   quando a rolagem está no limite) + 2 camadas scroll (gradientes escuros fixos no topo e na
+   base). A de cima só aparece com conteúdo acima; a de baixo, com conteúdo abaixo. */
 .sidebar__scroll {
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior: contain;
+  /* o item focado pelo teclado não fica sob a sombra */
+  scroll-padding-block: 24px;
   padding: 4px 12px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  background-color: var(--color-bg-surface);
+  background-image:
+    linear-gradient(var(--color-bg-surface), var(--color-bg-surface)),
+    linear-gradient(var(--color-bg-surface), var(--color-bg-surface)),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0)),
+    linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  background-position: top, bottom, top, bottom;
+  background-size:
+    100% 18px,
+    100% 18px,
+    100% 18px,
+    100% 18px;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+
+.sidebar__scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .sidebar__group {
@@ -160,6 +194,33 @@
 
 .sidebar--collapsed .sidebar__link {
   justify-content: center;
+}
+
+/* Menos rolagem em janelas baixas — só espaçamento vertical (fonte e ícones não mudam; o alvo
+   de clique fica >= 36px). Em px de CSS: padrão = item 38px + 2px de vão; <= 900px = item 36px;
+   <= 780px = item 36px e menos margem entre/dentro dos grupos. */
+@media (max-height: 900px) {
+  .sidebar__link {
+    padding-block: 8px;
+  }
+
+  .sidebar__scroll {
+    gap: 16px;
+  }
+}
+
+@media (max-height: 780px) {
+  .sidebar__link {
+    padding-block: 8px;
+  }
+
+  .sidebar__scroll {
+    gap: 12px;
+  }
+
+  .sidebar__group-label {
+    padding-bottom: 4px;
+  }
 }
 
 /* Tooltip renderizado via portal em document.body (ver Sidebar.tsx) — position: fixed com

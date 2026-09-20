@@ -1,0 +1,43 @@
+/* Mesma textura de rede de nós/linhas de Entradas/Despesas (ver .entradas-page em
+   EntradasPage.css) — cor azul do tema de Transferências (#4a8fe0, --color-transfer-glow-strong) — só a
+   cor base muda em relação a Entradas (verde) e Despesas (vermelho). */
+.transferencias-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%234a8fe0' stroke-width='1' opacity='0.12'%3E%3Cline x1='20' y1='20' x2='80' y2='50' /%3E%3Cline x1='80' y1='50' x2='140' y2='25' /%3E%3Cline x1='80' y1='50' x2='60' y2='120' /%3E%3Cline x1='60' y1='120' x2='130' y2='140' /%3E%3Cline x1='60' y1='120' x2='10' y2='150' /%3E%3C/g%3E%3Cg fill='%234a8fe0' opacity='0.18'%3E%3Ccircle cx='20' cy='20' r='2.5' /%3E%3Ccircle cx='80' cy='50' r='3' /%3E%3Ccircle cx='140' cy='25' r='2.5' /%3E%3Ccircle cx='60' cy='120' r='3' /%3E%3Ccircle cx='130' cy='140' r='2.5' /%3E%3Ccircle cx='10' cy='150' r='2' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+.transferencias-page .page-header__icon {
+  color: var(--color-transfer-glow-strong);
+}
+
+/* Mesmo botão em gradiente de Despesas (DespesasPage.css), família azul. */
+.transferencias-page__nova-transferencia-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(
+    135deg,
+    var(--color-transfer-button-start),
+    var(--color-transfer-button-end)
+  );
+  color: #eaf2fc;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.transferencias-page__nova-transferencia-button:hover {
+  filter: brightness(1.12);
+}
+
+.transferencias-page__nova-transferencia-button:focus-visible {
+  outline: 2px solid var(--color-transfer-button-start);
+  outline-offset: 2px;
+}

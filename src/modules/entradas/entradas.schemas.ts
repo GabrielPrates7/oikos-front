@@ -12,6 +12,10 @@ const baseFields = {
   isReceived: z.boolean({ required_error: 'Selecione se foi recebida ou está pendente' }),
   isPlanned: z.boolean({ required_error: 'Selecione se é planejada' }),
   receivedDate: z.string().optional(),
+  // Fase 1 do campo "contar no total" — default true no formulário (useForm), não aqui:
+  // zod .default() em campo dentro de .partial() (update) resolveria pra true mesmo quando
+  // omitido de propósito, que não é o comportamento certo pra uma edição parcial.
+  countInTotals: z.boolean(),
 }
 
 // Mesma lógica de despesas.schemas (paidDateRequiredWhenPaid) — o inverso (sem data quando

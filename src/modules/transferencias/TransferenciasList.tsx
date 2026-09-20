@@ -1,10 +1,12 @@
-import { Trash2 } from 'lucide-react'
+import { Copy, Edit2, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { ListTotal } from '../../components/ui/ListTotal'
+import { AccountBadge } from '../../components/ui/AccountBadge'
 import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
 import { formatDateBR } from '../../utils/date'
+import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
 import type { Account } from '../contas/contas.types'
+import { EntradasTotalCard } from '../entradas/EntradasTotalCard'
 import type { Transfer, TransferFilters } from './transferencias.types'
 import './TransferenciasList.css'
 
@@ -14,10 +16,13 @@ interface TransferenciasListProps {
   filters: TransferFilters
   onFiltersChange: (filters: TransferFilters) => void
   sumCents: number
+  total: number
   page: number
   totalPages: number
   onPageChange: (page: number) => void
   onDelete: (transfer: Transfer) => void
+  onDuplicate: (transfer: Transfer) => void
+  onEdit: (transfer: Transfer) => void
 }
 
 export function TransferenciasList({
@@ -26,10 +31,13 @@ export function TransferenciasList({
   filters,
   onFiltersChange,
   sumCents,
+  total,
   page,
   totalPages,
   onPageChange,
   onDelete,
+  onDuplicate,
+  onEdit,
 }: TransferenciasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const rowsRef = useRef<HTMLUListElement>(null)
@@ -104,7 +112,9 @@ export function TransferenciasList({
           <button
             type="button"
             className="transferencias-list__clear-filters"
-            onClick={() => handleFilterChange({ accountId: undefined, from: undefined, to: undefined })}
+            onClick={() =>
+              handleFilterChange({ accountId: undefined, from: undefined, to: undefined })
+            }
           >
             Limpar filtros
           </button>
@@ -124,64 +134,114 @@ export function TransferenciasList({
         </div>
       ) : (
         <>
-          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
-          <ul className="transferencias-list__rows" ref={rowsRef}>
-            {transfers.map((transfer) => {
-              const fromAccount = accountsById.get(transfer.from_account_id)
-              const toAccount = accountsById.get(transfer.to_account_id)
-              const isConfirming = confirmingId === transfer.id
-              return (
-                <li key={transfer.id} className="transferencias-list__row">
-                  <span className="transferencias-list__date">
-                    {formatDateBR(transfer.transfer_date)}
-                  </span>
-                  <div className="transferencias-list__info">
-                    {transfer.description && (
-                      <span className="transferencias-list__description">
-                        {transfer.description}
-                      </span>
-                    )}
-                    <span className="transferencias-list__accounts">
-                      De: {fromAccount?.name ?? 'Conta removida'} → Para:{' '}
-                      {toAccount?.name ?? 'Conta removida'}
+          <EntradasTotalCard
+            sumCents={sumCents}
+            points={transfers.map((transfer) => ({
+              date: transfer.transfer_date,
+              amountCents: transfer.amount_cents,
+            }))}
+          />
+          <div className="transferencias-list__table-wrap">
+            <ul className="transferencias-list__rows" ref={rowsRef}>
+              {transfers.map((transfer) => {
+                const fromAccount = accountsById.get(transfer.from_account_id)
+                const toAccount = accountsById.get(transfer.to_account_id)
+                const isConfirming = confirmingId === transfer.id
+                return (
+                  <li key={transfer.id} className="transferencias-list__row">
+                    <span className="transferencias-list__date">
+                      {formatDateBR(transfer.transfer_date)}
                     </span>
-                  </div>
-                  <span className="transferencias-list__amount">
-                    {centsToBRL(transfer.amount_cents)}
-                  </span>
-                  <div className="transferencias-list__actions">
-                    {isConfirming ? (
-                      <>
-                        <button
-                          type="button"
-                          className="transferencias-list__confirm-delete"
-                          onClick={() => handleDeleteClick(transfer)}
-                        >
-                          Confirmar exclusão?
-                        </button>
-                        <button
-                          type="button"
-                          className="transferencias-list__cancel-delete"
-                          onClick={() => setConfirmingId(null)}
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        aria-label={`Excluir transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
-                        onClick={() => handleDeleteClick(transfer)}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+                    <div className="transferencias-list__info">
+                      {transfer.description && (
+                        <span className="transferencias-list__description">
+                          {transfer.description}
+                        </span>
+                      )}
+                      <span className="transferencias-list__accounts">
+                        De:{' '}
+                        {fromAccount ? (
+                          <AccountBadge
+                            name={fromAccount.name}
+                            bankName={fromAccount.bank_name}
+                            color={fromAccount.color}
+                          />
+                        ) : (
+                          'Conta removida'
+                        )}{' '}
+                        → Para:{' '}
+                        {toAccount ? (
+                          <AccountBadge
+                            name={toAccount.name}
+                            bankName={toAccount.bank_name}
+                            color={toAccount.color}
+                          />
+                        ) : (
+                          'Conta removida'
+                        )}
+                      </span>
+                    </div>
+                    <span className="transferencias-list__amount">
+                      {centsToBRL(transfer.amount_cents)}
+                    </span>
+                    <div className="transferencias-list__actions">
+                      {isConfirming ? (
+                        <>
+                          <button
+                            type="button"
+                            className="transferencias-list__confirm-delete"
+                            onClick={() => handleDeleteClick(transfer)}
+                          >
+                            Confirmar exclusão?
+                          </button>
+                          <button
+                            type="button"
+                            className="transferencias-list__cancel-delete"
+                            onClick={() => setConfirmingId(null)}
+                          >
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            aria-label={`Duplicar transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
+                            onClick={() => onDuplicate(transfer)}
+                          >
+                            <Copy size={16} aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Editar transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
+                            onClick={() => onEdit(transfer)}
+                          >
+                            <Edit2 size={16} aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Excluir transferência de ${fromAccount?.name ?? 'conta removida'} para ${toAccount?.name ?? 'conta removida'}`}
+                            onClick={() => handleDeleteClick(transfer)}
+                          >
+                            <Trash2 size={16} aria-hidden="true" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalItems={total}
+            pageSize={DEFAULT_PAGE_SIZE}
+            itemLabel="transferências"
+            alwaysShow
+          />
         </>
       )}
     </div>

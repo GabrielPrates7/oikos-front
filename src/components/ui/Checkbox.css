@@ -1,0 +1,19 @@
+.ui-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.ui-checkbox__input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.ui-checkbox__label {
+  font-size: 13px;
+  color: var(--color-text-primary);
+}

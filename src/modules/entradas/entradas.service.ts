@@ -19,6 +19,7 @@ function toApiPayload(data: Partial<CreateEntradaFormData>): Record<string, unkn
   if (data.entryDate !== undefined) payload.entry_date = data.entryDate
   if (data.receiptMethod !== undefined) payload.receipt_method = data.receiptMethod
   if (data.isPlanned !== undefined) payload.is_planned = data.isPlanned
+  if (data.countInTotals !== undefined) payload.count_in_totals = data.countInTotals
   // received_date sempre acompanha is_received — mesmo motivo do paid_date em
   // despesas.service (a API rejeita received_date presente com is_received=false).
   if (data.isReceived !== undefined) {
@@ -79,5 +80,12 @@ export const entradasService = {
 
   async remove(id: string): Promise<void> {
     await apiFetch(`/income-entries/${id}`, { method: 'DELETE' })
+  },
+
+  // Anos com pelo menos uma entrada de verdade — popula o filtro "Ano" sem lista fixa
+  // arbitrária.
+  async getYears(): Promise<number[]> {
+    const result = await apiFetch<{ years: number[] }>('/income-entries/years')
+    return result.years
   },
 }

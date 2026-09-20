@@ -7,9 +7,20 @@
   margin-bottom: 24px;
 }
 
+.page-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .page-header__title {
   font-family: var(--font-display);
   font-size: 24px;
   font-weight: 600;
   color: var(--color-text-primary);
+}
+
+.page-header__icon {
+  display: inline-flex;
+  color: var(--color-accent);
 }

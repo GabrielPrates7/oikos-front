@@ -1,0 +1,127 @@
+.evolucao-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 6px 18px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.evolucao-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #c9cfc9;
+}
+
+/* Quadrado pras barras, traço pra linha. */
+.evolucao-legend__square {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.evolucao-legend__dash {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.evolucao-chart {
+  position: relative;
+}
+
+.evolucao-chart__canvas {
+  font-variant-numeric: tabular-nums;
+}
+
+.evolucao-chart__canvas .recharts-wrapper {
+  outline: none;
+}
+
+/* Tooltip em vidro. */
+.evolucao-tooltip {
+  min-width: 190px;
+  padding: 10px 12px;
+  background: rgba(22, 29, 24, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.26);
+  border-radius: 10px;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.evolucao-tooltip__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 6px;
+}
+
+.evolucao-tooltip__month {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.evolucao-tooltip__badge {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #c9cfc9;
+  white-space: nowrap;
+}
+
+.evolucao-tooltip__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.evolucao-tooltip__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.evolucao-tooltip__row dt {
+  color: var(--color-text-muted);
+}
+
+.evolucao-tooltip__row dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.evolucao-tooltip__row--result {
+  margin-top: 3px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.evolucao-tooltip__empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Tabela só pra leitores de tela (o gráfico em si é role="img"). O wrapper é que fica absoluto
+   e cortado: a própria <table> ignora width e alargaria a página. */
+.evolucao-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

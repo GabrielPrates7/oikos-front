@@ -1,10 +1,12 @@
 import { CircleDollarSign, Copy, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ListTotal } from '../../components/ui/ListTotal'
+import { AccountBadge } from '../../components/ui/AccountBadge'
+import { Combobox } from '../../components/ui/Combobox'
 import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
-import { formatDateBR } from '../../utils/date'
+import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
+import { currentMonthString, formatDateBR, MONTH_NAMES_PT, splitMonthString } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { PAYMENT_METHOD_LABELS } from './despesas.types'
@@ -15,15 +17,18 @@ import type {
   MonthlySummary,
   PaymentMethod,
 } from './despesas.types'
+import { DespesasTotalCards } from './DespesasTotalCards'
 import './DespesasList.css'
 
 interface DespesasListProps {
   entries: DespesaListEntry[]
   accounts: Account[]
   categories: Category[]
+  years: number[]
   filters: ExpenseFilters
   onFiltersChange: (filters: ExpenseFilters) => void
   summary: MonthlySummary
+  total: number
   page: number
   totalPages: number
   onPageChange: (page: number) => void
@@ -31,13 +36,6 @@ interface DespesasListProps {
   onDelete: (entry: Expense) => void
   onMarkAsPaid: (entry: Expense) => void
   onDuplicate: (entry: Expense) => void
-}
-
-// Valor do <select> de mês na UI: 'default' (mês atual) vira undefined na chamada da API;
-// 'all' (sem filtro de mês) passa direto. Mesmo padrão de FaturasPage.monthFilterToApiParam,
-// só sem a lista de meses específicos (não pedida aqui).
-function monthFilterToApiParam(monthFilter: string): string | undefined {
-  return monthFilter === 'default' ? undefined : monthFilter
 }
 
 const PAYMENT_METHOD_OPTIONS = (
@@ -52,9 +50,11 @@ export function DespesasList({
   entries,
   accounts,
   categories,
+  years,
   filters,
   onFiltersChange,
   summary,
+  total,
   page,
   totalPages,
   onPageChange,
@@ -98,13 +98,17 @@ export function DespesasList({
 
   const accountsById = new Map(accounts.map((account) => [account.id, account]))
   const categoriesById = new Map(categories.map((category) => [category.id, category]))
+  // month não entra aqui — agora é sempre um valor concreto (navegação normal, tipo o
+  // MonthSwitcher do Dashboard), não um "filtro ativo" que precise do botão de limpar.
   const hasFilters = !!(
     filters.accountId ||
     filters.categoryId ||
     filters.paymentMethod ||
     filters.from ||
-    filters.to ||
-    filters.month === 'all'
+    filters.to
+  )
+  const { year: selectedYear, monthNum: selectedMonthNum } = splitMonthString(
+    filters.month ?? currentMonthString(),
   )
 
   const visibleEntries = useMemo(() => {
@@ -131,35 +135,30 @@ export function DespesasList({
         </div>
         <div className="despesas-list__filter-field">
           <label htmlFor="filter-account">Conta</label>
-          <select
+          <Combobox
             id="filter-account"
             value={filters.accountId ?? ''}
-            onChange={(event) => handleFilterChange({ accountId: event.target.value || undefined })}
-          >
-            <option value="">Todas</option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange({ accountId: value || undefined })}
+            options={[
+              { value: '', label: 'Todas' },
+              ...accounts.map((account) => ({ value: account.id, label: account.name })),
+            ]}
+          />
         </div>
         <div className="despesas-list__filter-field">
           <label htmlFor="filter-category">Categoria</label>
-          <select
+          <Combobox
             id="filter-category"
             value={filters.categoryId ?? ''}
-            onChange={(event) =>
-              handleFilterChange({ categoryId: event.target.value || undefined })
-            }
-          >
-            <option value="">Todas</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.icon ?? '📁'} {category.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange({ categoryId: value || undefined })}
+            options={[
+              { value: '', label: 'Todas' },
+              ...categories.map((category) => ({
+                value: category.id,
+                label: `${category.icon ?? '📁'} ${category.name}`,
+              })),
+            ]}
+          />
         </div>
         <div className="despesas-list__filter-field">
           <label htmlFor="filter-payment-method">Forma de pagamento</label>
@@ -184,11 +183,32 @@ export function DespesasList({
           <label htmlFor="filter-month">Mês</label>
           <select
             id="filter-month"
-            value={filters.month ?? 'default'}
-            onChange={(event) => handleFilterChange({ month: monthFilterToApiParam(event.target.value) })}
+            value={selectedMonthNum}
+            onChange={(event) =>
+              handleFilterChange({ month: `${selectedYear}-${event.target.value}` })
+            }
           >
-            <option value="default">Mês atual</option>
-            <option value="all">Todos os meses</option>
+            {MONTH_NAMES_PT.map((name, index) => (
+              <option key={name} value={String(index + 1).padStart(2, '0')}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="despesas-list__filter-field">
+          <label htmlFor="filter-year">Ano</label>
+          <select
+            id="filter-year"
+            value={selectedYear}
+            onChange={(event) =>
+              handleFilterChange({ month: `${event.target.value}-${selectedMonthNum}` })
+            }
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
           </select>
         </div>
         <div className="despesas-list__filter-field">
@@ -220,7 +240,7 @@ export function DespesasList({
                 paymentMethod: undefined,
                 from: undefined,
                 to: undefined,
-                month: undefined,
+                month: currentMonthString(),
               })
             }
           >
@@ -242,13 +262,7 @@ export function DespesasList({
         </div>
       ) : (
         <>
-          <ListTotal
-            items={[
-              { label: 'Geral', valueCents: summary.totalGeralCents },
-              { label: 'Já pago', valueCents: summary.totalPagoCents },
-              { label: 'Falta pagar', valueCents: summary.totalFaltaPagarCents },
-            ]}
-          />
+          <DespesasTotalCards summary={summary} />
           <div className="despesas-list__table-wrap">
             <table className="despesas-list__table">
               <thead>
@@ -339,8 +353,16 @@ export function DespesasList({
                         {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
                       </td>
                       <td className="despesas-list__meta">{formatDateBR(expense.expense_date)}</td>
-                      <td className="despesas-list__meta">
-                        {account?.name ?? 'Conta removida'}
+                      <td className="despesas-list__meta despesas-list__account">
+                        {account ? (
+                          <AccountBadge
+                            name={account.name}
+                            bankName={account.bank_name}
+                            color={account.color}
+                          />
+                        ) : (
+                          'Conta removida'
+                        )}
                         {' · '}
                         {PAYMENT_METHOD_LABELS[expense.payment_method]}
                       </td>
@@ -406,7 +428,15 @@ export function DespesasList({
               </tbody>
             </table>
           </div>
-          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalItems={total}
+            pageSize={DEFAULT_PAGE_SIZE}
+            itemLabel="despesas"
+            alwaysShow
+          />
         </>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { CreditCard as CreditCardIcon, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
@@ -12,6 +12,7 @@ import { cartoesService } from './cartoes.service'
 import type { CreateCartaoFormData } from './cartoes.schemas'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 import './CartoesPage.css'
+import './HoloBackground.css'
 
 type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; card: CreditCard }
 
@@ -138,7 +139,7 @@ export function CartoesPage() {
 
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
-      <div className="cartoes-page">
+      <div className="cartoes-page holo-bg">
         <PageHeader title={mode.type === 'create' ? 'Novo cartão' : 'Editar cartão'} />
         <CartaoForm
           initialData={mode.type === 'edit' ? mode.card : undefined}
@@ -154,9 +155,10 @@ export function CartoesPage() {
   }
 
   return (
-    <div className="cartoes-page">
+    <div className="cartoes-page holo-bg">
       <PageHeader
         title="Cartões"
+        icon={<CreditCardIcon size={22} aria-hidden="true" />}
         action={
           <Button type="button" onClick={() => setMode({ type: 'create' })}>
             <Plus size={16} aria-hidden="true" />

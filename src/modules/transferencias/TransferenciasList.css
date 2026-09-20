@@ -1,8 +1,18 @@
+/* Mesmo vidro fosco da barra de filtros de Entradas/Despesas, com o tint azul do tema de
+   Transferências (mesma cor-base do gradiente do botão), aplicado direto no container de
+   flex, sem wrapper extra. */
 .transferencias-list__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
+  background: color-mix(in srgb, var(--color-transfer-button-start) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
   margin-bottom: 20px;
 }
 
@@ -17,8 +27,13 @@
   color: var(--color-text-muted);
 }
 
+/* appearance:none uniforme + seta customizada + ícone de calendário invertido — mesmas
+   correções de EntradasList.css/DespesasList.css (o <select> nativo pintava um verniz mais
+   claro que o <input>, e o ícone nativo do calendário é preto sobre fundo escuro). */
 .transferencias-list__filter-field select,
 .transferencias-list__filter-field input {
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--color-bg-base);
   border: 1px solid var(--color-bg-elevated);
   border-radius: 8px;
@@ -27,6 +42,13 @@
   color: var(--color-text-primary);
   font-family: var(--font-body);
   cursor: pointer;
+}
+
+.transferencias-list__filter-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
 }
 
 .transferencias-list__filter-field select:focus-visible,
@@ -53,6 +75,18 @@
 .transferencias-list__clear-filters:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Mesmo vidro fosco neutro das tabelas de Entradas/Despesas (blur + borda clara sutil +
+   padding). Aqui o conteúdo é uma lista <ul>, não <table>, mas o wrapper é o mesmo. */
+.transferencias-list__table-wrap {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .transferencias-list__rows {
@@ -91,6 +125,10 @@
 }
 
 .transferencias-list__accounts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
   color: var(--color-text-muted);
   font-size: 13px;
 }
@@ -111,19 +149,25 @@
   margin-left: auto;
 }
 
-.transferencias-list__actions button {
-  background: transparent;
+/* Botões circulares com fundo visível — mesmo padrão de Entradas/Despesas (:not() exclui
+   os botões de texto de confirmar/cancelar exclusão, com estilo próprio abaixo). */
+.transferencias-list__actions button:not(.transferencias-list__confirm-delete):not(.transferencias-list__cancel-delete) {
+  background: var(--color-bg-elevated);
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  display: flex;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.transferencias-list__actions button:hover {
+.transferencias-list__actions button:not(.transferencias-list__confirm-delete):not(.transferencias-list__cancel-delete):hover {
   color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
 }
 
 .transferencias-list__actions button:focus-visible {

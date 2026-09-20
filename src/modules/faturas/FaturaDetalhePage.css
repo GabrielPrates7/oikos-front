@@ -24,13 +24,21 @@
   margin-bottom: 8px;
 }
 
+/* Total + botao "Ver no cartao" lado a lado (quebra de linha em telas estreitas). */
+.fatura-detalhe-page__total-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 32px;
+}
+
 .fatura-detalhe-page__total {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 600;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
-  margin-bottom: 32px;
 }
 
 .fatura-detalhe-page__section-title {
@@ -46,9 +54,77 @@
   padding: 16px 4px;
 }
 
+/* Painel de busca: mesmo vidro fosco dos filtros de Faturas (tint vermelho do tema). */
+.fatura-detalhe-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  background: color-mix(in srgb, var(--color-expense-button-start) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.fatura-detalhe-page__search-field {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fatura-detalhe-page__search-field label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.fatura-detalhe-page__search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.fatura-detalhe-page__search-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.fatura-detalhe-page__search-input input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+.fatura-detalhe-page__search-input input:focus-visible {
+  outline: none;
+}
+
+/* Mesmo vidro fosco neutro das outras listas (Entradas/Despesas/Historico de compras). */
+.fatura-detalhe-page__list-wrap {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+}
+
 .fatura-detalhe-page__items {
   border-top: 1px solid var(--color-bg-elevated);
-  margin-bottom: 32px;
 }
 
 .fatura-detalhe-page__item-row {
@@ -58,6 +134,10 @@
   gap: 6px 16px;
   padding: 14px 4px;
   border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.fatura-detalhe-page__item-row:last-child {
+  border-bottom: none;
 }
 
 .fatura-detalhe-page__item-info {
@@ -82,23 +162,37 @@
 }
 
 .fatura-detalhe-page__item-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   color: var(--color-text-muted);
   font-size: 13px;
+  margin: 4px 0;
 }
 
-.fatura-detalhe-page__item-edit-link {
-  align-self: flex-start;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  text-decoration: none;
-}
-
-.fatura-detalhe-page__item-edit-link:hover {
+/* Botao secundario "Ver no cartao" (leva ao detalhe do cartao, onde cada compra tem a propria
+   edicao). Presenca: fundo sutil + borda clara + padding maior + texto principal
+   (antes: texto pequeno e cinza, facil de passar batido). Nao e primario: sem cor cheia. */
+.fatura-detalhe-page__card-link {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  padding: 7px 14px;
   color: var(--color-text-primary);
-  text-decoration: underline;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.fatura-detalhe-page__item-edit-link:focus-visible {
+.fatura-detalhe-page__card-link:hover {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-accent);
+}
+
+.fatura-detalhe-page__card-link:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -110,6 +204,10 @@
   text-align: right;
   min-width: 100px;
   color: var(--color-accent-expense);
+}
+
+.fatura-detalhe-page__list-wrap + .ui-pagination {
+  margin-bottom: 32px;
 }
 
 .fatura-detalhe-page__paid-confirmation {

@@ -7,14 +7,17 @@ export interface BankColor {
 // reproduzir a identidade visual exata de cada banco. PicPay usa um verde vibrante/claro
 // (a marca real é um verde bem mais aceso que o verde-musgo do design system) —
 // deliberadamente DIFERENTE de --color-accent, pra não ser confundido com o fallback de
-// banco desconhecido.
+// banco desconhecido. Nubank e PicPay usam tons saturados estilo neon/plástico (pedido
+// explícito) — não mais os tons "lavados"/escurecidos de antes.
 const BANK_COLORS: Record<string, BankColor> = {
-  nubank: { base: '#8257E5', muted: '#362B54' },
+  nubank: { base: '#9C27B0', muted: '#6A1B9A' },
   bradesco: { base: '#C0392B', muted: '#4A2420' },
-  picpay: { base: '#2ECC71', muted: '#1D4D34' },
+  picpay: { base: '#2ECC71', muted: '#27AE60' },
 }
 
-const FALLBACK_COLOR: BankColor = { base: 'var(--color-accent)', muted: 'var(--color-bg-elevated)' }
+// Exportado só pro AccountBadge saber quando o banco/cor não resolveu (comparação por
+// identidade) e usar um cinza neutro em vez deste verde.
+export const FALLBACK_COLOR: BankColor = { base: 'var(--color-accent)', muted: 'var(--color-bg-elevated)' }
 
 // Case-insensitive e tolerante a espaço extra — "Nubank", " nubank ", "NUBANK" todos batem.
 //

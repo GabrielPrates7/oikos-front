@@ -2,58 +2,79 @@
   margin-bottom: 20px;
 }
 
-.visao-geral-tab__kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  margin-bottom: 24px;
+/* Texto (não fundo) em terracota usa #cf6b52 (~4,8:1 sobre #161d18): o token global
+   --color-accent-expense (#b2543a) dá só ~3,4:1, abaixo de AA para texto. Valor usado
+   localmente, o token global não mudou. */
+.visao-geral-tab__section {
+  margin-top: 28px;
 }
 
-.visao-geral-tab__kpi {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--color-bg-elevated);
-  border-radius: 12px;
-  padding: 14px 16px;
-}
-
-.visao-geral-tab__kpi-label {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.visao-geral-tab__kpi-value {
+.visao-geral-tab__section-title {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
+  margin-bottom: 12px;
 }
 
-.visao-geral-tab__kpi-value--income {
+.visao-geral-tab__section-title--income {
   color: var(--color-accent-income);
 }
 
-.visao-geral-tab__kpi-value--expense {
-  color: var(--color-accent-expense);
+.visao-geral-tab__section-title--expense {
+  color: #cf6b52;
 }
 
-.visao-geral-tab__kpi-sub {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-/* 2 colunas em telas largas, 1 coluna (empilhado) abaixo de ~560px — 6 gráficos de pizza
-   lado a lado numa tela estreita ficariam pequenos demais pra legenda ser legível. */
 .visao-geral-tab__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 
-@media (max-width: 560px) {
-  .visao-geral-tab__grid {
+/* Linhas extras dentro dos cards de KPI (variação e % da receita). */
+.visao-geral-tab__sub {
+  display: block;
+  font-size: 12px;
+  color: #c9cfc9;
+}
+
+.visao-geral-tab__variation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c9cfc9;
+}
+
+.visao-geral-tab__variation--good {
+  color: #7fd9a0;
+}
+
+.visao-geral-tab__variation--bad {
+  color: #cf6b52;
+}
+
+/* Layout dos 4 cards de KPI: ocupam a largura toda (grade de 4 colunas), 2 colunas abaixo de
+   900px e 1 abaixo de 520px. Escopado pelo wrapper da aba — o GlassStatCards compartilhado
+   (Cartões etc.) não muda. Só layout, sem alterar conteúdo. */
+.visao-geral-tab .glass-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.visao-geral-tab .glass-stat-card {
+  max-width: none;
+}
+
+@media (max-width: 899px) {
+  .visao-geral-tab .glass-stat-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 519px) {
+  .visao-geral-tab .glass-stat-cards {
     grid-template-columns: 1fr;
   }
 }

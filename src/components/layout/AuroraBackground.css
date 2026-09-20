@@ -1,0 +1,179 @@
+/* Fundo aurora (só /relatorios/*). Camada FIXA atrás do conteúdo: z-index 0 aqui, enquanto
+   .header e .shell__content (Shell.css) são z-index 1, BottomNav 10, MobileMenu 20 e os
+   portais (Combobox, menu do Sidebar) 1000 — tudo continua acima. Nenhum stacking context é
+   criado fora desta árvore. Nunca por cima da Sidebar (mesma regra de .shell__main::before).
+
+   v2 — duas superfícies: o fundo nu (vãos, cabeçalho, abas, títulos) é vivo; os painéis
+   ganham um scrim escuro sob o vidro (ver ReportsTheme.css), então o texto dentro deles não
+   depende da aurora. Alfas ABSOLUTOS abaixo; o contraste/visibilidade foi medido (relatório
+   da v2). Mexeu num alfa? Refaça a medição.
+
+   Desempenho: só `transform` é animado; nada de filter, mix-blend-mode, box-shadow nem
+   background-position em loop. Cada mancha tem camada de composição própria (will-change +
+   translate3d). Máximo de 4 camadas animadas (2 no mobile). O resto é estático. */
+.aurora {
+  --aurora-a-color: rgba(79, 143, 99, 0.42);
+  --aurora-b-color: rgba(31, 111, 90, 0.46);
+  --aurora-c-color: rgba(127, 217, 160, 0.14);
+  --aurora-d-color: rgba(79, 143, 99, 0.21);
+
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .aurora {
+    left: var(--sidebar-width);
+  }
+}
+
+.aurora__base,
+.aurora__vignette,
+.aurora__grain,
+.aurora__blobs {
+  position: absolute;
+  inset: 0;
+}
+
+.aurora__base {
+  background: radial-gradient(ellipse at 50% 20%, #0c1a12 0%, #0a120d 50%, #050807 100%);
+}
+
+/* Camada de intensidade: --aurora-intensity (0 a 1, padrão 1) escurece/apaga as 4 manchas
+   de uma vez sem mexer no desenho. */
+.aurora__blobs {
+  opacity: var(--aurora-intensity, 1);
+}
+
+.aurora__blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--blob-color) 0%, transparent 65%);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  animation: aurora-drift var(--blob-duration) ease-in-out var(--blob-delay) infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(var(--blob-dx), var(--blob-dy), 0) scale(var(--blob-scale));
+  }
+}
+
+.aurora__blob--a {
+  --blob-color: var(--aurora-a-color);
+  --blob-dx: 12vw;
+  --blob-dy: 10vh;
+  --blob-scale: 1.15;
+  --blob-duration: 48s;
+  --blob-delay: -14s;
+  left: -10vw;
+  top: -15vh;
+  width: 70vw;
+  height: 70vw;
+}
+
+.aurora__blob--b {
+  --blob-color: var(--aurora-b-color);
+  --blob-dx: -14vw;
+  --blob-dy: 12vh;
+  --blob-scale: 1.1;
+  --blob-duration: 57s;
+  --blob-delay: -31s;
+  left: 60vw;
+  top: 20vh;
+  width: 55vw;
+  height: 55vw;
+}
+
+.aurora__blob--c {
+  --blob-color: var(--aurora-c-color);
+  --blob-dx: 10vw;
+  --blob-dy: -14vh;
+  --blob-scale: 1.2;
+  --blob-duration: 41s;
+  --blob-delay: -9s;
+  left: 20vw;
+  top: 55vh;
+  width: 60vw;
+  height: 60vw;
+}
+
+.aurora__blob--d {
+  --blob-color: var(--aurora-d-color);
+  --blob-dx: -10vw;
+  --blob-dy: 8vh;
+  --blob-scale: 1.1;
+  --blob-duration: 65s;
+  --blob-delay: -43s;
+  left: 35vw;
+  top: 30vh;
+  width: 40vw;
+  height: 40vw;
+}
+
+/* Reforços ESTÁTICOS (custo zero de animação), dentro do contêiner de intensidade. */
+.aurora__glow {
+  position: absolute;
+  inset: 0;
+}
+
+.aurora__glow--top {
+  background: radial-gradient(ellipse 60% 35% at 50% 0%, rgba(127, 217, 160, 0.1), transparent 70%);
+}
+
+.aurora__glow--corner {
+  background: radial-gradient(
+    ellipse 50% 40% at 100% 100%,
+    rgba(31, 111, 90, 0.22),
+    transparent 70%
+  );
+}
+
+/* Fade do cabeçalho (estático): escurece o topo pra título e abas nunca ficarem sobre o
+   trecho mais claro da aurora. Sobre as manchas, abaixo da vinheta e do conteúdo. */
+.aurora__fade {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 240px;
+  background: linear-gradient(to bottom, rgba(5, 8, 7, 0.55) 0, transparent 240px);
+}
+
+.aurora__vignette {
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+/* Grão estático (ruído SVG em tons de cinza) — só pra eliminar banding nos degradês. */
+.aurora__grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.03;
+}
+
+/* Aba oculta: pausa (a classe é alternada por AuroraBackground.tsx). */
+.aurora--paused .aurora__blob {
+  animation-play-state: paused;
+}
+
+/* Mobile: só as manchas A e B (vinheta e grão ficam). */
+@media (max-width: 640px) {
+  .aurora__blob--c,
+  .aurora__blob--d {
+    display: none;
+  }
+}
+
+/* Menos movimento: manchas paradas na posição inicial, sem camadas promovidas. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora__blob {
+    animation: none;
+    will-change: auto;
+  }
+}

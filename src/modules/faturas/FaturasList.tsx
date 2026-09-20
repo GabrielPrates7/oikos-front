@@ -2,12 +2,14 @@ import { Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
-import { ListTotal } from '../../components/ui/ListTotal'
 import { Pagination } from '../../components/ui/Pagination'
+import { FALLBACK_COLOR, getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
-import { formatDateBR, formatReferenceMonth } from '../../utils/date'
+import { formatDateBR, formatReferenceMonth, MONTH_NAMES_PT } from '../../utils/date'
+import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
 import type { InvoiceSort } from './faturas.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
+import { EntradasTotalCard } from '../entradas/EntradasTotalCard'
 import { InvoiceStatusBadge } from './InvoiceStatusBadge'
 import type { InvoiceListItem } from './faturas.types'
 import './FaturasList.css'
@@ -21,10 +23,19 @@ interface FaturasListProps {
   onSearchChange: (search: string) => void
   monthFilter: string
   onMonthFilterChange: (month: string) => void
-  availableMonths: string[]
+  yearFilter: string
+  onYearFilterChange: (year: string) => void
+  availableYears: string[]
+  dueFrom: string
+  onDueFromChange: (date: string) => void
+  dueTo: string
+  onDueToChange: (date: string) => void
+  statusFilter: '' | 'unpaid' | 'paid'
+  onStatusFilterChange: (status: '' | 'unpaid' | 'paid') => void
   sortOrder: InvoiceSort
   onSortOrderChange: (sort: InvoiceSort) => void
   sumCents: number
+  total: number
   page: number
   totalPages: number
   onPageChange: (page: number) => void
@@ -44,10 +55,19 @@ export function FaturasList({
   onSearchChange,
   monthFilter,
   onMonthFilterChange,
-  availableMonths,
+  yearFilter,
+  onYearFilterChange,
+  availableYears,
+  dueFrom,
+  onDueFromChange,
+  dueTo,
+  onDueToChange,
+  statusFilter,
+  onStatusFilterChange,
   sortOrder,
   onSortOrderChange,
   sumCents,
+  total,
   page,
   totalPages,
   onPageChange,
@@ -65,7 +85,8 @@ export function FaturasList({
   // Só faturas ainda não pagas entram no lote — pagar de novo não faz sentido.
   const payableInvoices = invoices.filter((invoice) => invoice.displayStatus !== 'paid')
   const allSelected =
-    payableInvoices.length > 0 && payableInvoices.every((invoice) => selectedInvoiceIds.has(invoice.id))
+    payableInvoices.length > 0 &&
+    payableInvoices.every((invoice) => selectedInvoiceIds.has(invoice.id))
 
   return (
     <div className="faturas-list">
@@ -105,14 +126,58 @@ export function FaturasList({
             value={monthFilter}
             onChange={(event) => onMonthFilterChange(event.target.value)}
           >
-            <option value="default">Mês atual + não pagas</option>
-            <option value="all">Todos os meses</option>
-            {availableMonths.map((month) => (
-              <option key={month} value={month}>
-                {formatReferenceMonth(`${month}-01`)}
+            <option value="">Todos</option>
+            {MONTH_NAMES_PT.map((name, index) => (
+              <option key={name} value={String(index + 1).padStart(2, '0')}>
+                {name}
               </option>
             ))}
           </select>
+        </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-status">Status</label>
+          <select
+            id="filter-status"
+            value={statusFilter}
+            onChange={(event) => onStatusFilterChange(event.target.value as '' | 'unpaid' | 'paid')}
+          >
+            <option value="">Todas</option>
+            <option value="unpaid">Não pagas</option>
+            <option value="paid">Pagas</option>
+          </select>
+        </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-year">Ano</label>
+          <select
+            id="filter-year"
+            value={yearFilter}
+            onChange={(event) => onYearFilterChange(event.target.value)}
+          >
+            <option value="">Todos</option>
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-due-from">Vencimento de</label>
+          <input
+            id="filter-due-from"
+            type="date"
+            value={dueFrom}
+            onChange={(event) => onDueFromChange(event.target.value)}
+          />
+        </div>
+        <div className="faturas-list__filter-field">
+          <label htmlFor="filter-due-to">Vencimento até</label>
+          <input
+            id="filter-due-to"
+            type="date"
+            value={dueTo}
+            onChange={(event) => onDueToChange(event.target.value)}
+          />
         </div>
         <div className="faturas-list__filter-field">
           <label htmlFor="filter-sort">Ordenar por</label>
@@ -129,18 +194,32 @@ export function FaturasList({
 
       {invoices.length === 0 ? (
         <div className="faturas-list__empty">
-          {selectedCardId || search || monthFilter !== 'default' ? (
-            <p>Nenhuma fatura encontrada com esses filtros.</p>
-          ) : (
+          {!selectedCardId &&
+          !search &&
+          !monthFilter &&
+          !yearFilter &&
+          !statusFilter &&
+          !dueFrom &&
+          !dueTo ? (
             <>
               <p>Você ainda não tem nenhuma fatura.</p>
               <p>Faturas aparecem aqui assim que você registrar uma compra num cartão.</p>
             </>
+          ) : (
+            <p>Nenhuma fatura encontrada com esses filtros.</p>
           )}
         </div>
       ) : (
         <>
-          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
+          <EntradasTotalCard
+            tone="red"
+            showSparkline={false}
+            sumCents={sumCents}
+            points={invoices.map((invoice) => ({
+              date: invoice.reference_month,
+              amountCents: invoice.totalCents,
+            }))}
+          />
           {payableInvoices.length > 0 && (
             <div className="faturas-list__batch-bar">
               <label className="faturas-list__select-all">
@@ -164,8 +243,17 @@ export function FaturasList({
             {invoices.map((invoice) => {
               const card = cardsById.get(invoice.credit_card_id)
               const isPayable = invoice.displayStatus !== 'paid'
+              // Cor do banco (nome do cartão = nome do banco, ver CartaoVisual) na borda esquerda
+              // e no nome; banco desconhecido cai no cinza neutro, mesma regra do AccountBadge.
+              const resolvedColor = getBankColor(card?.name)
+              const bankColor =
+                resolvedColor === FALLBACK_COLOR ? 'var(--color-text-muted)' : resolvedColor.base
               return (
-                <div key={invoice.id} className="faturas-grid__card">
+                <div
+                  key={invoice.id}
+                  className="faturas-grid__card"
+                  style={{ '--bank-color': bankColor } as React.CSSProperties}
+                >
                   {isPayable ? (
                     <input
                       type="checkbox"
@@ -194,7 +282,9 @@ export function FaturasList({
                       </span>
                     </div>
                   </Link>
-                  <DropdownMenu label={`Mais opções da fatura de ${formatReferenceMonth(invoice.reference_month)}`}>
+                  <DropdownMenu
+                    label={`Mais opções da fatura de ${formatReferenceMonth(invoice.reference_month)}`}
+                  >
                     {(close) => (
                       <>
                         <Link
@@ -225,7 +315,15 @@ export function FaturasList({
               )
             })}
           </div>
-          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalItems={total}
+            pageSize={DEFAULT_PAGE_SIZE}
+            itemLabel="faturas"
+            alwaysShow
+          />
         </>
       )}
     </div>

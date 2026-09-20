@@ -1,82 +1,109 @@
-/* position:relative + padding-top: espaço pro cartão "de trás" (stack) não ser cortado —
-   sem isso o deslocamento do ::stack fica escondido por overflow do ancestral. */
+/* Contêiner relativo — as duas camadas (cartão inclinado + vidro horizontal) são filhas
+   absolutas dele. Fundo TOTALMENTE transparente + borda fina como moldura — ver razão
+   completa em CartaoMiniVisual.css: as quinas do wrap (onde o cartão, menor que o wrap,
+   não alcança) mostram esse fundo transparente de propósito, são os triângulos escuros
+   da referência. */
 .cartao-visual {
+  /* 16px → 24px (rounded-3xl do Tailwind) — pedido de rodada anterior, mantido.
+     Camada 1 (.card-surface) e a base da Camada 2 (.footer) usam a MESMA variável, pra
+     acompanhar exatamente essa curvatura. */
+  --cartao-radius: 24px;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 6px;
-}
-
-.cartao-visual__card {
-  position: relative;
-  z-index: 1;
+  overflow: hidden;
   width: 100%;
   max-width: 320px;
   aspect-ratio: 1.586 / 1;
-  border-radius: 16px;
-  padding: 16px 18px;
+  border-radius: var(--cartao-radius);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cartao-visual--large {
+  max-width: 420px;
+}
+
+/* Compact (320px): o texto "usado de X" + "disponível" quebra em 2 linhas, mais alto que o
+   rodapé de 28%. Rodapé um pouco mais alto (34%), padding e fonte menores, pra barra + 2
+   linhas caberem sem vazar (medido: 5 + 4 + 2×15 = 39px de conteúdo, 69 - 20 = 49px
+   disponíveis). O nome/selo/bandeira do cartão ficam acima do novo topo do vidro. */
+.cartao-visual--compact .cartao-visual__footer {
+  height: 34%;
+  padding: 10px 18px;
+  gap: 4px;
+}
+
+.cartao-visual--compact .cartao-visual__amounts {
+  font-size: 11px;
+  gap: 2px 12px;
+}
+
+/* CAMADA 1 — cartão colorido: MENOR que o contêiner (6% de margem lateral), inclinado a
+   -4deg — mudança de abordagem, ver razão completa em CartaoMiniVisual.css: o cartão cabe
+   inteiro rotacionado, sem precisar de overflow:hidden cortando nada, deixando as quinas
+   do contêiner mostrarem o fundo (triângulos escuros da referência). top:0;bottom:0;
+   margin:auto 0 centraliza verticalmente a altura definida por aspect-ratio (1.58/1)
+   dentro do contêiner. 6%/-4deg medido (matriz de rotação dos 4 cantos) pra caber com
+   folga positiva nos dois eixos. */
+.cartao-visual__card-surface {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6%;
+  right: 6%;
+  margin: auto 0;
+  aspect-ratio: 1.58 / 1;
+  z-index: 1;
+  border-radius: var(--cartao-radius);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   color: #f5f3ee;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
-  /* Leve inclinação — cartão "jogado" em vez de perfeitamente alinhado, igual à imagem de
-     referência. */
-  transform: rotate(-2deg);
-  transform-origin: bottom left;
+  transform: rotate(-4deg);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
 }
 
 /* Sheen sutil no canto superior — textura leve sem competir com o texto */
-.cartao-visual__card::before {
+.cartao-visual__card-surface::before {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background: radial-gradient(circle at 85% -10%, rgba(255, 255, 255, 0.22), transparent 55%);
   pointer-events: none;
 }
 
-/* Cartão decorativo por baixo, mesmo gradiente do cartão real — só profundidade visual,
-   nunca recebe conteúdo nem é lido por leitor de tela (aria-hidden no componente). */
-.cartao-visual__stack {
-  position: absolute;
-  inset: 6px 8px auto 8px;
-  width: calc(100% - 16px);
-  max-width: 320px;
-  aspect-ratio: 1.586 / 1;
-  border-radius: 16px;
-  transform: rotate(5deg) translate(10px, 6px);
-  filter: brightness(0.65) saturate(0.85);
-  opacity: 0.85;
-  z-index: 0;
-}
-
-.cartao-visual--large .cartao-visual__card,
-.cartao-visual--large .cartao-visual__stack {
-  max-width: 420px;
-}
-
-.cartao-visual__header {
+/* Uma linha só, no topo do cartão: chip+contactless na esquerda, badge/wordmark na
+   direita (margin-left:auto no .top-row-right). */
+/* margin-top/left — chip e NFC estavam colados demais no canto sup.-esquerdo (mesmo ajuste
+   de CartaoMiniVisual.css, escalado um pouco pro tamanho maior deste componente). */
+.cartao-visual__top-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 26px;
+  margin-left: 20px;
 }
 
-/* Wordmark estilizado (não um logo de verdade — o app não reproduz a marca exata de cada
-   banco) — maiúsculo pequeno + nome grande em itálico, evocando um logotipo sem tentar
-   imitar pixel a pixel a identidade visual real de nenhum banco específico. */
+.cartao-visual__top-row-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* Wordmark — nome real do cartão (dado do usuário), tipografia genérica em itálico, não
+   um logo/fonte de marca copiado (ver observação em CartaoVisual.tsx). font-size
+   aumentado (20px→24px / 24px→28px) — pedido explícito de nome do cartão maior. */
 .cartao-visual__logo {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   font-style: italic;
   letter-spacing: 0.01em;
 }
 
 .cartao-visual--large .cartao-visual__logo {
-  font-size: 24px;
+  font-size: 28px;
 }
 
 .cartao-visual__archived-badge {
@@ -91,90 +118,182 @@
   height: fit-content;
 }
 
-.cartao-visual__chip-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Chip EMV estilizado — bloco dourado com linhas finas, mesma posição/proporção de um
-   chip real de cartão físico (não é um ícone importado, é só CSS). */
+/* Chip EMV desenhado em CSS puro (sem SVG/imagem) — RESTAURADO ao padrão cinza metálico de
+   antes (ver razão completa em CartaoMiniVisual.css: a tentativa de "sulco em relevo" saiu
+   bege/creme e com aparência tracejada — regressão, revertida). 34x26 → 41x31 (+20%,
+   mantido de rodada anterior — só a cor/padrão regrediu). */
 .cartao-visual__chip {
-  width: 34px;
-  height: 26px;
+  width: 41px;
+  height: 31px;
   border-radius: 5px;
-  background: linear-gradient(135deg, #f3d98b, #b8933f);
+  background: linear-gradient(135deg, #b7b3b2, #8a8886);
+  border: 1px solid rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
   flex: 0 0 auto;
 }
 
+/* Padrão de 6 contatos (2 colunas x 3 linhas), como um chip EMV real. 1 divisória vertical
+   central cria as 2 colunas; o gradiente a 165deg cria as divisórias "horizontais" com
+   leve ângulo — não retas, não tracejadas. */
 .cartao-visual__chip-lines {
   position: absolute;
-  inset: 0;
+  inset: 1px;
   background:
-    linear-gradient(to right, transparent 45%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.35) 55%, transparent 55%),
-    linear-gradient(to bottom, transparent 35%, rgba(0, 0, 0, 0.3) 35%, rgba(0, 0, 0, 0.3) 65%, transparent 65%);
+    linear-gradient(to right, transparent 47%, rgba(0, 0, 0, 0.4) 47%, rgba(0, 0, 0, 0.4) 53%, transparent 53%),
+    linear-gradient(
+      165deg,
+      transparent 28%,
+      rgba(0, 0, 0, 0.4) 28%,
+      rgba(0, 0, 0, 0.4) 32%,
+      transparent 32%,
+      transparent 64%,
+      rgba(0, 0, 0, 0.4) 64%,
+      rgba(0, 0, 0, 0.4) 68%,
+      transparent 68%
+    );
 }
 
+/* Ícone de contactless (ondas de sinal, lucide-react "Nfc") — branco puro a 80% de
+   opacidade (não mais 70%), não tingido na cor do banco. */
 .cartao-visual__contactless {
-  opacity: 0.85;
-  transform: rotate(90deg);
+  color: rgba(255, 255, 255, 0.8);
+  flex: 0 0 auto;
 }
 
+/* Segundo (e último) elemento no fluxo normal de .card-surface (.top-row é o primeiro; o
+   badge é position:absolute, fora do fluxo) — margin-top:auto empurra ele pro fim do
+   cartão. */
 .cartao-visual__brand {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   opacity: 0.85;
+  margin-top: auto;
+  /* Sem isso, margin-top:auto empurra o texto pra dentro da faixa que a Camada 2 (vidro)
+     cobre por cima — ele fica escondido atrás do glassmorphism (bug real, já visto antes).
+     Recalculado de novo pro vazamento/-5deg desta rodada (ver .card-surface). */
+  margin-bottom: 22%;
 }
 
-.cartao-visual__progress {
-  position: relative;
-  z-index: 1;
-  max-width: 320px;
+/* Selo de bandeira genérico — canto inferior direito do CARTÃO (coordenadas locais da
+   Camada 1), dentro da faixa que a Camada 2 (vidro) cobre por cima, pra o backdrop-filter
+   borrar ele (ver .footer). Sem blur próprio. display:flex + margin-left negativo no
+   segundo círculo cria a sobreposição. isolation:isolate escopa o mix-blend-mode do
+   círculo amarelo contra o vermelho. */
+/* RESTAURADO: fica ACIMA da faixa de vidro, nítido, sem blur — ver razão completa em
+   CartaoMiniVisual.css (deixar o brilho "vazar" pelo backdrop-filter virou mancha borrada
+   única, regressão revertida). bottom/right recalculados pro novo vazamento do cartão
+   (-4%/-5deg, ver .card-surface), medido via getBoundingClientRect. */
+.cartao-visual__badge {
+  position: absolute;
+  right: 44px;
+  bottom: 100px;
+  display: flex;
+  isolation: isolate;
+}
+
+/* right/bottom acima foram medidos pro tamanho large (420px). No compact (320px) o mesmo
+   offset jogava o selo em cima do nome do cartão (medido: selo l218/t58 x nome l181-279/
+   t49-85) — aqui ele fica na faixa livre entre o nome e o bolso de vidro. */
+.cartao-visual--compact .cartao-visual__badge {
+  right: 34px;
+  bottom: 74px;
+}
+
+.cartao-visual__badge-circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+/* Vermelho e laranja clássicos (#EB001B / #F79E1B) — cores sólidas e nítidas, sem
+   depender de nenhum blur pra "acender". */
+.cartao-visual__badge-circle--red {
+  background: #eb001b;
+}
+
+/* margin-left negativo sobrepõe metade do círculo vermelho. hard-light testado por
+   composição de canvas contra as 8 opções do spec, foi a mais próxima de um laranja
+   "bandeira genérica" na interseção. */
+.cartao-visual__badge-circle--orange {
+  margin-left: -15px;
+  background: #f79e1b;
+  mix-blend-mode: hard-light;
+}
+
+/* CAMADA 2 — "bolso" de vidro: bottom:0, width:100% (mais largo que o cartão inclinado,
+   que tem 6% de margem de cada lado), SEM rotação. Fundo escuro translúcido LEVE (0.4,
+   não mais 0.6) + blur(12px, não mais 16px) — ver razão completa em
+   CartaoMiniVisual.css (a 0.6/16px o vidro ficava opaco demais e apagava o selo de
+   bandeira por trás). */
+.cartao-visual__footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 28%;
+  z-index: 10;
+  border-radius: 0 0 var(--cartao-radius) var(--cartao-radius);
+  padding: 18px 22px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(42, 46, 53, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* 0.1 → 0.2 — linha superior mais brilhante, pedido explícito. */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.cartao-visual--large .cartao-visual__progress {
-  max-width: 420px;
-}
-
+/* Fundo bem mais escuro que a versão anterior (quase preto, não mais preto a 40%) —
+   pedido explícito, pra bater com a imagem de referência. Altura menor (5px vs 8px). */
 .cartao-visual__bar-track {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--color-bg-elevated);
+  /* flex-shrink:0 — o rodapé é uma coluna flex de altura fixa (28%); quando o texto de baixo
+     quebra em 2 linhas (tamanho compact, 320px), o conteúdo passa da altura e o flex
+     ESMAGAVA a barra pra 0px (medido: track h=0) — era isso que a fazia "sumir". */
+  flex: 0 0 auto;
+  height: 5px;
+  border-radius: 9999px;
+  background: #17191c;
   overflow: hidden;
 }
 
 .cartao-visual__bar-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: 9999px;
   transition: width 0.2s ease;
 }
 
-/* Mesmos 3 níveis de CartaoMiniVisual/OrcamentosList/BudgetComparisonChart — <70% verde
-   ("tranquilo"), 70-85% âmbar ("atenção"), >=85% terracota ("perto do limite"). */
+/* <70%: cinza bem claro com brilho branco mais difuso e intenso (12px/0.7, não mais
+   8px/0.4) — pedido explícito, "simular emissão de luz real". */
 .cartao-visual__bar-fill--ok {
-  background: var(--color-accent-income);
+  background: #e5e7eb;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
 }
 
 .cartao-visual__bar-fill--warning {
   background: #d9a441;
+  box-shadow: 0 0 12px rgba(217, 164, 65, 0.6);
 }
 
 .cartao-visual__bar-fill--danger {
   background: var(--color-accent-expense);
+  box-shadow: 0 0 12px rgba(178, 84, 58, 0.6);
 }
 
+/* text-xs/font-normal/text-white-80 — texto do saldo estava com peso/contraste altos
+   demais; mais leve e discreto (pedido explícito, mesmo ajuste de CartaoMiniVisual.css). */
 .cartao-visual__amounts {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 4px 12px;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }

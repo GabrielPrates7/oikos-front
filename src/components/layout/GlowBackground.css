@@ -1,0 +1,38 @@
+/* Fundo "sombreado": sem textura de pontos/linhas, so brilhos verdes difusos sobre a base
+   escura padrao, o mesmo principio dos radiais do Shell (.shell__main::before em Shell.css,
+   que ja poe um brilho no canto superior esquerdo e outro no inferior direito). Uma camada
+   fixa a mais, atras do conteudo, soma dois brilhos em posicoes diferentes (direita no alto,
+   esquerda no meio) sem competir com os paineis de vidro. Usado em Categorias e Orcamentos:
+   basta a classe .glow-bg na raiz da pagina. Tokens verdes existentes, opacidade baixa, sem
+   animacao. */
+.glow-bg {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.glow-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 88% 22%,
+      color-mix(in srgb, var(--color-accent-bright) 11%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 8% 62%,
+      color-mix(in srgb, var(--color-accent) 14%, transparent),
+      transparent 70%
+    );
+}
+
+/* Nunca por cima da Sidebar (mesma regra do brilho ambiente em Shell.css). */
+@media (min-width: 768px) {
+  .glow-bg::before {
+    left: var(--sidebar-width);
+  }
+}

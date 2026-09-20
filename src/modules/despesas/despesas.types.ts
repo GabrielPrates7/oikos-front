@@ -14,6 +14,9 @@ export interface Expense {
   is_paid: boolean
   is_planned: boolean
   paid_date: string | null
+  // Fase 1: só afeta o "Total exibido" desta tela (Geral/Já pago/Falta pagar) — Saldo
+  // Real/extrato de conta e o resto do sistema continuam somando tudo, de propósito.
+  count_in_totals: boolean
   created_at: string
 }
 

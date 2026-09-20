@@ -1,0 +1,58 @@
+/* Fundo "holograma de cartão" — só nas telas de Cartões (lista e detalhe), aplicado via a
+   classe .holo-bg nas raízes das duas páginas. Camada FIXA por cima do fundo neutro (que não
+   muda), atrás do conteúdo: uma faixa diagonal (120deg) estreita de luz — verde-base → toque
+   ciano → toque lilás → verde-base — em 8-10% de opacidade, deslizando devagar (18s, linear)
+   em loop contínuo.
+   Loop sem emenda: o tile tem exatamente a largura do viewport (100vw) e as pontas do
+   gradiente são transparentes; a animação desloca o background por 1 tile inteiro (100vw),
+   então o quadro final é idêntico ao inicial. Só background-position anima (nada de
+   box-shadow/filter/blur em loop); a camada tem pointer-events:none. */
+.holo-bg {
+  position: relative;
+}
+
+.holo-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(127, 217, 160, 0.08) 44%,
+    rgba(120, 220, 235, 0.1) 48.5%,
+    rgba(180, 150, 240, 0.1) 53%,
+    rgba(127, 217, 160, 0.08) 57.5%,
+    transparent 63%,
+    transparent 100%
+  );
+  background-size: 100vw 100vh;
+  background-repeat: repeat-x;
+  animation: holo-slide 18s linear infinite;
+}
+
+/* Nunca por cima da Sidebar (mesma regra do brilho ambiente em Shell.css). */
+@media (min-width: 768px) {
+  .holo-bg::before {
+    left: var(--sidebar-width);
+  }
+}
+
+@keyframes holo-slide {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100vw 0;
+  }
+}
+
+/* Preferência do sistema por menos movimento: fica parado (a faixa segue visível, só não
+   desliza). */
+@media (prefers-reduced-motion: reduce) {
+  .holo-bg::before {
+    animation: none;
+  }
+}

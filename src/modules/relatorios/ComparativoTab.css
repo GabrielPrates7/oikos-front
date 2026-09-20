@@ -1,106 +1,192 @@
-.comparativo-tab__selectors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  max-width: 480px;
-  margin-bottom: 8px;
+.comparativo-tab__swap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  cursor: pointer;
 }
 
-.comparativo-tab__selectors > * {
-  flex: 1 1 200px;
+.comparativo-tab__swap:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.comparativo-tab__deltas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px 32px;
-  margin: 16px 0 32px;
+.comparativo-tab__swap:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.delta-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.delta-card__label {
+.comparativo-tab__same-month {
+  flex-basis: 100%;
+  margin: 0;
   font-size: 12px;
   color: var(--color-text-muted);
 }
 
-.delta-card__value {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
+.comparativo-tab__range {
+  font-size: 11px;
+  color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
-.delta-card__delta {
+.comparativo-tab__variation {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: var(--color-text-muted);
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.delta-card__delta--good {
-  color: var(--color-accent-income);
+.comparativo-tab__variation svg {
+  flex: 0 0 auto;
 }
 
-.delta-card__delta--bad {
-  color: var(--color-accent-expense);
-}
-
-.comparativo-tab__table-title {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 12px;
-}
-
-.comparativo-tab__table-empty {
+.comparativo-tab__vs {
+  font-weight: 400;
   color: var(--color-text-muted);
-  font-size: 14px;
-  padding: 16px 0;
 }
 
-/* Tabela larga (4 colunas) precisa rolar na horizontal em telas estreitas em vez de
-   espremer o conteúdo até ficar ilegível. */
-.comparativo-tab__table-wrapper {
-  overflow-x: auto;
+/* Destaques: dois chips em vidro acima da tabela, na mesma largura do painel. */
+.comparativo-tab__highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 1100px;
+  margin: 0 auto 12px;
 }
 
-.comparativo-tab__table {
-  width: 100%;
-  min-width: 420px;
-  border-collapse: collapse;
+.comparativo-tab__chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px 14px;
   font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
 }
 
-.comparativo-tab__table th,
-.comparativo-tab__table td {
-  text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--color-bg-elevated);
+.comparativo-tab__chip-label {
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
-.comparativo-tab__table th {
-  color: var(--color-text-muted);
-  font-weight: 500;
+.comparativo-tab__chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.comparativo-tab__table td {
-  color: var(--color-text-primary);
+.comparativo-tab__chip-value {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.comparativo-tab__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.comparativo-tab__empty p {
+  margin: 0;
+}
+
+.comparativo-tab__gap-note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Skeleton em vidro (cards + tabela). */
+.comparativo-tab__skeleton-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comparativo-skeleton {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 70%
+  );
+  background-size: 200% 100%;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  animation: comparativo-shimmer 1.4s ease-in-out infinite;
+}
+
+.comparativo-skeleton--card {
+  flex: 1 1 170px;
+  max-width: 260px;
+  height: 128px;
+}
+
+.comparativo-skeleton--table {
+  max-width: 1100px;
+  height: 280px;
+  margin: 0 auto;
+}
+
+@keyframes comparativo-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comparativo-skeleton {
+    animation: none;
+  }
+}
+
+.comparativo-tab__filter-line {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #c9cfc9;
   font-variant-numeric: tabular-nums;
 }
 
-.comparativo-tab__delta-up {
-  color: var(--color-accent-expense);
+.comparativo-tab__clear {
+  background: transparent;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
 }
 
-.comparativo-tab__delta-down {
-  color: var(--color-accent-income);
+.comparativo-tab__clear:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

@@ -1,0 +1,76 @@
+/* Tema local de Relatórios (v2 do fundo aurora). TUDO escopado por .shell--theme-reports (a
+   classe que Shell.tsx aplica só em /relatorios/*): nenhuma regra daqui atinge Dashboard,
+   Cartões, Faturas ou qualquer outra tela, e as classes compartilhadas (.glass-stat-card,
+   .tabs__link, ...) não são alteradas — só sobrescritas dentro deste escopo.
+
+   Duas superfícies: o fundo nu é vivo (AuroraBackground.css); os PAINÉIS recebem um scrim
+   escuro semiopaco sob o vidro, pra o texto interno não depender da aurora. */
+.shell--theme-reports {
+  --reports-glass-bg:
+    linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03)), rgba(8, 14, 10, 0.75);
+  --reports-glass-border: rgba(127, 217, 160, 0.16);
+  --reports-glass-border-top: rgba(127, 217, 160, 0.3);
+  --reports-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 30px rgba(0, 0, 0, 0.3);
+  /* Texto secundário direto sobre o fundo (fora de painéis). Dentro dos painéis continua
+     #9ca79e (--color-text-muted). */
+  --reports-muted: #c3ccc5;
+  /* Contorno das fatias da pizza = fundo do painel (scrim sobre o fundo escuro). */
+  --reports-pie-stroke: #16201a;
+}
+
+/* Painéis: toolbar, cards de KPI, painéis de gráfico/tabela, cards da Visão Geral, chips e
+   skeleton. Mantêm backdrop-filter (blur 12px) e raios que cada um já tem. */
+.shell--theme-reports .report-toolbar,
+.shell--theme-reports .glass-stat-card,
+.shell--theme-reports .chart-panel,
+.shell--theme-reports .report-panel,
+.shell--theme-reports .ranked-card,
+.shell--theme-reports .segmented-card,
+.shell--theme-reports .comparativo-tab__chip,
+.shell--theme-reports .comparativo-skeleton {
+  background: var(--reports-glass-bg);
+  border: 1px solid var(--reports-glass-border);
+  border-top-color: var(--reports-glass-border-top);
+  box-shadow: var(--reports-glass-shadow);
+}
+
+/* O skeleton usa um degradê animado só em background-position (shimmer); o scrim entra por
+   cima dele mantendo o brilho sutil. */
+.shell--theme-reports .comparativo-skeleton {
+  background:
+    linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.03) 30%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 70%
+    ),
+    rgba(8, 14, 10, 0.75);
+  background-size:
+    200% 100%,
+    auto;
+}
+
+/* Texto secundário direto sobre o fundo nu: abas inativas, rótulos da toolbar e avisos. */
+.shell--theme-reports .tabs__link:not(.tabs__link--active),
+.shell--theme-reports .report-toolbar__label,
+.shell--theme-reports .month-year-picker__label,
+.shell--theme-reports .segmented-control__label,
+.shell--theme-reports .comparativo-tab__same-month,
+.shell--theme-reports .por-categoria-tab__note,
+.shell--theme-reports .por-categoria-tab__loading,
+.shell--theme-reports .evolucao-tab__loading {
+  color: var(--reports-muted);
+}
+
+.shell--theme-reports .tabs__link:not(.tabs__link--active):hover {
+  color: var(--color-text-primary);
+}
+
+/* Títulos de seção da Visão Geral (só esses dois). */
+.shell--theme-reports .visao-geral-tab__section-title--income {
+  color: #7fd9a0;
+}
+
+.shell--theme-reports .visao-geral-tab__section-title--expense {
+  color: #f2957c;
+}

@@ -1,0 +1,44 @@
+.report-skeleton__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.report-skeleton__block {
+  background: var(--reports-glass-bg, rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--reports-glass-border, rgba(255, 255, 255, 0.12));
+  border-top-color: var(--reports-glass-border-top, rgba(255, 255, 255, 0.22));
+  border-radius: 12px;
+  animation: report-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.report-skeleton__block--card {
+  flex: 1 1 170px;
+  max-width: 260px;
+  height: 128px;
+}
+
+.report-skeleton__block--panel {
+  max-width: 1100px;
+  margin: 0 auto 16px;
+}
+
+@keyframes report-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-skeleton__block {
+    animation: none;
+  }
+}

@@ -22,6 +22,9 @@ export function CreditCardsSummary({ cards }: CreditCardsSummaryProps) {
                   name={card.name}
                   creditLimitCents={card.creditLimitCents}
                   availableLimitCents={card.availableLimitCents}
+                  // Pedido explícito: contactless nos dois cartões agora (antes só o
+                  // Nubank, decisão revertida).
+                  hasContactless
                 />
               </Link>
             </li>

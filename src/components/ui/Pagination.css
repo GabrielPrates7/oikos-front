@@ -7,8 +7,98 @@
   flex-wrap: wrap;
 }
 
+/* Texto de resumo/status: --color-text-muted puro ficava apagado, sobretudo sobre os painéis de
+   vidro translúcido. Mistura 65% do texto principal com 35% do muted — mais claro, ainda
+   claramente abaixo do branco dos números de página. */
+.ui-pagination {
+  --pagination-text: color-mix(in srgb, var(--color-text-primary) 65%, var(--color-text-muted));
+}
+
 .ui-pagination__status {
   font-size: 13px;
-  color: var(--color-text-muted);
+  color: var(--pagination-text);
   white-space: nowrap;
+}
+
+/* Variante numerada — só quando totalItems/pageSize são passados (Entradas, por ora).
+   Estrutura em 3 partes (resumo | controles | status) que empilha em telas estreitas via
+   flex-wrap, mesma ideia de PageHeader. */
+.ui-pagination--numbered {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ui-pagination__summary {
+  font-size: 13px;
+  color: var(--pagination-text);
+  white-space: nowrap;
+}
+
+.ui-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ui-pagination__nav-button,
+.ui-pagination__page-button {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--color-bg-elevated);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ui-pagination__page-button:hover:not(.ui-pagination__page-button--active) {
+  border-color: var(--color-accent);
+}
+
+/* Setas ‹ › — círculo com fundo visível, mesmo padrão dos botões de ação circulares das
+   listas (copiar/editar/excluir): antes eram só o glifo, sem fundo nem borda, quase invisíveis
+   no fundo escuro. Sobrescreve borda/raio da regra compartilhada acima. */
+.ui-pagination__nav-button {
+  width: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-pagination__nav-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+}
+
+/* Desabilitado (1ª/última página): mais apagado que o habilitado, mas o círculo e a seta
+   continuam legíveis (antes opacity 0.4 sobre um botão sem fundo praticamente sumia). */
+.ui-pagination__nav-button:disabled {
+  opacity: 0.55;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.ui-pagination__page-button--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.ui-pagination__nav-button:focus-visible,
+.ui-pagination__page-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.ui-pagination__ellipsis {
+  color: var(--pagination-text);
+  padding: 0 2px;
 }

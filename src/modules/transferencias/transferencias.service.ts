@@ -57,6 +57,16 @@ export const transferenciasService = {
     return result.transfer
   },
 
+  // description sempre vai (string vazia limpa) — no PUT, omitir significa "manter", e o
+  // usuário precisa conseguir apagar a descrição editando.
+  async update(id: string, data: CreateTransferenciaFormData): Promise<Transfer> {
+    const result = await apiFetch<{ transfer: Transfer }>(`/transfers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...toApiPayload(data), description: data.description ?? '' }),
+    })
+    return result.transfer
+  },
+
   async remove(id: string): Promise<void> {
     await apiFetch(`/transfers/${id}`, { method: 'DELETE' })
   },

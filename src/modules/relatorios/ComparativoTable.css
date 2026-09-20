@@ -1,0 +1,259 @@
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+}
+
+.cmp-table th,
+.cmp-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  text-align: right;
+  vertical-align: middle;
+}
+
+/* Larguras iguais em todas as linhas: só a coluna da categoria é flexível. */
+.cmp-table .cmp-c-base,
+.cmp-table .cmp-c-compared,
+.cmp-table .cmp-c-diff {
+  width: 124px;
+}
+
+.cmp-table .cmp-c-var {
+  width: 92px;
+}
+
+.cmp-table .cmp-c-bars {
+  width: 190px;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.cmp-table thead th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.cmp-table .cmp-c-name {
+  text-align: left;
+}
+
+.cmp-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cmp-cat__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-diff {
+  font-weight: 600;
+}
+
+/* Texto em terracota #cf6b52 (o #b2543a dá ~3,4:1, abaixo de AA). */
+.cmp-diff--bad {
+  color: #cf6b52;
+}
+
+.cmp-diff--good {
+  color: #6baf82;
+}
+
+.cmp-diff--neutral,
+.cmp-muted {
+  color: #9ca79e;
+}
+
+.cmp-chip {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  font-weight: 600;
+  color: #c9cfc9;
+}
+
+.cmp-table__total th,
+.cmp-table__total td {
+  border-bottom: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  font-weight: 600;
+}
+
+.cmp-table__subtotal th,
+.cmp-table__subtotal td {
+  border-bottom: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+  color: #c9cfc9;
+}
+
+.cmp-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cmp-bars__track {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.cmp-bars__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  animation: cmp-bar-grow 0.6s ease-out both;
+}
+
+@keyframes cmp-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-bars__fill {
+    animation: none;
+  }
+}
+
+.cmp-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A coluna "Comparação" só existe acima de 900px. */
+@media (max-width: 900px) {
+  .cmp-table .cmp-table__subtotal {
+    border-top: 1px dashed rgba(255, 255, 255, 0.18);
+    border-bottom: 0;
+  }
+
+  .cmp-table .cmp-c-bars {
+    display: none;
+  }
+}
+
+/* Abaixo de 640px: cada linha vira um item de duas linhas — categoria e diferença em cima,
+   "base → comparado" e variação embaixo. Continua sendo <table> (papéis ARIA explícitos no
+   markup); o cabeçalho fica no DOM, só visualmente oculto. Sem rolagem horizontal. */
+@media (max-width: 639px) {
+  .cmp-table,
+  .cmp-table tbody,
+  .cmp-table tfoot {
+    display: block;
+  }
+
+  .cmp-table .cmp-table__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .cmp-table tr {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'name name name diff'
+      'base compared . var';
+    align-items: center;
+    gap: 6px 6px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .cmp-table th,
+  .cmp-table td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .cmp-table .cmp-c-base,
+  .cmp-table .cmp-c-compared,
+  .cmp-table .cmp-c-diff,
+  .cmp-table .cmp-c-var {
+    width: auto;
+  }
+
+  .cmp-table .cmp-c-name {
+    grid-area: name;
+  }
+
+  .cmp-table .cmp-c-diff {
+    grid-area: diff;
+  }
+
+  .cmp-table .cmp-c-base {
+    grid-area: base;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .cmp-table .cmp-c-compared {
+    grid-area: compared;
+    font-size: 12px;
+    color: var(--color-text-primary);
+  }
+
+  /* Seta decorativa entre base e comparado (texto alternativo vazio). */
+  .cmp-table .cmp-c-compared::before {
+    content: '→ ';
+    content: '→ ' / '';
+    color: var(--color-text-muted);
+  }
+
+  .cmp-table .cmp-c-var {
+    grid-area: var;
+    font-size: 12px;
+  }
+
+  .cmp-table .cmp-table__total {
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-bottom: 0;
+  }
+
+  .cmp-table .cmp-c-bars {
+    display: none;
+  }
+}

@@ -5,11 +5,13 @@ import './MonthSwitcher.css'
 interface MonthSwitcherProps {
   month: string
   onChange: (month: string) => void
+  // Nome acessível do grupo; o padrão é o de sempre (quem não passa nada não muda).
+  label?: string
 }
 
-export function MonthSwitcher({ month, onChange }: MonthSwitcherProps) {
+export function MonthSwitcher({ month, onChange, label = 'Mês do resumo' }: MonthSwitcherProps) {
   return (
-    <div className="month-switcher" role="group" aria-label="Mês do resumo">
+    <div className="month-switcher" role="group" aria-label={label}>
       <button
         type="button"
         aria-label="Mês anterior"

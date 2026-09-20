@@ -1,0 +1,125 @@
+/* Vidro fosco — mesmos valores dos cards de vidro das outras telas (branco translúcido +
+   blur + borda clara, mais clara no topo). */
+.ranked-card,
+.segmented-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+}
+
+.ranked-card__title,
+.segmented-card__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 14px;
+}
+
+.ranked-card__empty,
+.segmented-card__empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 14px 0;
+}
+
+.ranked-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Grade da linha: marcador | nome | valor+% ; a barra ocupa a linha de baixo inteira. */
+.ranked-card__row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  grid-template-areas:
+    'marker name figures'
+    'track track track';
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.ranked-card__marker {
+  grid-area: marker;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ranked-card__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.ranked-card__name {
+  grid-area: name;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranked-card__figures {
+  grid-area: figures;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ranked-card__value {
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ranked-card__share {
+  min-width: 34px;
+  text-align: right;
+  color: #c9cfc9;
+  font-size: 12px;
+}
+
+.ranked-card__track {
+  grid-area: track;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: block;
+}
+
+.ranked-card__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  animation: ranked-bar-grow 0.6s ease-out both;
+}
+
+@keyframes ranked-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ranked-card__fill {
+    animation: none;
+  }
+}

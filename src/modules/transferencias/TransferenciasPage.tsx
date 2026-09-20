@@ -1,9 +1,8 @@
-import { Plus } from 'lucide-react'
+import { ArrowLeftRight, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { contasService } from '../contas/contas.service'
@@ -15,7 +14,10 @@ import type { CreateTransferenciaFormData } from './transferencias.schemas'
 import type { Transfer, TransferFilters } from './transferencias.types'
 import './TransferenciasPage.css'
 
-type Mode = { type: 'list' } | { type: 'create'; defaultFromAccountId?: string }
+type Mode =
+  | { type: 'list' }
+  | { type: 'create'; defaultFromAccountId?: string; duplicateFrom?: Transfer }
+  | { type: 'edit'; transfer: Transfer }
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
@@ -126,6 +128,20 @@ export function TransferenciasPage() {
     }
   }
 
+  async function handleUpdate(id: string, data: CreateTransferenciaFormData) {
+    setSubmitting(true)
+    setFormError(null)
+    try {
+      await transferenciasService.update(id, data)
+      setMode({ type: 'list' })
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setFormError(errorMessage(error, 'Erro inesperado. Tente novamente.'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   async function handleDelete(transfer: Transfer) {
     setLoadError(null)
     try {
@@ -136,25 +152,37 @@ export function TransferenciasPage() {
     }
   }
 
+  // Duplicar nunca cria nada direto — abre o formulário de criação pré-preenchido (data
+  // sugerida pro mês seguinte, editável), mesmo padrão de EntradasPage/DespesasPage.
+  function handleDuplicate(transfer: Transfer) {
+    setMode({ type: 'create', duplicateFrom: transfer })
+  }
+
   function handleCancelForm() {
     setFormError(null)
     setMode({ type: 'list' })
   }
 
-  if (mode.type === 'create') {
+  if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="transferencias-page">
-        <PageHeader title="Nova transferência" />
+        <PageHeader
+          title={mode.type === 'create' ? 'Nova transferência' : 'Editar transferência'}
+        />
         <TransferenciaForm
           // Mesmo motivo do key em DespesasPage: <select> não-controlado do RHF só aplica
           // o valor inicial contra as options que já existem no primeiro render.
           key={activeAccounts.length}
           defaultFromAccountId={mode.type === 'create' ? mode.defaultFromAccountId : undefined}
+          duplicateFrom={mode.type === 'create' ? mode.duplicateFrom : undefined}
+          initialData={mode.type === 'edit' ? mode.transfer : undefined}
           accounts={activeAccounts}
           error={formError}
           submitting={submitting}
           onCancel={handleCancelForm}
-          onSubmit={handleCreate}
+          onSubmit={(data) =>
+            mode.type === 'edit' ? handleUpdate(mode.transfer.id, data) : handleCreate(data)
+          }
         />
       </div>
     )
@@ -164,11 +192,16 @@ export function TransferenciasPage() {
     <div className="transferencias-page">
       <PageHeader
         title="Transferências"
+        icon={<ArrowLeftRight size={22} aria-hidden="true" />}
         action={
-          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+          <button
+            type="button"
+            className="transferencias-page__nova-transferencia-button"
+            onClick={() => setMode({ type: 'create' })}
+          >
             <Plus size={16} aria-hidden="true" />
             Nova transferência
-          </Button>
+          </button>
         }
       />
       <FormError message={loadError} />
@@ -179,10 +212,13 @@ export function TransferenciasPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           sumCents={sumCents}
+          total={total}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}
           onDelete={handleDelete}
+          onDuplicate={handleDuplicate}
+          onEdit={(transfer) => setMode({ type: 'edit', transfer })}
         />
       )}
     </div>

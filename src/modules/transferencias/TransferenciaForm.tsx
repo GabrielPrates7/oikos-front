@@ -5,8 +5,10 @@ import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
+import { nextMonthSameDay } from '../../utils/date'
 import type { Account } from '../contas/contas.types'
 import { createSchema, type CreateTransferenciaFormData } from './transferencias.schemas'
+import type { Transfer } from './transferencias.types'
 import './TransferenciaForm.css'
 
 function today(): string {
@@ -17,6 +19,12 @@ interface TransferenciaFormProps {
   // Preenchido só vindo do atalho "Movimentar" de ContasList/CartoesList — a conta de
   // onde a transferência sai.
   defaultFromAccountId?: string
+  // Preenchido só vindo do botão "Duplicar" de TransferenciasList — mesmos dados do
+  // original, exceto a data (sugerida pro mês seguinte, editável).
+  duplicateFrom?: Transfer
+  // Preenchido só na edição (botão "Editar" de TransferenciasList) — mesmo formulário da
+  // criação, só pré-preenchido com o registro existente (data original, não a do mês seguinte).
+  initialData?: Transfer
   accounts: Account[]
   error?: string | null
   submitting: boolean
@@ -26,12 +34,18 @@ interface TransferenciaFormProps {
 
 export function TransferenciaForm({
   defaultFromAccountId,
+  duplicateFrom,
+  initialData,
   accounts,
   error,
   submitting,
   onSubmit,
   onCancel,
 }: TransferenciaFormProps) {
+  // Edição usa o registro original; duplicar usa a cópia como fonte (menos a data, calculada
+  // à parte) — mesmo padrão de EntradaForm/DespesaForm.
+  const source = initialData ?? duplicateFrom
+
   const {
     register,
     handleSubmit,
@@ -40,11 +54,13 @@ export function TransferenciaForm({
   } = useForm<CreateTransferenciaFormData>({
     resolver: zodResolver(createSchema),
     defaultValues: {
-      fromAccountId: defaultFromAccountId ?? '',
-      toAccountId: '',
-      amountCents: 0,
-      transferDate: today(),
-      description: '',
+      fromAccountId: source?.from_account_id ?? defaultFromAccountId ?? '',
+      toAccountId: source?.to_account_id ?? '',
+      amountCents: source?.amount_cents ?? 0,
+      transferDate: duplicateFrom
+        ? nextMonthSameDay(duplicateFrom.transfer_date)
+        : (initialData?.transfer_date ?? today()),
+      description: source?.description ?? '',
     },
   })
 
@@ -95,7 +111,7 @@ export function TransferenciaForm({
           Cancelar
         </Button>
         <Button type="submit" loading={submitting}>
-          Criar transferência
+          {initialData ? 'Salvar alterações' : 'Criar transferência'}
         </Button>
       </div>
     </form>

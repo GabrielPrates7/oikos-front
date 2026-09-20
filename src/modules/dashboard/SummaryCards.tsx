@@ -1,4 +1,4 @@
-import { Banknote, BarChart3, CheckCircle2, Coins, Landmark, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { BarChart3, CheckCircle2, Coins, Landmark, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { centsToBRL } from '../../utils/currency'
 import type { DashboardSummary } from './dashboard.types'
 import './SummaryCards.css'
@@ -14,49 +14,34 @@ function clampBarWidth(percent: number): number {
   return Math.max(0, Math.min(100, percent))
 }
 
-// 7 cards na mesma fileira, seguindo a imagem de referência do redesign: Saldo Real e
-// Entradas são valores "base" (sem percentual, nada pra comparar); os outros cinco vêm
-// com um percentual relativo às entradas do mês (ou ao saldo, no caso de Patrimônio
-// Líquido — ver comentário em dashboard.service) e uma barrinha de progresso.
+// 6 cards (não mais 7) — "Entradas" saiu: é insumo de cálculo de outros cards (Lucro,
+// Falta Pagar, Taxa de Poupança), não uma métrica que alguém consulta isolada. Dos 6
+// restantes, 3 ganham destaque em vidro fosco (mesmo tratamento validado nos cartões de
+// crédito — backdrop-filter + borda clara sutil): Saldo Real (a métrica mais consultada,
+// por isso também maior e menos "engaiolada" que os outros dois — ver .stat-card--hero),
+// Lucro e Falta Pagar. Já Pago, Patrimônio Líquido e Taxa de Poupança continuam no
+// tratamento padrão (fundo sólido tingido), sem o destaque extra — ver SummaryCards.css
+// pra a estrutura de grid que acomoda os dois grupos.
 export function SummaryCards({ summary }: SummaryCardsProps) {
   const lucroPositivo = summary.lucroCents >= 0
   const LucroIcon = lucroPositivo ? TrendingUp : TrendingDown
 
   return (
     <div className="summary-cards">
-      <div className="summary-cards__stat-card summary-cards__stat-card--saldo">
+      <div className="summary-cards__stat-card summary-cards__stat-card--hero summary-cards__stat-card--saldo">
         <div className="summary-cards__stat-icon">
-          <Landmark size={18} aria-hidden="true" />
+          <Landmark size={28} aria-hidden="true" />
         </div>
-        <span className="summary-cards__stat-label">Saldo Real</span>
-        <span className="summary-cards__stat-value">{centsToBRL(summary.totalBalanceCents)}</span>
-      </div>
-
-      <div className="summary-cards__stat-card summary-cards__stat-card--entradas">
-        <div className="summary-cards__stat-icon">
-          <Banknote size={18} aria-hidden="true" />
-        </div>
-        <span className="summary-cards__stat-label">Entradas</span>
-        <span className="summary-cards__stat-value">{centsToBRL(summary.totals.incomeCents)}</span>
-      </div>
-
-      <div className="summary-cards__stat-card summary-cards__stat-card--ja-pago">
-        <div className="summary-cards__stat-icon">
-          <CheckCircle2 size={18} aria-hidden="true" />
-        </div>
-        <span className="summary-cards__stat-label">Já Pago</span>
-        <span className="summary-cards__stat-value">{centsToBRL(summary.jaPagoCents)}</span>
-        <span className="summary-cards__stat-sub">≈{summary.jaPagoPercent}%</span>
-        <div className="summary-cards__stat-bar-track">
-          <div
-            className="summary-cards__stat-bar-fill"
-            style={{ width: `${clampBarWidth(summary.jaPagoPercent)}%` }}
-          />
+        <div className="summary-cards__hero-body">
+          <span className="summary-cards__stat-label">Saldo Real</span>
+          <span className="summary-cards__stat-value summary-cards__stat-value--hero">
+            {centsToBRL(summary.totalBalanceCents)}
+          </span>
         </div>
       </div>
 
       <div
-        className={`summary-cards__stat-card ${lucroPositivo ? 'summary-cards__stat-card--lucro-positivo' : 'summary-cards__stat-card--lucro-negativo'}`}
+        className={`summary-cards__stat-card summary-cards__stat-card--glass ${lucroPositivo ? 'summary-cards__stat-card--lucro-positivo' : 'summary-cards__stat-card--lucro-negativo'}`}
       >
         <div className="summary-cards__stat-icon">
           <LucroIcon size={18} aria-hidden="true" />
@@ -82,7 +67,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
         </span>
       </div>
 
-      <div className="summary-cards__stat-card summary-cards__stat-card--falta-pagar">
+      <div className="summary-cards__stat-card summary-cards__stat-card--glass summary-cards__stat-card--falta-pagar">
         <div className="summary-cards__stat-icon">
           <Wallet size={18} aria-hidden="true" />
         </div>
@@ -93,6 +78,21 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           <div
             className="summary-cards__stat-bar-fill"
             style={{ width: `${clampBarWidth(summary.faltaPagarPercent)}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="summary-cards__stat-card summary-cards__stat-card--ja-pago">
+        <div className="summary-cards__stat-icon">
+          <CheckCircle2 size={18} aria-hidden="true" />
+        </div>
+        <span className="summary-cards__stat-label">Já Pago</span>
+        <span className="summary-cards__stat-value">{centsToBRL(summary.jaPagoCents)}</span>
+        <span className="summary-cards__stat-sub">≈{summary.jaPagoPercent}%</span>
+        <div className="summary-cards__stat-bar-track">
+          <div
+            className="summary-cards__stat-bar-fill"
+            style={{ width: `${clampBarWidth(summary.jaPagoPercent)}%` }}
           />
         </div>
       </div>

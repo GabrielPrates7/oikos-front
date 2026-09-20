@@ -16,6 +16,13 @@ export interface InvoiceListParams {
   // undefined = padrão do backend (mês atual + não paga de mês anterior); 'all' = sem
   // filtro; 'YYYY-MM' = mês exato. Ver invoices.repository.buildWhere no backend.
   month?: string
+  // 'YYYY' do mês de referência; from/to = período de VENCIMENTO (quando presentes,
+  // ganham de month/year no backend).
+  year?: string
+  // 'unpaid' | 'paid' — filtro de status, independente de mês/ano.
+  status?: 'unpaid' | 'paid'
+  from?: string
+  to?: string
   sort?: InvoiceSort
 }
 
@@ -32,6 +39,10 @@ export const faturasService = {
     if (params.creditCardId) searchParams.set('creditCardId', params.creditCardId)
     if (params.search) searchParams.set('search', params.search)
     if (params.month !== undefined) searchParams.set('month', params.month)
+    if (params.year) searchParams.set('year', params.year)
+    if (params.status) searchParams.set('status', params.status)
+    if (params.from) searchParams.set('from', params.from)
+    if (params.to) searchParams.set('to', params.to)
     if (params.sort) searchParams.set('sort', params.sort)
     searchParams.set('page', String(pagination.page))
     searchParams.set('pageSize', String(pagination.pageSize))

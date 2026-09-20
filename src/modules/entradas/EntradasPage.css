@@ -1,0 +1,53 @@
+/* Textura de fundo — rede de nós/linhas bem sutil, só pra dar textura sem competir com o
+   conteúdo (opacidade baixa, mesmo tom escuro da página). SVG inline em vez de arquivo
+   separado: é só essa tela que usa, não vale criar um asset à parte. background-attachment
+   fixed pra não repetir/deslocar de forma óbvia ao rolar a página. */
+.entradas-page {
+  /* Sem isso, a altura do container é só a do conteúdo (height: auto) — com poucas
+     entradas a página fica mais curta que a viewport, e o fundo liso do <body> aparece
+     abaixo da textura assim que o conteúdo acaba. 100vh primeiro (fallback pra browsers
+     sem dvh), 100dvh depois pra sobrescrever onde suportado — mais confiável em mobile,
+     onde 100vh inclui a área atrás da barra de endereço. min-height (não height) porque
+     ainda precisa crescer além da viewport com bastante conteúdo (ex: Entradas paginada
+     mostrando 20 itens) — o container não deve ficar limitado a 100vh nesse caso.
+  */
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%234f8f63' stroke-width='1' opacity='0.12'%3E%3Cline x1='20' y1='20' x2='80' y2='50' /%3E%3Cline x1='80' y1='50' x2='140' y2='25' /%3E%3Cline x1='80' y1='50' x2='60' y2='120' /%3E%3Cline x1='60' y1='120' x2='130' y2='140' /%3E%3Cline x1='60' y1='120' x2='10' y2='150' /%3E%3C/g%3E%3Cg fill='%234f8f63' opacity='0.18'%3E%3Ccircle cx='20' cy='20' r='2.5' /%3E%3Ccircle cx='80' cy='50' r='3' /%3E%3Ccircle cx='140' cy='25' r='2.5' /%3E%3Ccircle cx='60' cy='120' r='3' /%3E%3Ccircle cx='130' cy='140' r='2.5' /%3E%3Ccircle cx='10' cy='150' r='2' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+/* Mesmo princípio do gradiente do botão "Nova Transação" do Dashboard
+   (DashboardPage.css) — diagonal, cor base clareando pra uma versão escurecida via
+   color-mix — só trocando --color-accent-gold por --color-accent-income (verde de
+   entrada). Botão próprio em vez do componente Button compartilhado: Button não aceita
+   className extra sem sobrescrever a classe base, mesma razão pela qual "Nova Transação"
+   no Dashboard também é um botão à parte, não uma variante do Button. */
+.entradas-page__nova-entrada-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-income),
+    color-mix(in srgb, var(--color-accent-income) 55%, black)
+  );
+  color: #10241a;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.entradas-page__nova-entrada-button:hover {
+  filter: brightness(1.08);
+}
+
+.entradas-page__nova-entrada-button:focus-visible {
+  outline: 2px solid var(--color-accent-income);
+  outline-offset: 2px;
+}

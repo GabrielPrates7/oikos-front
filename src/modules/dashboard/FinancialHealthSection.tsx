@@ -1,15 +1,14 @@
 import { BudgetComparisonChart } from '../../components/charts/BudgetComparisonChart'
 import type { BudgetComparisonItem } from '../../components/charts/BudgetComparisonChart'
 import { SpendingTrendsChart } from '../../components/charts/SpendingTrendsChart'
-import type { SpendingTrendsResult } from '../relatorios/relatorios.types'
-import { MonthlyEvolutionSummary } from './MonthlyEvolutionSummary'
-import type { DashboardTotals } from './dashboard.types'
+import type { MonthlyEvolutionItem, SpendingTrendsResult } from '../relatorios/relatorios.types'
+import { MonthlyCashFlowPanel } from './MonthlyCashFlowPanel'
 import './FinancialHealthSection.css'
 
 interface FinancialHealthSectionProps {
   budgetComparisonData: BudgetComparisonItem[]
   spendingTrends: SpendingTrendsResult
-  totals: DashboardTotals
+  monthlyEvolution: MonthlyEvolutionItem[]
 }
 
 // 3 itens (sem "Alocação de Ativos", removida deliberadamente da imagem de referência) —
@@ -17,7 +16,7 @@ interface FinancialHealthSectionProps {
 export function FinancialHealthSection({
   budgetComparisonData,
   spendingTrends,
-  totals,
+  monthlyEvolution,
 }: FinancialHealthSectionProps) {
   return (
     <div className="financial-health-section">
@@ -28,10 +27,16 @@ export function FinancialHealthSection({
           <BudgetComparisonChart
             data={budgetComparisonData}
             emptyMessage="Nenhum orçamento cadastrado nesse mês."
+            orientation="vertical"
           />
         </div>
         <div className="financial-health-section__item">
-          <h3 className="financial-health-section__item-title">Tendências de Gastos Mensais</h3>
+          {/* Sufixo dinâmico (não "(6 meses)" fixo) — reflete o tamanho real da janela
+              recebida da API (spendingTrends.months), que já é configurável via
+              monthsBack no backend; hardcoded ficaria errado se esse padrão mudar. */}
+          <h3 className="financial-health-section__item-title">
+            Tendências de Gastos Mensais ({spendingTrends.months.length} meses)
+          </h3>
           <SpendingTrendsChart
             months={spendingTrends.months}
             categories={spendingTrends.categories}
@@ -39,7 +44,7 @@ export function FinancialHealthSection({
           />
         </div>
         <div className="financial-health-section__item">
-          <MonthlyEvolutionSummary totals={totals} />
+          <MonthlyCashFlowPanel months={monthlyEvolution} />
         </div>
       </div>
     </div>

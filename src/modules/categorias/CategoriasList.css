@@ -11,8 +11,17 @@
   }
 }
 
+/* Cada coluna no seu proprio painel de vidro fosco (mesmo fundo branco translucido + blur +
+   borda clara das listas de Entradas/Despesas/Transferencias), em vez de solta no fundo. */
 .categorias-list__section {
   min-width: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .categorias-list__title {
@@ -21,6 +30,17 @@
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: 8px;
+}
+
+/* Cor semantica so no texto do titulo: mesmos tokens de Despesas (vermelho do tema, o mesmo
+   do icone do titulo de Despesas) e de Entradas (verde de entrada, o mesmo dos valores e do
+   botao de Entradas). */
+.categorias-list__title--expense {
+  color: var(--color-expense-glow-strong);
+}
+
+.categorias-list__title--income {
+  color: var(--color-accent-income);
 }
 
 .categorias-list__rows {

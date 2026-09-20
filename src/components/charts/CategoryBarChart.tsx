@@ -1,10 +1,9 @@
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { centsToBRL } from '../../utils/currency'
 import {
   assignCategoryColors,
   CATEGORY_GRADIENT_NAMES,
   CHART_COLOR_BG_ELEVATED,
-  CHART_COLOR_BG_SURFACE,
   CHART_COLOR_TEXT_MUTED,
   CHART_COLOR_TEXT_PRIMARY,
   lightenHex,
@@ -119,18 +118,10 @@ export function CategoryBarChart({
           axisLine={{ stroke: CHART_COLOR_BG_ELEVATED }}
           tickLine={false}
         />
-        <Tooltip
-          formatter={(value) => centsToBRL(typeof value === 'number' ? value : 0)}
-          contentStyle={{
-            background: CHART_COLOR_BG_SURFACE,
-            border: `1px solid ${CHART_COLOR_BG_ELEVATED}`,
-            borderRadius: 8,
-            color: CHART_COLOR_TEXT_PRIMARY,
-          }}
-          labelStyle={{ color: CHART_COLOR_TEXT_PRIMARY }}
-          cursor={{ fill: CHART_COLOR_BG_ELEVATED }}
-        />
-        {/* Valor escrito ao lado de cada barra: em telas estreitas as barras menores
+        {/* Sem <Tooltip>: cada barra já mostra % e valor permanentemente via LabelList
+            abaixo — um tooltip aqui só repetiria a mesma informação (e o Recharts default
+            vazava o nome interno do dataKey, "valueCents", sem um formatter de nome). Valor
+            escrito ao lado de cada barra: em telas estreitas as barras menores
             ficam curtas demais pra comparar visualmente — o rótulo garante que o valor
             continua legível independente do comprimento.
             isAnimationActive=false: LabelList só renderiza quando a barra não está mais

@@ -4,6 +4,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
 import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
+import { Checkbox } from '../../components/ui/Checkbox'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
@@ -78,6 +79,10 @@ export function EntradaForm({
       // Registro antigo (de antes desse campo existir) pode ter is_received=true com
       // received_date nulo — cai pra data do lançamento em vez de deixar em branco.
       receivedDate: source?.received_date ?? source?.entry_date ?? today(),
+      // Marcado por padrão (fase 1 do campo "contar no total") — ?? true cobre tanto
+      // criação (source undefined) quanto registro antigo (de antes desse campo existir,
+      // count_in_totals viria undefined se não fosse pelo default do backend).
+      countInTotals: source?.count_in_totals ?? true,
     },
   })
 
@@ -185,6 +190,10 @@ export function EntradaForm({
             error={errors.isPlanned?.message}
           />
         )}
+      />
+      <Checkbox
+        label="Contar no total geral e nos gráficos"
+        {...register('countInTotals')}
       />
       <FormError message={error} />
       <div className="entrada-form__actions">

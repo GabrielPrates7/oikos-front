@@ -1,8 +1,20 @@
+/* Mesmo vidro fosco da barra de filtros de Entradas (EntradasList.css
+   .entradas-list__filters-panel: blur + borda clara sutil), só trocando o tint verde pelo
+   vermelho do tema de Despesas — mesma cor-base do gradiente do botão "Nova despesa"
+   (--color-expense-button-start), não uma paleta nova. Aplicado direto no container de
+   flex, sem wrapper extra. */
 .despesas-list__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
+  background: color-mix(in srgb, var(--color-expense-button-start) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
   margin-bottom: 20px;
 }
 
@@ -21,8 +33,15 @@
   color: var(--color-text-muted);
 }
 
+/* appearance:none nos dois — mesmo motivo de EntradasList.css: o <select> nativo
+   (appearance:auto) pinta um verniz mais claro por cima do background do autor nesse
+   motor de renderização, fazendo ele destoar do <input type="date"> mesmo com o MESMO
+   background-color declarado. Seta customizada via background-image abaixo substitui a
+   seta nativa que o select perde. */
 .despesas-list__filter-field select,
 .despesas-list__filter-field input {
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--color-bg-base);
   border: 1px solid var(--color-bg-elevated);
   border-radius: 8px;
@@ -31,6 +50,13 @@
   color: var(--color-text-primary);
   font-family: var(--font-body);
   cursor: pointer;
+}
+
+.despesas-list__filter-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
 }
 
 .despesas-list__filter-field select:focus-visible,
@@ -87,14 +113,24 @@
   outline-offset: 2px;
 }
 
+/* Mesmo vidro fosco da tabela de Entradas (.entradas-list__table-wrap: blur + borda clara
+   sutil + padding), com o tint vermelho do tema de Despesas em vez do branco neutro —
+   mesma cor-base da barra de filtros acima. Scroll horizontal confinado a este wrapper. */
 .despesas-list__table-wrap {
   overflow-x: auto;
+  background: color-mix(in srgb, var(--color-expense-button-start) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .despesas-list__table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px;
+  min-width: 560px;
 }
 
 .despesas-list__table thead th {
@@ -130,11 +166,14 @@
   gap: 4px 8px;
 }
 
+/* Descrição pode quebrar de linha (era nowrap): com nowrap, uma descrição longa + badges
+   esticava a tabela além do wrapper (overflow-x:auto) e o scroll horizontal cortava
+   justamente a coluna Valor/Ações na borda direita — o "R$ 100,0" sem o último dígito. */
 .despesas-list__description {
   color: var(--color-text-primary);
   font-weight: 500;
   font-size: 14px;
-  white-space: nowrap;
+  min-width: 150px;
 }
 
 /* Neutro de propósito — não repete o verde/terracota já usado pro valor, só sinaliza a
@@ -171,6 +210,10 @@
   white-space: nowrap;
 }
 
+.despesas-list__account {
+  white-space: normal;
+}
+
 .despesas-list__col-value {
   text-align: right;
 }
@@ -187,9 +230,11 @@
   text-align: right;
 }
 
+/* Pode quebrar de linha (o botão "Marcar como paga" fica acima dos ícones em vez de ao lado)
+   — sem isso a coluna chegava a ~250px e empurrava Valor pra fora do wrapper. */
 .despesas-list__actions {
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .despesas-list__actions button {

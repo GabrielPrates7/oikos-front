@@ -1,0 +1,155 @@
+/* Vidro de Relatórios (--reports-glass-bg, definida em ReportsTheme.css só sob
+   .shell--theme-reports); fora dele cai no vidro padrão do painel de filtros de Entradas. */
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
+  min-height: 72px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  background: var(--reports-glass-bg, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--reports-glass-border, rgba(255, 255, 255, 0.12));
+  border-top-color: var(--reports-glass-border-top, rgba(255, 255, 255, 0.22));
+  box-shadow: var(--reports-glass-shadow, none);
+  border-radius: 12px;
+}
+
+.report-filters__fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
+}
+
+.report-filters__toggle {
+  display: none;
+}
+
+.report-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-filters__field--name {
+  min-width: 200px;
+}
+
+.report-filters__field label {
+  font-size: 12px;
+  color: var(--reports-muted, var(--color-text-muted));
+}
+
+.report-filters__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.report-filters__search:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.report-filters__search--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.report-filters__search input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+.report-filters__search input:focus-visible {
+  outline: none;
+}
+
+.report-filters__clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-bg-elevated);
+  color: var(--reports-muted, var(--color-text-muted));
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.report-filters__clear:hover {
+  color: var(--color-text-primary);
+}
+
+.report-filters__clear:focus-visible,
+.report-filters__toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Mobile: filtros atrás de "Filtros (n)". Os controles da aba seguem visíveis. */
+@media (max-width: 639px) {
+  .report-filters {
+    min-height: 0;
+  }
+
+  .report-filters__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-start;
+    background: transparent;
+    border: 1px solid var(--color-bg-elevated);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .report-filters__chevron {
+    margin-left: auto;
+    transition: transform 0.15s ease;
+  }
+
+  .report-filters__chevron--open {
+    transform: rotate(180deg);
+  }
+
+  .report-filters__fields {
+    display: none;
+    width: 100%;
+  }
+
+  .report-filters__fields--open {
+    display: flex;
+  }
+
+  .report-filters__field--name {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-filters__chevron {
+    transition: none;
+  }
+}

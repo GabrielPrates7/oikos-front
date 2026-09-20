@@ -26,30 +26,34 @@ export function RecentTransactionsList({ transactions }: RecentTransactionsListP
       {transactions.length === 0 ? (
         <p className="recent-transactions__empty">Nenhuma transação nesse mês.</p>
       ) : (
-        <ul className="recent-transactions__rows">
-          {transactions.map((tx) => (
-            <li key={`${tx.type}-${tx.id}`} className="recent-transactions__row">
-              <span
-                className={`recent-transactions__icon recent-transactions__icon--${tx.type}`}
-                aria-hidden="true"
-              >
-                {tx.categoryIcon ?? TYPE_ICONS[tx.type]}
-              </span>
-              <div className="recent-transactions__info">
-                <span className="recent-transactions__description">{tx.description}</span>
-                <span className="recent-transactions__meta">
-                  {formatDateBR(tx.date)} · {tx.accountName}
-                  {tx.categoryName ? ` · ${tx.categoryName}` : ''}
+        // max-height cabe ~5 transações (ver RecentTransactionsList.css) — mesma técnica
+        // de CategoryBreakdownChart.tsx: o título fica FORA da div, só a lista rola.
+        <div className="recent-transactions__scroll">
+          <ul className="recent-transactions__rows">
+            {transactions.map((tx) => (
+              <li key={`${tx.type}-${tx.id}`} className="recent-transactions__row">
+                <span
+                  className={`recent-transactions__icon recent-transactions__icon--${tx.type}`}
+                  aria-hidden="true"
+                >
+                  {tx.categoryIcon ?? TYPE_ICONS[tx.type]}
                 </span>
-              </div>
-              <span
-                className={`recent-transactions__amount recent-transactions__amount--${tx.type}`}
-              >
-                {centsToBRL(tx.amountCents)}
-              </span>
-            </li>
-          ))}
-        </ul>
+                <div className="recent-transactions__info">
+                  <span className="recent-transactions__description">{tx.description}</span>
+                  <span className="recent-transactions__meta">
+                    {formatDateBR(tx.date)} · {tx.accountName}
+                    {tx.categoryName ? ` · ${tx.categoryName}` : ''}
+                  </span>
+                </div>
+                <span
+                  className={`recent-transactions__amount recent-transactions__amount--${tx.type}`}
+                >
+                  {centsToBRL(tx.amountCents)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )

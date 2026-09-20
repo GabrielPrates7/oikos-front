@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
+import { AuroraBackground } from './AuroraBackground'
 import { BottomNav } from './BottomNav'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
@@ -8,6 +9,11 @@ import './Shell.css'
 const SIDEBAR_COLLAPSED_KEY = 'oikos:sidebar-collapsed'
 
 export function Shell() {
+  const { pathname } = useLocation()
+  const isExpenseTheme = pathname.startsWith('/despesas')
+  const isTransferTheme = pathname.startsWith('/transferencias')
+  const isInvoiceTheme = pathname.startsWith('/faturas')
+  const isReportsTheme = pathname.startsWith('/relatorios')
   // Estado mora aqui (não dentro do Sidebar) porque o brilho ambiente de fundo
   // (.shell__main::before) também depende da largura da sidebar pra não vazar atrás dela.
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -27,12 +33,16 @@ export function Shell() {
   }, [sidebarCollapsed])
 
   return (
-    <div className={`shell${sidebarCollapsed ? ' shell--sidebar-collapsed' : ''}`}>
+    <div
+      className={`shell${sidebarCollapsed ? ' shell--sidebar-collapsed' : ''}${isExpenseTheme ? ' shell--theme-expense' : ''}${isTransferTheme ? ' shell--theme-transfer' : ''}${isInvoiceTheme ? ' shell--theme-invoice' : ''}${isReportsTheme ? ' shell--theme-reports' : ''}`}
+    >
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggleCollapsed={() => setSidebarCollapsed((current) => !current)}
       />
       <div className="shell__main">
+        {/* Fundo aurora só em /relatorios/*: montado por rota, desmonta ao sair. */}
+        {isReportsTheme && <AuroraBackground />}
         <Header />
         <main className="shell__content">
           <Outlet />

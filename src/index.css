@@ -48,6 +48,17 @@ button {
   font-family: inherit;
 }
 
+/* Ícone nativo do calendário (input[type="date"]) é desenhado preto por padrão, sem herdar
+   `color` do autor — invisível sobre o fundo escuro. Regra GLOBAL de propósito: o bug
+   voltou a aparecer nos formulários depois de corrigido só nos filtros das listas, porque
+   cada tela tinha (ou não) sua própria cópia. invert(1) deixa branco em qualquer campo de
+   data, existente ou futuro. NÃO combinar com `color-scheme: dark` no mesmo campo (o
+   navegador já pinta o ícone claro nesse caso e o invert o deixaria preto de novo). */
+input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
 /* Halo verde adicional em todo foco de teclado, por cima do outline de cada componente —
    um único lugar pra reforçar a presença de verde no app inteiro em vez de repetir isso
    em cada arquivo CSS individualmente. */

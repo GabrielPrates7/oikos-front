@@ -1,0 +1,48 @@
+/* Mesma textura de rede de nós/linhas de Entradas (ver .entradas-page em EntradasPage.css:
+   SVG inline, mesma opacidade, min-height 100vh/100dvh pra não aparecer o fundo liso
+   abaixo de conteúdo curto, background-attachment fixed) — só a cor base muda, de verde
+   (#4f8f63) pra o vermelho de destaque do tema (--color-expense-glow-strong, #d9505f). */
+.despesas-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23d9505f' stroke-width='1' opacity='0.12'%3E%3Cline x1='20' y1='20' x2='80' y2='50' /%3E%3Cline x1='80' y1='50' x2='140' y2='25' /%3E%3Cline x1='80' y1='50' x2='60' y2='120' /%3E%3Cline x1='60' y1='120' x2='130' y2='140' /%3E%3Cline x1='60' y1='120' x2='10' y2='150' /%3E%3C/g%3E%3Cg fill='%23d9505f' opacity='0.18'%3E%3Ccircle cx='20' cy='20' r='2.5' /%3E%3Ccircle cx='80' cy='50' r='3' /%3E%3Ccircle cx='140' cy='25' r='2.5' /%3E%3Ccircle cx='60' cy='120' r='3' /%3E%3Ccircle cx='130' cy='140' r='2.5' /%3E%3Ccircle cx='10' cy='150' r='2' /%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+/* Ícone do título na cor de destaque vermelha (padrão é o verde --color-accent). */
+.despesas-page .page-header__icon {
+  color: var(--color-expense-glow-strong);
+}
+
+/* Mesmo princípio do botão "Nova entrada" (EntradasPage.css) — gradiente diagonal — só que
+   na família vermelha do tema de Despesas, com texto claro (o fundo aqui é escuro, ao
+   contrário do verde vivo de Entradas). Botão próprio pelo mesmo motivo: Button
+   compartilhado não aceita className extra. */
+.despesas-page__nova-despesa-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(
+    135deg,
+    var(--color-expense-button-start),
+    var(--color-expense-button-end)
+  );
+  color: #f7e9e7;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.despesas-page__nova-despesa-button:hover {
+  filter: brightness(1.12);
+}
+
+.despesas-page__nova-despesa-button:focus-visible {
+  outline: 2px solid var(--color-expense-button-start);
+  outline-offset: 2px;
+}

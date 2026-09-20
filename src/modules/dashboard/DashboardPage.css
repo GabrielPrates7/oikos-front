@@ -22,6 +22,37 @@
   padding: 24px;
 }
 
+/* Único painel com essa borda + gradiente na imagem de referência — os outros 3
+   (Cartões, Últimas Transações, Análise de Saúde Financeira) continuam com o fundo liso
+   de .dashboard-panel acima. Dourado-cáqui apagado, não amarelo saturado: contrasta pelo
+   brilho relativo contra o fundo escuro, não pela saturação. Gradiente na mesma família de
+   azul-petróleo dos ícones de categoria (ex: Empréstimo), não verde. */
+.dashboard-panel--category-breakdown {
+  background: linear-gradient(135deg, #344d54, #232e31);
+  border: 2px solid #91967f;
+}
+
+/* Gradiente vertical sutil + mesma borda do card de categorias acima (dourado-cáqui
+   apagado, #91967f — não existe variável/token pra essa cor no design system, ela já
+   estava hardcoded ali também; reaproveito o mesmo literal em vez de inventar um novo
+   valor ou criar um token novo sem pedido explícito). */
+.dashboard-panel--credit-cards {
+  background: linear-gradient(180deg, #141f28, #2d3c44);
+  border: 2px solid #91967f;
+}
+
+/* Vidro fosco — mesmo tratamento validado nos cards do topo (SummaryCards.css) e nos
+   cartões de crédito: fundo escuro translúcido + backdrop-filter + borda superior clara
+   sutil. Aplicado em Últimas Transações e Análise de Saúde Financeira, que antes usavam
+   o fundo sólido liso de .dashboard-panel sem nenhum destaque. */
+.dashboard-panel--glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+}
+
 .dashboard-page__grid {
   display: grid;
   grid-template-columns: 1fr;

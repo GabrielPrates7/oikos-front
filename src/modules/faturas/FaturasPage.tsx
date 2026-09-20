@@ -1,3 +1,4 @@
+import { Receipt } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
@@ -10,7 +11,7 @@ import { cartoesService } from '../cartoes/cartoes.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
 import { contasService } from '../contas/contas.service'
 import type { Account } from '../contas/contas.types'
-import { formatReferenceMonth } from '../../utils/date'
+import { currentMonthString, formatReferenceMonth, splitMonthString } from '../../utils/date'
 import { FaturasList } from './FaturasList'
 import { PagarLoteForm } from './PagarLoteForm'
 import { faturasService } from './faturas.service'
@@ -20,16 +21,6 @@ import type { InvoiceListItem } from './faturas.types'
 import './FaturasPage.css'
 
 // reference_month vem como 'YYYY-MM-01' — reduz pra 'YYYY-MM' pro <select> de mês.
-function monthKey(referenceMonth: string): string {
-  return referenceMonth.slice(0, 7)
-}
-
-// Valor do <select> de mês na UI: 'default' (mês atual + não paga de mês anterior) ou
-// 'all' viram undefined/'all' na chamada da API; qualquer outro valor é um 'YYYY-MM' exato.
-// Ver invoices.repository.buildWhere no backend pra regra completa.
-function monthFilterToApiParam(monthFilter: string): string | undefined {
-  return monthFilter === 'default' ? undefined : monthFilter
-}
 
 interface BatchPayEntry {
   invoiceId: string
@@ -42,7 +33,8 @@ interface BatchPayResult {
   failed: (BatchPayEntry & { message: string }) | null
 }
 
-type Mode = { type: 'list' } | { type: 'batch-form' } | { type: 'batch-result'; result: BatchPayResult }
+type Mode =
+  { type: 'list' } | { type: 'batch-form' } | { type: 'batch-result'; result: BatchPayResult }
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
@@ -62,8 +54,17 @@ export function FaturasPage() {
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([])
   const [cards, setCards] = useState<CreditCard[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
-  const [monthFilter, setMonthFilterState] = useState('default')
-  const [availableMonths, setAvailableMonths] = useState<string[]>([])
+  // Mês e Ano abrem no mês/ano ATUAIS (mesma auto-detecção de Entradas/Despesas); '' = Todos.
+  // Status ('unpaid' | 'paid' | '') é um filtro à parte — não vive mais dentro do Mês.
+  const [monthFilter, setMonthFilterState] = useState(
+    () => splitMonthString(currentMonthString()).monthNum,
+  )
+  const [statusFilter, setStatusFilter] = useState<'' | 'unpaid' | 'paid'>('')
+  // Ano abre no ano atual (mesma auto-detecção de Entradas/Despesas); '' = todos os anos.
+  const [yearFilter, setYearFilter] = useState(() => String(new Date().getFullYear()))
+  const [dueFrom, setDueFrom] = useState('')
+  const [dueTo, setDueTo] = useState('')
+  const [availableYears, setAvailableYears] = useState<string[]>([String(new Date().getFullYear())])
   const [sortOrder, setSortOrder] = useState<InvoiceSort>('value_desc')
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -119,7 +120,11 @@ export function FaturasPage() {
           {
             creditCardId: selectedCardId || undefined,
             search: debouncedSearch || undefined,
-            month: monthFilterToApiParam(monthFilter),
+            month: monthFilter || 'all',
+            status: statusFilter || undefined,
+            year: yearFilter || undefined,
+            from: dueFrom || undefined,
+            to: dueTo || undefined,
             sort: sortOrder,
           },
           { page, pageSize: DEFAULT_PAGE_SIZE },
@@ -145,7 +150,18 @@ export function FaturasPage() {
     return () => {
       active = false
     }
-  }, [selectedCardId, debouncedSearch, monthFilter, sortOrder, page, refreshKey])
+  }, [
+    selectedCardId,
+    debouncedSearch,
+    monthFilter,
+    yearFilter,
+    statusFilter,
+    dueFrom,
+    dueTo,
+    sortOrder,
+    page,
+    refreshKey,
+  ])
 
   // Opções do <select> de mês precisam do universo INTEIRO de meses (creditCardId/search
   // aplicados, mas sem filtro de mês nem paginação) — não dá pra derivar da página atual
@@ -154,23 +170,32 @@ export function FaturasPage() {
   useEffect(() => {
     let active = true
 
-    async function loadMonths() {
+    async function loadYears() {
       try {
         const result = await faturasService.list(
-          { creditCardId: selectedCardId || undefined, search: debouncedSearch || undefined, month: 'all' },
+          {
+            creditCardId: selectedCardId || undefined,
+            search: debouncedSearch || undefined,
+            month: 'all',
+          },
           { page: 1, pageSize: 100 },
         )
         if (active) {
-          const months = new Set(result.items.map((invoice) => monthKey(invoice.reference_month)))
-          setAvailableMonths(Array.from(months).sort((a, b) => b.localeCompare(a)))
+          // Sempre inclui o ano atual (valor padrão do select precisa de <option>), mesmo sem
+          // fatura nele — mesma regra de Entradas/Despesas.
+          const years = new Set([
+            String(new Date().getFullYear()),
+            ...result.items.map((invoice) => invoice.reference_month.slice(0, 4)),
+          ])
+          setAvailableYears(Array.from(years).sort((a, b) => b.localeCompare(a)))
         }
       } catch {
-        // Não bloqueia a tela por causa disso — o <select> só fica sem as opções de mês
-        // específico, "Mês atual + não pagas" e "Todos os meses" continuam funcionando.
+        // Não bloqueia a tela por causa disso — o <select> de ano só fica com o ano atual
+        // e "Todos".
       }
     }
 
-    void loadMonths()
+    void loadYears()
 
     return () => {
       active = false
@@ -191,6 +216,26 @@ export function FaturasPage() {
   function handleMonthFilterChange(next: string) {
     setPage(1)
     setMonthFilterState(next)
+  }
+
+  function handleYearFilterChange(next: string) {
+    setPage(1)
+    setYearFilter(next)
+  }
+
+  function handleStatusFilterChange(next: '' | 'unpaid' | 'paid') {
+    setPage(1)
+    setStatusFilter(next)
+  }
+
+  function handleDueFromChange(next: string) {
+    setPage(1)
+    setDueFrom(next)
+  }
+
+  function handleDueToChange(next: string) {
+    setPage(1)
+    setDueTo(next)
   }
 
   function handleSortOrderChange(next: InvoiceSort) {
@@ -214,7 +259,8 @@ export function FaturasPage() {
     const payableIds = invoices
       .filter((invoice) => invoice.displayStatus !== 'paid')
       .map((invoice) => invoice.id)
-    const allSelected = payableIds.length > 0 && payableIds.every((id) => selectedInvoiceIds.has(id))
+    const allSelected =
+      payableIds.length > 0 && payableIds.every((id) => selectedInvoiceIds.has(id))
     setSelectedInvoiceIds(allSelected ? new Set() : new Set(payableIds))
   }
 
@@ -328,7 +374,7 @@ export function FaturasPage() {
 
   return (
     <div className="faturas-page">
-      <PageHeader title="Faturas" />
+      <PageHeader title="Faturas" icon={<Receipt size={22} aria-hidden="true" />} />
       <FormError message={navError ?? loadError} />
       {!loading && (
         <FaturasList
@@ -339,11 +385,20 @@ export function FaturasPage() {
           search={search}
           onSearchChange={handleSearchChange}
           monthFilter={monthFilter}
+          yearFilter={yearFilter}
+          onYearFilterChange={handleYearFilterChange}
+          availableYears={availableYears}
+          dueFrom={dueFrom}
+          onDueFromChange={handleDueFromChange}
+          dueTo={dueTo}
+          onDueToChange={handleDueToChange}
           onMonthFilterChange={handleMonthFilterChange}
-          availableMonths={availableMonths}
+          statusFilter={statusFilter}
+          onStatusFilterChange={handleStatusFilterChange}
           sortOrder={sortOrder}
           onSortOrderChange={handleSortOrderChange}
           sumCents={sumCents}
+          total={total}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}

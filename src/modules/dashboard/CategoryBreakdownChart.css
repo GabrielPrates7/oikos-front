@@ -9,3 +9,31 @@
   color: var(--color-text-primary);
   margin-bottom: 12px;
 }
+
+/* 572px ≈ 11 linhas de 52px (rowHeight passado ao CategoryBarChart) — teto pro painel não
+   crescer indefinidamente com o número de categorias do mês. Scrollbar fina e discreta
+   (não a barra padrão do SO) pra combinar com o tema escuro; some quando o conteúdo cabe
+   inteiro (a maioria dos meses tem bem menos que 11 categorias com despesa). */
+.category-breakdown-chart__scroll {
+  max-height: 572px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg-elevated) transparent;
+}
+
+.category-breakdown-chart__scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-breakdown-chart__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-breakdown-chart__scroll::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 999px;
+}
+
+.category-breakdown-chart__scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

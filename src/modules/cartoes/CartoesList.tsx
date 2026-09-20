@@ -1,12 +1,17 @@
-import { ArrowLeftRight, Receipt } from 'lucide-react'
+import {
+  ArrowLeftRight,
+  CheckCircle2,
+  CreditCard as CreditCardIcon,
+  Receipt,
+  Wallet,
+} from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
-import { ListTotal } from '../../components/ui/ListTotal'
+import { GlassStatCards } from '../../components/ui/GlassStatCards'
 import { Pagination } from '../../components/ui/Pagination'
-import { getBankColor } from '../../utils/bankColors'
-import { centsToBRL } from '../../utils/currency'
+import { CartaoVisual } from './CartaoVisual'
 import type { CreditCard, CreditCardStatusFilter } from './cartoes.types'
 import './CartoesList.css'
 
@@ -35,8 +40,6 @@ interface ConfirmingState {
   id: string
   action: 'archive' | 'delete'
 }
-
-const WARNING_THRESHOLD = 70
 
 export function CartoesList({
   cards,
@@ -88,13 +91,22 @@ export function CartoesList({
         </div>
       ) : (
         <>
-          <ListTotal
+          <GlassStatCards
             items={[
-              { label: 'Limite total', valueCents: sumCreditLimitCents },
-              { label: 'Disponível total', valueCents: sumAvailableLimitCents },
+              {
+                label: 'Limite total',
+                valueCents: sumCreditLimitCents,
+                icon: <CreditCardIcon size={18} aria-hidden="true" />,
+              },
+              {
+                label: 'Disponível total',
+                valueCents: sumAvailableLimitCents,
+                icon: <CheckCircle2 size={18} aria-hidden="true" />,
+              },
               {
                 label: 'Usado total (a pagar)',
                 valueCents: sumCreditLimitCents - sumAvailableLimitCents,
+                icon: <Wallet size={18} aria-hidden="true" />,
               },
             ]}
           />
@@ -102,107 +114,22 @@ export function CartoesList({
             {cards.map((card) => {
               const isConfirmingArchive =
                 confirming?.id === card.id && confirming.action === 'archive'
-              const isConfirmingDelete = confirming?.id === card.id && confirming.action === 'delete'
-              const { base } = getBankColor(card.name)
-              const initial = card.name.trim().charAt(0).toUpperCase()
-              const usedCents = Math.max(0, card.credit_limit_cents - card.availableLimitCents)
-              const usedPercent =
-                card.credit_limit_cents > 0 ? (usedCents / card.credit_limit_cents) * 100 : 0
-              const isWarning = usedPercent >= WARNING_THRESHOLD
+              const isConfirmingDelete =
+                confirming?.id === card.id && confirming.action === 'delete'
 
               return (
                 <div key={card.id} className="cartoes-grid__card">
-                  <div className="cartoes-grid__header">
-                    <span
-                      className="cartoes-grid__avatar"
-                      style={{ background: base }}
-                      aria-hidden="true"
-                    >
-                      {initial}
-                    </span>
-                    <div className="cartoes-grid__info">
-                      <span className="cartoes-grid__name">{card.name}</span>
-                      <span className="cartoes-grid__type">{card.brand ?? 'Sem bandeira'}</span>
-                    </div>
-                    <DropdownMenu label={`Mais opções de ${card.name}`}>
-                      {(close) => (
-                        <>
-                          <Link
-                            to={`/faturas?cartao=${card.id}`}
-                            className="dropdown-menu__item"
-                            role="menuitem"
-                            onClick={close}
-                          >
-                            <Receipt size={14} aria-hidden="true" />
-                            Ver faturas
-                          </Link>
-                          {card.status === 'active' ? (
-                            <button
-                              type="button"
-                              className="dropdown-menu__item"
-                              role="menuitem"
-                              onClick={() => {
-                                close()
-                                setConfirming({ id: card.id, action: 'archive' })
-                              }}
-                            >
-                              Arquivar
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="dropdown-menu__item"
-                              role="menuitem"
-                              onClick={() => {
-                                close()
-                                onActivate(card)
-                              }}
-                            >
-                              Reativar
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className="dropdown-menu__item dropdown-menu__item--danger"
-                            role="menuitem"
-                            onClick={() => {
-                              close()
-                              setConfirming({ id: card.id, action: 'delete' })
-                            }}
-                          >
-                            Excluir
-                          </button>
-                        </>
-                      )}
-                    </DropdownMenu>
-                  </div>
-
-                  <span className="cartoes-grid__available">
-                    {centsToBRL(card.availableLimitCents)}
-                    <span className="cartoes-grid__available-label">disponível</span>
-                  </span>
-                  <div
-                    className="cartoes-grid__bar-track"
-                    role="progressbar"
-                    aria-valuenow={Math.round(usedPercent)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={`${Math.round(usedPercent)}% do limite usado`}
-                  >
-                    <div
-                      className={`cartoes-grid__bar-fill${isWarning ? ' cartoes-grid__bar-fill--warning' : ''}`}
-                      style={{ width: `${Math.min(100, usedPercent)}%` }}
-                    />
-                  </div>
-                  <span className="cartoes-grid__used">
-                    {centsToBRL(usedCents)} usado de {centsToBRL(card.credit_limit_cents)}
-                  </span>
+                  <CartaoVisual card={card} size="compact" />
 
                   {isConfirmingArchive ? (
                     <div className="cartoes-grid__confirm">
                       <span>Arquivar esse cartão?</span>
                       <div className="cartoes-grid__confirm-actions">
-                        <Button type="button" variant="secondary" onClick={() => setConfirming(null)}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setConfirming(null)}
+                        >
                           Cancelar
                         </Button>
                         <Button
@@ -220,7 +147,11 @@ export function CartoesList({
                     <div className="cartoes-grid__confirm">
                       <span>Excluir esse cartão de vez?</span>
                       <div className="cartoes-grid__confirm-actions">
-                        <Button type="button" variant="secondary" onClick={() => setConfirming(null)}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setConfirming(null)}
+                        >
                           Cancelar
                         </Button>
                         <Button
@@ -243,6 +174,57 @@ export function CartoesList({
                         <ArrowLeftRight size={14} aria-hidden="true" />
                         Movimentar
                       </Link>
+                      <DropdownMenu label={`Mais opções de ${card.name}`}>
+                        {(close) => (
+                          <>
+                            <Link
+                              to={`/faturas?cartao=${card.id}`}
+                              className="dropdown-menu__item"
+                              role="menuitem"
+                              onClick={close}
+                            >
+                              <Receipt size={14} aria-hidden="true" />
+                              Ver faturas
+                            </Link>
+                            {card.status === 'active' ? (
+                              <button
+                                type="button"
+                                className="dropdown-menu__item"
+                                role="menuitem"
+                                onClick={() => {
+                                  close()
+                                  setConfirming({ id: card.id, action: 'archive' })
+                                }}
+                              >
+                                Arquivar
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="dropdown-menu__item"
+                                role="menuitem"
+                                onClick={() => {
+                                  close()
+                                  onActivate(card)
+                                }}
+                              >
+                                Reativar
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="dropdown-menu__item dropdown-menu__item--danger"
+                              role="menuitem"
+                              onClick={() => {
+                                close()
+                                setConfirming({ id: card.id, action: 'delete' })
+                              }}
+                            >
+                              Excluir
+                            </button>
+                          </>
+                        )}
+                      </DropdownMenu>
                     </div>
                   )}
                 </div>

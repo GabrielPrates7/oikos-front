@@ -12,10 +12,23 @@
   padding: 16px 0;
 }
 
+/* SEM overlap entre cartões — espaçamento positivo (gap), não margin-top negativo. Testei
+   overlap negativo primeiro (seguindo o cálculo exploratório de "próximo cartão começa a
+   75% da altura do anterior"): a -15.76% (overlap = altura inteira do rodapé) o texto
+   ficava coberto por completo (folga -53px, medido). Reduzindo o overlap pra caber só até
+   a borda do texto (-3.3%) resolvia numa largura (489px, +8px de folga), mas testado numa
+   largura BEM diferente (232px, painel mais estreito) a folga voltava a ficar negativa
+   (-3.84px) — o overlap percentual escala com a largura, mas o CONTEÚDO do rodapé (barra,
+   texto) é altura FIXA em px, então a relação entre os dois não é linear e nenhum
+   percentual único de overlap é seguro em toda largura.
+
+   gap positivo elimina o problema de raiz: sem sobreposição, não existe "folga" pra
+   calcular por largura — qualquer gap >=0 é seguro em qualquer largura. Também bate com o
+   pedido explícito de "nunca se sobreponham ou invadam o espaço do outro". */
 .credit-cards-summary__rows {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .credit-cards-summary__link {

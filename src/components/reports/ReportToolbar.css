@@ -1,0 +1,47 @@
+.report-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 24px;
+  min-height: 72px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+}
+
+.report-toolbar__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-toolbar__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Painel de gráfico/lista em vidro padrão, com largura máxima e centralizado (não estica até
+   a largura total em telas grandes). */
+.report-panel {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .report-panel {
+    padding: 14px;
+  }
+}

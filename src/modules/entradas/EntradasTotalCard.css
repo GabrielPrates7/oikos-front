@@ -1,0 +1,103 @@
+/* Fundo escuro (medido por pixel contra a referência: #527266 claro / #123028 escuro) —
+   antes era um verde claro/vivo (--color-accent-income), destoando do resto da tela, que é
+   escura. inline-flex (não flex) — flex sozinho ainda é block-level, então esticava pra
+   100% da largura do container (bug já corrigido: virou banner). min/max-width mantém a
+   faixa pedida (~200-260px, do tamanho de um campo de filtro). position:relative +
+   overflow:hidden — base pra sparkline de fundo (ver .sparkline abaixo) ficar contida
+   dentro dos cantos arredondados do card. */
+.entradas-total-card {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 18px;
+  min-width: 200px;
+  max-width: 320px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #527266, #123028);
+  /* Confirmado via getComputedStyle nas rodadas anteriores que a regra de borda sempre
+     chegou certinho no elemento (nunca foi bug de cascata) — o que faltava era contraste
+     do FUNDO, que agora é escuro. Mantido em 0.4/0.6 conforme pedido (só ajustar mais se
+     ainda não bastar) — verificado depois via getComputedStyle, segue perceptível. */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-top-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+}
+
+.entradas-total-card__main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Cor escolhida por contraste WCAG medido, não a olho: o label fica no canto superior
+   esquerdo, a parte MAIS CLARA do gradiente (~#527266). #8ca39c (rodada anterior) dava só
+   1,98:1 ali (5,3:1 no lado escuro) — pálido de verdade. #e6efec dá 4,53:1 contra #527266,
+   5,9:1 contra a sparkline #3d6151 e 12:1 contra #123028. A hierarquia com o valor (branco,
+   26px) vem do tamanho e do peso, não de deixar o label apagado. */
+.entradas-total-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e6efec;
+}
+
+.entradas-total-card__value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entradas-total-card__value {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+.entradas-total-card__trend {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Cores escuras de antes (#0d3d24/#4a1f14) foram escolhidas pro fundo claro anterior —
+   contra o fundo escuro novo ficariam quase invisíveis. Reaproveita os tokens de
+   entrada/despesa já usados no resto do app (verde/terracota), não inventa cor nova. */
+.entradas-total-card__trend--up {
+  color: var(--color-accent-income);
+}
+
+.entradas-total-card__trend--down {
+  color: var(--color-accent-expense);
+}
+
+/* Sparkline como plano de fundo do card inteiro (não mais uma tira embaixo do texto) —
+   position:absolute cobrindo 100% da área, atrás do texto (.main tem z-index:1). Cor
+   #3D6151 (verde médio, mais discreto que o branco do texto) e preserveAspectRatio="none"
+   (no componente) fazem o traço esticar pra ocupar a altura inteira do card, não só uma
+   faixa baixa. */
+.entradas-total-card .sparkline {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Variante vermelha (Faturas): mesmo card, mas de VIDRO — gradiente translúcido nos tokens de
+   vermelho do tema de Despesas + backdrop-filter (o gradiente verde padrão é opaco, então
+   blur ali não teria efeito). Borda igual à da variante verde. */
+.entradas-total-card--red {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-expense-button-start) 60%, transparent),
+    color-mix(in srgb, var(--color-expense-button-end) 75%, transparent)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

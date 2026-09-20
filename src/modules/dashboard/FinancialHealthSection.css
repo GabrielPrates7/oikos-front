@@ -33,6 +33,20 @@
   min-width: 0;
 }
 
+/* Linha divisória entre os 3 itens quando lado a lado (2+ colunas). var(--color-bg-elevated)
+   (usada antes) é opaca e escura — contra o fundo do painel de vidro fosco (translúcido
+   sobre o fundo escuro da página, ~mesma luminosidade) ficava praticamente invisível.
+   Branco translúcido, mesma família do border-top-color dos cards de vidro fosco do topo
+   (SummaryCards.css/DashboardPage.css), contrasta de verdade contra o blur. Só entre
+   colunas (border-left no item seguinte), não depois do último — :not(:first-child) evita
+   duplicar a borda em telas que colapsam pra 1 coluna. */
+@media (min-width: 1024px) {
+  .financial-health-section__item:not(:first-child) {
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+    padding-left: 12px;
+  }
+}
+
 .financial-health-section__item-title {
   font-size: 14px;
   font-weight: 600;

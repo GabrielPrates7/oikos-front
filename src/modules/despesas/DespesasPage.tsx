@@ -1,10 +1,9 @@
-import { Plus } from 'lucide-react'
+import { Plus, TrendingDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { SuccessMessage } from '../../components/feedback/SuccessMessage'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Button } from '../../components/ui/Button'
 import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
@@ -13,7 +12,7 @@ import type { Category } from '../categorias/categorias.types'
 import { contasService } from '../contas/contas.service'
 import type { Account } from '../contas/contas.types'
 import { faturasService } from '../faturas/faturas.service'
-import { formatReferenceMonth } from '../../utils/date'
+import { currentMonthString, formatReferenceMonth } from '../../utils/date'
 import { ApiError } from '../../services/api'
 import { DespesaForm } from './DespesaForm'
 import { DespesasList } from './DespesasList'
@@ -51,7 +50,9 @@ export function DespesasPage() {
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [activeCards, setActiveCards] = useState<CreditCard[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [filters, setFilters] = useState<ExpenseFilters>({})
+  const [years, setYears] = useState<number[]>([])
+  // Sempre um mês concreto (nunca "sem filtro") — mesmo motivo de EntradasPage.
+  const [filters, setFilters] = useState<ExpenseFilters>({ month: currentMonthString() })
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [summary, setSummary] = useState<MonthlySummary>(EMPTY_SUMMARY)
@@ -74,18 +75,23 @@ export function DespesasPage() {
 
     async function load() {
       try {
-        const [activeAccountsResult, allAccountsResult, activeCardsResult, categoriesResult] =
+        const [activeAccountsResult, allAccountsResult, activeCardsResult, categoriesResult, yearsResult] =
           await Promise.all([
             contasService.list('active'),
             contasService.list('all'),
             cartoesService.list('active'),
             categoriasService.list('expense'),
+            despesasService.getYears(),
           ])
         if (active) {
           setActiveAccounts(activeAccountsResult)
           setAllAccounts(allAccountsResult)
           setActiveCards(activeCardsResult)
           setCategories(categoriesResult)
+          // Ano atual sempre disponível, mesmo sem despesa nele ainda — mesmo motivo de
+          // EntradasPage.
+          const currentYear = new Date().getFullYear()
+          setYears(Array.from(new Set([currentYear, ...yearsResult])).sort((a, b) => b - a))
         }
       } catch (error) {
         if (active) {
@@ -291,11 +297,16 @@ export function DespesasPage() {
     <div className="despesas-page">
       <PageHeader
         title="Despesas"
+        icon={<TrendingDown size={22} aria-hidden="true" />}
         action={
-          <Button type="button" onClick={handleOpenCreate}>
+          <button
+            type="button"
+            className="despesas-page__nova-despesa-button"
+            onClick={handleOpenCreate}
+          >
             <Plus size={16} aria-hidden="true" />
             Nova despesa
-          </Button>
+          </button>
         }
       />
       <FormError message={loadError} />
@@ -305,9 +316,11 @@ export function DespesasPage() {
           entries={entries}
           accounts={allAccounts}
           categories={categories}
+          years={years}
           filters={filters}
           onFiltersChange={handleFiltersChange}
           summary={summary}
+          total={total}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}

@@ -24,6 +24,8 @@ const baseFields = {
   // Compra no cartão (paymentMethod === 'credit_card').
   creditCardId: z.string().optional(),
   installmentsCount: z.number().int().min(1).optional(),
+  // Fase 1 do campo "contar no total" — default true no formulário (useForm), não aqui.
+  countInTotals: z.boolean(),
 }
 
 // superRefine (não refine) porque os dois ramos validam campos diferentes — precisa poder

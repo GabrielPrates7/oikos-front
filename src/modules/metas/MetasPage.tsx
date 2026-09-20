@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Flag, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
@@ -131,6 +131,7 @@ export function MetasPage() {
     <div className="metas-page">
       <PageHeader
         title="Metas"
+        icon={<Flag size={22} aria-hidden="true" />}
         action={
           <Button type="button" onClick={() => setMode({ type: 'create' })}>
             <Plus size={16} aria-hidden="true" />
@@ -145,6 +146,7 @@ export function MetasPage() {
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}
+          onCreate={() => setMode({ type: 'create' })}
           onEdit={(goal) => setMode({ type: 'edit', goal })}
           onDelete={handleDelete}
         />

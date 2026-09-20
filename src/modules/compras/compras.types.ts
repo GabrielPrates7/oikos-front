@@ -22,6 +22,9 @@ export interface Purchase {
   // true se QUALQUER parcela estiver numa fatura já paga — trava edição estrutural
   // (valor/parcelas/data/cartão) e bloqueia exclusão, tanto aqui quanto no backend.
   has_paid_installment: boolean
+  // Meses ('YYYY-MM') das faturas onde existe parcela desta compra — uma compra parcelada tem
+  // uma só purchase_date, mas parcelas em vários meses/anos.
+  installment_months: string[]
 }
 
 // Retorno de POST /purchases (ver purchases.service.createPurchase no backend) — a compra

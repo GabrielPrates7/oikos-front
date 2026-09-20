@@ -3,3 +3,31 @@
   font-size: 13px;
   padding: 24px 0;
 }
+
+/* Só usado no modo orientation="vertical" — a div filha tem min-width dinâmico
+   (categorias × 110px, ver BudgetComparisonChart.tsx). Quando isso excede a largura do
+   painel, esse wrapper vira scroll horizontal em vez de espremer as barras/rótulos.
+   Scrollbar fina e discreta, mesmo padrão de CategoryBreakdownChart.css e
+   RecentTransactionsList.css. */
+.budget-comparison-chart__scroll-x {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg-elevated) transparent;
+}
+
+.budget-comparison-chart__scroll-x::-webkit-scrollbar {
+  height: 6px;
+}
+
+.budget-comparison-chart__scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.budget-comparison-chart__scroll-x::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 999px;
+}
+
+.budget-comparison-chart__scroll-x::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}

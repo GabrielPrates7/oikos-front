@@ -32,16 +32,70 @@
   background:
     radial-gradient(
       circle at 15% 10%,
-      color-mix(in srgb, var(--color-accent-bright) 12%, transparent),
+      color-mix(in srgb, var(--shell-glow-strong, var(--color-accent-bright)) 12%, transparent),
       transparent 45%
     ),
     radial-gradient(
       circle at 90% 95%,
-      color-mix(in srgb, var(--color-accent) 8%, transparent),
+      color-mix(in srgb, var(--shell-glow-soft, var(--color-accent)) 8%, transparent),
       transparent 40%
     );
   pointer-events: none;
   z-index: 0;
+}
+
+/* Tema por contexto — hoje só Despesas. Troca só as duas cores do brilho ambiente acima
+   (pontos de destaque em vermelho); o fundo base continua o neutro padrão do sistema, que
+   na referência é o tom da maior parte da página. Aplicado por rota em Shell.tsx. */
+.shell--theme-expense {
+  --shell-glow-strong: var(--color-expense-glow-strong);
+  --shell-glow-soft: var(--color-expense-glow-soft);
+}
+
+/* Transferências: mesma mecânica, família azul. */
+.shell--theme-transfer {
+  --shell-glow-strong: var(--color-transfer-glow-strong);
+  --shell-glow-soft: var(--color-transfer-glow-soft);
+}
+
+/* Faturas: mesma família de vermelho de Despesas (mesmos tokens), composição diferente — em
+   vez dos 2 radiais nos cantos, um degradê VERTICAL no topo: brilho concentrado atrás do
+   cabeçalho e da barra de filtros que se dissolve pro fundo neutro conforme desce. Vive em
+   ::after (absolute, rola junto com a página); os radiais do ::before são desligados.
+   Redefinir --color-accent* só dentro de .shell__main (não na Sidebar) troca de uma vez tudo
+   que era verde por padrão nas telas de Faturas — ícone do título, botão primário, página
+   ativa da paginação, checkboxes, outlines de foco. Cores de banco (getBankColor) não usam
+   esses tokens e ficam intactas. */
+.shell--theme-invoice .shell__main {
+  --color-accent: var(--color-expense-button-start);
+  --color-accent-deep: var(--color-expense-button-end);
+  --color-accent-bright: var(--color-expense-glow-strong);
+}
+
+.shell--theme-invoice .shell__main::before {
+  background: none;
+}
+
+.shell--theme-invoice .shell__main::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 480px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-expense-glow-strong) 20%, transparent) 0%,
+    color-mix(in srgb, var(--color-expense-glow-soft) 10%, transparent) 40%,
+    transparent 100%
+  );
+}
+
+/* Relatórios: o fundo aurora (AuroraBackground.tsx) substitui os brilhos radiais ambiente. */
+.shell--theme-reports .shell__main::before {
+  background: none;
 }
 
 @media (min-width: 768px) {

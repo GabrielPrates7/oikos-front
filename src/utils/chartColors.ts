@@ -27,12 +27,12 @@ export const CATEGORY_PALETTE = [
   '#7c9c4c', // oliva
 ]
 
-// As 8 categorias da imagem de referência ganham cor FIXA (batendo com a imagem), não
-// hash — hash por nome sozinho não evita colisão entre DUAS categorias do mesmo conjunto
-// renderizado (ficou provado: "Dízimo" e "Corte de Cabelo" caíram no mesmo índice e saíram
-// com o mesmo RGB). Categorias novas que o usuário criar depois caem no CATEGORY_PALETTE
-// acima (fallback, nunca nestas cores), com verificação de colisão contra tudo que já foi
-// atribuído no mesmo render.
+// As 8 categorias de despesa da imagem de referência ganham cor FIXA (batendo com a
+// imagem), não hash — hash por nome sozinho não evita colisão entre DUAS categorias do
+// mesmo conjunto renderizado (ficou provado: "Dízimo" e "Corte de Cabelo" caíram no mesmo
+// índice e saíram com o mesmo RGB). Categorias novas que o usuário criar depois caem no
+// CATEGORY_PALETTE acima (fallback, nunca nestas cores), com verificação de colisão contra
+// tudo que já foi atribuído no mesmo render.
 const CATEGORY_COLOR_OVERRIDES: Record<string, string> = {
   Empréstimo: '#2dd4bf',
   Faculdade: CHART_COLOR_ACCENT,
@@ -42,6 +42,24 @@ const CATEGORY_COLOR_OVERRIDES: Record<string, string> = {
   Contas: '#4a4f4c', // cinza escuro/quase preto
   'Corte de Cabelo': '#c2578a',
   Lazer: '#8257e5', // roxo (mesmo tom do Nubank em bankColors.ts)
+
+  // As 5 categorias de ENTRADA padrão (globais, mesma linha/ID em toda conta) — fixas pelo
+  // mesmo motivo, e por um bug real encontrado: sem override, "Salário" caía no fallback
+  // hash+anti-colisão, e como a resolução de colisão depende da ORDEM/COMPOSIÇÃO do lote
+  // inteiro (cada categoria hasheada desloca a próxima se colidir), a cor final de
+  // "Salário" mudava dependendo de quais OUTRAS categorias (inclusive uma totalmente sem
+  // relação, tipo uma categoria custom "Comissão" só na conta real) estavam no mesmo
+  // render — confirmado reproduzindo os dois conjuntos de categoria (conta real com
+  // "Comissão" extra vs conta de teste sem ela): mesma categoria, hash de nome idêntico,
+  // cor final diferente (#a78bfa vs #f2b880) por causa do efeito cascata na fila de
+  // colisão. Reaproveita os 5 primeiros tons do CATEGORY_PALETTE acima (não inventa cor
+  // nova) — sobra 1 tom + wraparound pro fallback hash de categorias de entrada
+  // genuinamente custom (essas sim variam por conta, o que é esperado).
+  Salário: CATEGORY_PALETTE[0],
+  Freelance: CATEGORY_PALETTE[1],
+  Investimentos: CATEGORY_PALETTE[2],
+  Presente: CATEGORY_PALETTE[3],
+  Venda: CATEGORY_PALETTE[4],
 }
 
 // Hash determinístico (mesmo nome -> mesmo índice de partida sempre) — só o PONTO DE

@@ -1,30 +1,118 @@
-/* 7 cards — auto-fit deixa quantas colunas couberem numa linha só sem espremer o texto
-   (140px é a largura mínima confortável pro maior valor esperado, tipo "R$ 15.234,50"),
-   quebrando pra 2ª linha sozinho quando não sobra espaço. */
+/* Grid de 6 colunas — dá espaço pra combinar spans diferentes sem ficar desequilibrado:
+   Saldo Real ocupa a fileira inteira (span 6, é a métrica mais consultada, ver
+   --hero abaixo); Lucro e Falta Pagar dividem a fileira seguinte meio a meio (span 3
+   cada); Já Pago, Patrimônio Líquido e Taxa de Poupança dividem a última em 3 (span 2
+   cada) — os 3 cards padrão do tamanho de antes, só reagrupados numa fileira própria. */
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
 }
 
-/* Abaixo de 480px, auto-fit começa a produzir uma coluna por linha (7 linhas — rolagem
-   longa demais pro celular). Fixa 2 colunas, mesma convenção já usada nos 4 números
-   anteriores desta tela. */
+.summary-cards__stat-card--hero {
+  grid-column: span 6;
+}
+
+.summary-cards__stat-card--glass {
+  grid-column: span 3;
+}
+
+.summary-cards__stat-card--ja-pago,
+.summary-cards__stat-card--patrimonio,
+.summary-cards__stat-card--poupanca {
+  grid-column: span 2;
+}
+
+/* <768px: Lucro/Falta Pagar (span 3 num grid de 6) e os 3 padrão (span 2) já cabem bem —
+   só embaixo de 480px isso aperta demais (ver breakpoint seguinte). */
 @media (max-width: 480px) {
   .summary-cards {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .summary-cards__stat-card--hero,
+  .summary-cards__stat-card--glass,
+  .summary-cards__stat-card--ja-pago,
+  .summary-cards__stat-card--patrimonio,
+  .summary-cards__stat-card--poupanca {
+    grid-column: span 1;
+  }
+
+  .summary-cards__stat-card--hero {
+    grid-column: span 2;
+  }
 }
 
+/* justify-content:center — o grid estica cada card à altura do maior da fileira (ex:
+   Patrimônio Líquido/Taxa de Poupança têm legenda, Já Pago não), o que deixava o conteúdo
+   grudado no topo com vazio embaixo nos cards mais curtos. Centraliza o BLOCO verticalmente
+   dentro da altura disponível, mantendo o alinhamento horizontal à esquerda (não mexe em
+   align-items, que continua no default stretch/start pro eixo horizontal). Vale pros 5
+   cards "padrão" (inclui os 2 de vidro fosco, Lucro/Falta Pagar) — a Camada .hero
+   sobrescreve isso de volta pra flex-start (ver override abaixo), porque nela
+   justify-content controla o eixo HORIZONTAL (flex-direction:row), não o vertical. */
 .summary-cards__stat-card {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 6px;
   padding: 14px;
   border-radius: 12px;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-bg-elevated);
   min-width: 0;
+}
+
+/* Vidro fosco — mesmo tratamento validado nos cartões de crédito (backdrop-filter +
+   fundo escuro translúcido + borda superior clara sutil), aplicado aqui em Saldo Real,
+   Lucro e Falta Pagar pra destacá-los dos outros 3 cards (fundo sólido tingido, ver
+   embaixo). Sem blur mais forte que isso: o fundo por trás aqui é só a página, não um
+   gradiente neon — blur alto não faria diferença visível, só custaria performance. */
+.summary-cards__stat-card--glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+}
+
+/* Saldo Real: mesmo vidro fosco, mas MENOS "engaiolado" — sem borda própria (só o brilho
+   do vidro), layout em linha (ícone ao lado do texto, não empilhado em cima).
+   DIAGNÓSTICO CORRIGIDO (rodada anterior errou o alvo): centralização vertical já estava
+   certa (medido: 15px/14px de folga, praticamente igual) — o problema real e dominante
+   era LARGURA: o bloco ícone+texto ocupava só 20% da largura do banner (182px de 913px,
+   medido), sobrando ~80% vazio à direita. Aumentar o valor pra 40px (rodada anterior)
+   não atacava isso: só deu ~24% de ocupação. Medido de novo agora com o valor bem maior
+   (56-64px testados): a 60px, o bloco passa a ocupar ~49% da largura (448px de 913px) —
+   quase 2.5x mais que antes. Mesmo assim sobrava um vazio visivelmente maior de um lado
+   só (a lasca não preenchida, ~51%, toda concentrada à direita) — por isso também
+   centralizei o bloco horizontalmente (justify-content:center, não mais flex-start):
+   transforma um vazio grande e assimétrico em duas margens menores e simétricas, o que
+   lê como intencional em vez de "esqueceram de preencher". */
+.summary-cards__stat-card--hero {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.summary-cards__hero-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-cards__stat-card--hero .summary-cards__stat-icon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 0;
+  flex: 0 0 auto;
 }
 
 .summary-cards__stat-icon {
@@ -55,6 +143,20 @@
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   overflow-wrap: break-word;
+}
+
+/* BUG REAL encontrado nesta rodada: essa regra vinha ANTES de .summary-cards__stat-value
+   (a base, acima) no arquivo — com especificidade igual (0,1,0 as duas, um seletor de
+   classe cada), a ordem no arquivo decide o empate, e a base (18px), por vir DEPOIS,
+   sempre vencia. O valor do Saldo Real nunca chegou a renderizar em 40px na rodada
+   anterior — só parecia certo nos testes ao vivo porque eu usava style inline (que tem
+   especificidade maior que qualquer classe, mascarando o problema). Corrigido movendo
+   esta regra pra depois da base. 40px → 60px nesta rodada: pedido explícito de o valor
+   "dominar visualmente a largura do banner". Medido (agora de verdade, via
+   getComputedStyle, não style inline): bloco ícone+texto subiu de 20% pra ~49% da largura
+   do banner. */
+.summary-cards__stat-value--hero {
+  font-size: 60px;
 }
 
 .summary-cards__stat-sub {
@@ -93,21 +195,23 @@
   background: currentcolor;
 }
 
-/* Cada card tinge ícone/barra com sua própria cor temática via currentcolor — fundo/borda
-   ganham um tingimento mais forte que um hint sutil (imagem de referência usa gradientes
-   bem visíveis, não uma pincelada de cor), pra não virarem 7 blocos idênticos de cinza.
-   O valor em si fica em --color-text-primary (quase branco) em todos — na imagem só o
-   ÍCONE/barra/percentual carregam a cor do card, o número grande é sempre bem legível. */
+/* Cada card tinge ícone/barra com sua própria cor temática via currentcolor. Nos 3 cards
+   de vidro fosco (--glass, --hero), isso é só o ÍCONE/barra/percentual — o fundo/borda vêm
+   do vidro (ver acima), não de um tingimento color-mix. Nos 3 cards padrão restantes, o
+   fundo/borda também levam um tingimento mais forte que um hint sutil, pra não virarem
+   blocos idênticos de cinza. O valor em si fica em --color-text-primary (quase branco) em
+   todos — só o ícone/barra/percentual carregam a cor do card, o número grande é sempre
+   bem legível. */
 .summary-cards__stat-card--saldo {
   color: var(--color-accent-bright);
-  background: color-mix(in srgb, var(--color-accent-bright) 16%, var(--color-bg-surface));
-  border-color: color-mix(in srgb, var(--color-accent-bright) 35%, transparent);
 }
 
-.summary-cards__stat-card--entradas {
+.summary-cards__stat-card--lucro-positivo {
   color: var(--color-accent-income);
-  background: color-mix(in srgb, var(--color-accent-income) 16%, var(--color-bg-surface));
-  border-color: color-mix(in srgb, var(--color-accent-income) 35%, transparent);
+}
+
+.summary-cards__stat-card--lucro-negativo {
+  color: var(--color-accent-expense);
 }
 
 .summary-cards__stat-card--ja-pago {
@@ -116,24 +220,10 @@
   border-color: color-mix(in srgb, var(--color-warning) 35%, transparent);
 }
 
-.summary-cards__stat-card--lucro-positivo {
-  color: var(--color-accent-income);
-  background: color-mix(in srgb, var(--color-accent-income) 16%, var(--color-bg-surface));
-  border-color: color-mix(in srgb, var(--color-accent-income) 35%, transparent);
-}
-
-.summary-cards__stat-card--lucro-negativo {
-  color: var(--color-accent-expense);
-  background: color-mix(in srgb, var(--color-accent-expense) 16%, var(--color-bg-surface));
-  border-color: color-mix(in srgb, var(--color-accent-expense) 35%, transparent);
-}
-
 /* Neutro/cinza na imagem de referência (não terracota) — é uma obrigação futura, não uma
    perda já realizada, então não carrega o mesmo alarme visual de Lucro negativo. */
 .summary-cards__stat-card--falta-pagar {
   color: var(--color-text-muted);
-  background: color-mix(in srgb, var(--color-text-muted) 12%, var(--color-bg-surface));
-  border-color: color-mix(in srgb, var(--color-text-muted) 30%, transparent);
 }
 
 /* Único card com o valor em branco/neutro (não na cor de destaque do card) — na imagem de

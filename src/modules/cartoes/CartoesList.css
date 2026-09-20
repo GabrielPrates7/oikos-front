@@ -1,6 +1,15 @@
+/* Vidro fosco verde da área das abas — mesmo painel da barra de filtros de Entradas
+   (rgba(82,114,102,.1) é #527266, a cor-base do card "Total exibido"). */
 .cartoes-list__filters {
   display: flex;
   gap: 8px;
+  background: rgba(82, 114, 102, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 12px 16px;
   margin-bottom: 20px;
 }
 
@@ -30,108 +39,28 @@
 
 .cartoes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px 16px;
 }
 
+/* Sem fundo/borda próprios: o cartão físico (CartaoVisual, com moldura e vidro próprios) é
+   o "card" — os botões e o menu ficam soltos logo abaixo dele. */
 .cartoes-grid__card {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 12px;
-  background: var(--color-bg-elevated);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.cartoes-grid__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.cartoes-grid__avatar {
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #f5f3ee;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 16px;
-}
-
-.cartoes-grid__info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.cartoes-grid__name {
-  color: var(--color-text-primary);
-  font-weight: 600;
-  font-size: 15px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cartoes-grid__type {
-  color: var(--color-text-muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.cartoes-grid__available {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
-}
-
-.cartoes-grid__available-label {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
-
-.cartoes-grid__bar-track {
-  height: 5px;
-  border-radius: 999px;
-  background: var(--color-bg-base);
-  overflow: hidden;
-}
-
-.cartoes-grid__bar-fill {
-  height: 100%;
-  background: var(--color-accent);
-  border-radius: 999px;
-}
-
-.cartoes-grid__bar-fill--warning {
-  background: var(--color-accent-expense);
-}
-
-.cartoes-grid__used {
-  color: var(--color-text-muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
+  max-width: 320px;
 }
 
 .cartoes-grid__actions {
   display: flex;
+  align-items: center;
   gap: 8px;
-  margin-top: 4px;
+}
+
+.cartoes-grid__actions .dropdown-menu {
+  flex: 0 0 auto;
 }
 
 .cartoes-grid__actions .ui-button {

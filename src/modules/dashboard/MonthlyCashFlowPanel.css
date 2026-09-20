@@ -1,0 +1,35 @@
+.monthly-cash-flow-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.monthly-cash-flow-panel__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.cash-flow-bar-chart__empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+.monthly-cash-flow-panel__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.monthly-cash-flow-panel__link:hover {
+  text-decoration: underline;
+}

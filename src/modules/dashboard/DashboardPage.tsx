@@ -12,7 +12,7 @@ import type { Category } from '../categorias/categorias.types'
 import { orcamentosService } from '../orcamentos/orcamentos.service'
 import type { Budget } from '../orcamentos/orcamentos.types'
 import { relatoriosService } from '../relatorios/relatorios.service'
-import type { SpendingTrendsResult } from '../relatorios/relatorios.types'
+import type { MonthlyEvolutionItem, SpendingTrendsResult } from '../relatorios/relatorios.types'
 import { CategoryBreakdownChart } from './CategoryBreakdownChart'
 import { CreditCardsSummary } from './CreditCardsSummary'
 import { FinancialHealthSection } from './FinancialHealthSection'
@@ -24,6 +24,7 @@ import type { DashboardSummary } from './dashboard.types'
 import './DashboardPage.css'
 
 const EMPTY_SPENDING_TRENDS: SpendingTrendsResult = { months: [], categories: [] }
+const MONTHLY_EVOLUTION_MONTHS_BACK = 6
 
 function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
@@ -35,6 +36,7 @@ export function DashboardPage() {
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [expenseCategories, setExpenseCategories] = useState<Category[]>([])
   const [spendingTrends, setSpendingTrends] = useState<SpendingTrendsResult>(EMPTY_SPENDING_TRENDS)
+  const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -45,18 +47,20 @@ export function DashboardPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const [summaryResult, budgetsResult, categoriesResult, spendingTrendsResult] =
+        const [summaryResult, budgetsResult, categoriesResult, spendingTrendsResult, monthlyEvolutionResult] =
           await Promise.all([
             dashboardService.getSummary(month),
             orcamentosService.list(month),
             categoriasService.list('expense'),
             relatoriosService.getSpendingTrends(month),
+            relatoriosService.getMonthlyEvolution(MONTHLY_EVOLUTION_MONTHS_BACK),
           ])
         if (active) {
           setSummary(summaryResult)
           setBudgets(budgetsResult)
           setExpenseCategories(categoriesResult)
           setSpendingTrends(spendingTrendsResult)
+          setMonthlyEvolution(monthlyEvolutionResult.months)
         }
       } catch (error) {
         if (active) {
@@ -143,22 +147,22 @@ export function DashboardPage() {
         <div className="dashboard-page__panels">
           <SummaryCards summary={summary} />
           <div className="dashboard-page__grid">
-            <div className="dashboard-panel">
+            <div className="dashboard-panel dashboard-panel--category-breakdown">
               <CategoryBreakdownChart data={summary.expensesByCategory} />
             </div>
-            <div className="dashboard-panel">
+            <div className="dashboard-panel dashboard-panel--credit-cards">
               <CreditCardsSummary cards={summary.creditCards} />
             </div>
           </div>
           <div className="dashboard-page__bottom-grid">
-            <div className="dashboard-panel">
+            <div className="dashboard-panel dashboard-panel--glass">
               <RecentTransactionsList transactions={summary.recentTransactions} />
             </div>
-            <div className="dashboard-panel">
+            <div className="dashboard-panel dashboard-panel--glass">
               <FinancialHealthSection
                 budgetComparisonData={budgetComparisonData}
                 spendingTrends={spendingTrends}
-                totals={summary.totals}
+                monthlyEvolution={monthlyEvolution}
               />
             </div>
           </div>

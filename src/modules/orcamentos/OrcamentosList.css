@@ -1,3 +1,14 @@
+/* Mesmo vidro fosco neutro das outras listas (fundo branco translucido + blur + borda clara). */
+.orcamentos-list__wrap {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+}
+
 .orcamentos-list__rows {
   border-top: 1px solid var(--color-bg-elevated);
 }

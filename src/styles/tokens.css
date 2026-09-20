@@ -12,6 +12,20 @@
      dois conceitos sem uma cor semântica já existente (não são "receita" nem "despesa"). */
   --color-accent-info: #5b8fd6;
   --color-accent-gold: #d4af37;
+  /* Tema vermelho da tela de Despesas (ver .shell--theme-expense em Shell.css) — brilho
+     ambiente (forte/suave) e gradiente do botão principal; o fundo base segue o neutro
+     padrão. Não substitui --color-accent-expense (cor semântica de valor/badge). */
+  --color-expense-glow-strong: #d9505f;
+  --color-expense-glow-soft: #b2543a;
+  --color-expense-button-start: #a33f4a;
+  --color-expense-button-end: #5a1b23;
+  /* Tema azul da tela de Transferências (ver .shell--theme-transfer em Shell.css) — mesma
+     estrutura do tema vermelho acima: brilho ambiente (forte/suave) e gradiente do botão
+     principal; fundo base segue o neutro padrão. */
+  --color-transfer-glow-strong: #4a8fe0;
+  --color-transfer-glow-soft: #3d6fb5;
+  --color-transfer-button-start: #3f78c4;
+  --color-transfer-button-end: #1b3a63;
   --color-text-primary: #edeae2;
   --color-text-muted: #9ca79e;
   --font-display: 'Fraunces', serif;

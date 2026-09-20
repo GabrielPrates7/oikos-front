@@ -1,11 +1,16 @@
 import { CircleDollarSign, Copy, Edit2, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTotal } from '../../components/ui/ListTotal'
+import { Combobox } from '../../components/ui/Combobox'
+import { AccountBadge } from '../../components/ui/AccountBadge'
+import { CategoryBadge } from '../../components/ui/CategoryBadge'
 import { Pagination } from '../../components/ui/Pagination'
+import { assignCategoryColors } from '../../utils/chartColors'
 import { centsToBRL } from '../../utils/currency'
-import { formatDateBR } from '../../utils/date'
+import { currentMonthString, formatDateBR, MONTH_NAMES_PT, splitMonthString } from '../../utils/date'
+import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
+import { EntradasTotalCard } from './EntradasTotalCard'
 import type { IncomeEntry, IncomeEntryFilters } from './entradas.types'
 import './EntradasList.css'
 
@@ -13,10 +18,12 @@ interface EntradasListProps {
   entries: IncomeEntry[]
   accounts: Account[]
   categories: Category[]
+  years: number[]
   filters: IncomeEntryFilters
   onFiltersChange: (filters: IncomeEntryFilters) => void
   sumCents: number
   page: number
+  total: number
   totalPages: number
   onPageChange: (page: number) => void
   onEdit: (entry: IncomeEntry) => void
@@ -25,20 +32,16 @@ interface EntradasListProps {
   onDuplicate: (entry: IncomeEntry) => void
 }
 
-// Mesmo padrão de DespesasList.monthFilterToApiParam — 'default' (mês atual) vira undefined
-// na chamada da API, 'all' passa direto.
-function monthFilterToApiParam(monthFilter: string): string | undefined {
-  return monthFilter === 'default' ? undefined : monthFilter
-}
-
 export function EntradasList({
   entries,
   accounts,
   categories,
+  years,
   filters,
   onFiltersChange,
   sumCents,
   page,
+  total,
   totalPages,
   onPageChange,
   onEdit,
@@ -82,12 +85,15 @@ export function EntradasList({
 
   const accountsById = new Map(accounts.map((account) => [account.id, account]))
   const categoriesById = new Map(categories.map((category) => [category.id, category]))
-  const hasFilters = !!(
-    filters.accountId ||
-    filters.categoryId ||
-    filters.from ||
-    filters.to ||
-    filters.month === 'all'
+  // Em LOTE com a lista completa de categorias — mesma correção aplicada em
+  // SpendingTrendsChart.tsx pro mesmo tipo de bug (cor por item isolado permite colisão
+  // que assignCategoryColors só evita vendo o conjunto inteiro de uma vez).
+  const categoryColors = assignCategoryColors(categories.map((category) => category.name))
+  // month não entra aqui — agora é sempre um valor concreto (navegação normal, tipo o
+  // MonthSwitcher do Dashboard), não um "filtro ativo" que precise do botão de limpar.
+  const hasFilters = !!(filters.accountId || filters.categoryId || filters.from || filters.to)
+  const { year: selectedYear, monthNum: selectedMonthNum } = splitMonthString(
+    filters.month ?? currentMonthString(),
   )
 
   const visibleEntries = useMemo(() => {
@@ -98,6 +104,7 @@ export function EntradasList({
 
   return (
     <div className="entradas-list">
+      <div className="entradas-list__filters-panel">
       <div className="entradas-list__filters">
         <div className="entradas-list__filter-field entradas-list__filter-field--search">
           <label htmlFor="filter-search">Buscar</label>
@@ -114,45 +121,61 @@ export function EntradasList({
         </div>
         <div className="entradas-list__filter-field">
           <label htmlFor="filter-account">Conta</label>
-          <select
+          <Combobox
             id="filter-account"
             value={filters.accountId ?? ''}
-            onChange={(event) => handleFilterChange({ accountId: event.target.value || undefined })}
-          >
-            <option value="">Todas</option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange({ accountId: value || undefined })}
+            options={[
+              { value: '', label: 'Todas' },
+              ...accounts.map((account) => ({ value: account.id, label: account.name })),
+            ]}
+          />
         </div>
         <div className="entradas-list__filter-field">
           <label htmlFor="filter-category">Categoria</label>
-          <select
+          <Combobox
             id="filter-category"
             value={filters.categoryId ?? ''}
-            onChange={(event) =>
-              handleFilterChange({ categoryId: event.target.value || undefined })
-            }
-          >
-            <option value="">Todas</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.icon ?? '📁'} {category.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => handleFilterChange({ categoryId: value || undefined })}
+            options={[
+              { value: '', label: 'Todas' },
+              ...categories.map((category) => ({
+                value: category.id,
+                label: `${category.icon ?? '📁'} ${category.name}`,
+              })),
+            ]}
+          />
         </div>
         <div className="entradas-list__filter-field">
           <label htmlFor="filter-month">Mês</label>
           <select
             id="filter-month"
-            value={filters.month ?? 'default'}
-            onChange={(event) => handleFilterChange({ month: monthFilterToApiParam(event.target.value) })}
+            value={selectedMonthNum}
+            onChange={(event) =>
+              handleFilterChange({ month: `${selectedYear}-${event.target.value}` })
+            }
           >
-            <option value="default">Mês atual</option>
-            <option value="all">Todos os meses</option>
+            {MONTH_NAMES_PT.map((name, index) => (
+              <option key={name} value={String(index + 1).padStart(2, '0')}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="entradas-list__filter-field">
+          <label htmlFor="filter-year">Ano</label>
+          <select
+            id="filter-year"
+            value={selectedYear}
+            onChange={(event) =>
+              handleFilterChange({ month: `${event.target.value}-${selectedMonthNum}` })
+            }
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
           </select>
         </div>
         <div className="entradas-list__filter-field">
@@ -183,13 +206,14 @@ export function EntradasList({
                 categoryId: undefined,
                 from: undefined,
                 to: undefined,
-                month: undefined,
+                month: currentMonthString(),
               })
             }
           >
             Limpar filtros
           </button>
         )}
+      </div>
       </div>
 
       {visibleEntries.length === 0 ? (
@@ -205,7 +229,13 @@ export function EntradasList({
         </div>
       ) : (
         <>
-          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
+          <EntradasTotalCard
+            sumCents={sumCents}
+            points={visibleEntries.map((entry) => ({
+              date: entry.entry_date,
+              amountCents: entry.amount_cents,
+            }))}
+          />
           <div className="entradas-list__table-wrap">
             <table className="entradas-list__table">
               <thead>
@@ -237,10 +267,28 @@ export function EntradasList({
                         </div>
                       </td>
                       <td className="entradas-list__meta">
-                        {category ? `${category.icon ?? '📁'} ${category.name}` : 'Categoria removida'}
+                        {category ? (
+                          <CategoryBadge
+                            name={category.name}
+                            icon={category.icon}
+                            color={categoryColors.get(category.name) ?? 'var(--color-text-muted)'}
+                          />
+                        ) : (
+                          'Categoria removida'
+                        )}
                       </td>
                       <td className="entradas-list__meta">{formatDateBR(entry.entry_date)}</td>
-                      <td className="entradas-list__meta">{account?.name ?? 'Conta removida'}</td>
+                      <td className="entradas-list__meta">
+                        {account ? (
+                          <AccountBadge
+                            name={account.name}
+                            bankName={account.bank_name}
+                            color={account.color}
+                          />
+                        ) : (
+                          'Conta removida'
+                        )}
+                      </td>
                       <td className="entradas-list__amount">{centsToBRL(entry.amount_cents)}</td>
                       <td className="entradas-list__actions">
                         {isConfirming ? (
@@ -303,7 +351,15 @@ export function EntradasList({
               </tbody>
             </table>
           </div>
-          <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalItems={total}
+            pageSize={DEFAULT_PAGE_SIZE}
+            itemLabel="entradas"
+            alwaysShow
+          />
         </>
       )}
     </div>

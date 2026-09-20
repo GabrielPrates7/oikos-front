@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Landmark, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
@@ -159,6 +159,7 @@ export function ContasPage() {
     <div className="contas-page">
       <PageHeader
         title="Contas"
+        icon={<Landmark size={22} aria-hidden="true" />}
         action={
           <Button type="button" onClick={() => setMode({ type: 'create' })}>
             <Plus size={16} aria-hidden="true" />

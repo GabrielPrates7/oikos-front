@@ -1,31 +1,69 @@
 .metas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 16px;
 }
 
+/* Vidro fosco — mesmos valores dos cards de Contas/Cartões/Orçamentos (branco translúcido +
+   blur + borda clara, mais clara no topo). Não existe classe utilitária de vidro no projeto:
+   cada tela repete estes valores no próprio CSS. position:relative + :has() abaixo: o
+   backdrop-filter faz de cada card um stacking context e o menu "⋮" ficaria atrás do card
+   vizinho — enquanto está aberto, o card sobe na pilha. */
 .metas-grid__card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background: var(--color-bg-elevated);
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
   border-radius: 12px;
   padding: 16px;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.metas-grid__target-date {
+.metas-grid__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.metas-grid__card:has([aria-expanded='true']) {
+  z-index: 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metas-grid__card {
+    transition: none;
+  }
+
+  .metas-grid__card:hover {
+    transform: none;
+  }
+}
+
+/* Linha superior: prazo em texto relativo. */
+.metas-grid__deadline {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--color-accent-income);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+}
+
+.metas-grid__card--overdue .metas-grid__deadline {
+  color: #cf6b52;
 }
 
 .metas-grid__name {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 2px;
   color: var(--color-text-primary);
   font-family: var(--font-display);
   font-weight: 600;
@@ -42,60 +80,155 @@
   outline-offset: 2px;
 }
 
-.metas-grid__progress {
+/* Chevron sutil: só aparece no hover/foco do card. */
+.metas-grid__chevron {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  color: var(--color-text-muted);
+}
+
+.metas-grid__card:hover .metas-grid__chevron,
+.metas-grid__name:focus-visible .metas-grid__chevron {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metas-grid__chevron {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Hierarquia invertida: o valor acumulado é o protagonista. */
+/* Valor acumulado + "de R$ X" agrupados (quebram entre si em telas estreitas, nunca cortam
+   o valor); o chip de percentual fica sempre a direita da linha do valor. */
+.metas-grid__value-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.metas-grid__amounts {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+
+.metas-grid__current {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: #edeae2;
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 420px) {
+  .metas-grid__current {
+    font-size: 24px;
+  }
+}
+
+.metas-grid__target {
+  white-space: nowrap;
+  font-size: 13px;
+  color: #9ca79e;
+  font-variant-numeric: tabular-nums;
+}
+
+.metas-grid__percent-chip {
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #edeae2;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .metas-grid__bar-track {
-  height: 6px;
+  height: 8px;
   border-radius: 999px;
-  background: var(--color-bg-base);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .metas-grid__bar-fill {
   height: 100%;
-  background: var(--color-accent-income);
   border-radius: 999px;
+  background: linear-gradient(90deg, #4f8f63, #7fd9a0);
   transition: width 0.2s ease;
 }
 
-.metas-grid__progress-text {
-  color: var(--color-text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
+.metas-grid__bar-fill--completed {
+  background: #7fd9a0;
 }
 
-.metas-grid__percent {
-  color: var(--color-text-muted);
-  font-weight: 400;
+.metas-grid__bar-fill--overdue {
+  background: #b2543a;
 }
 
-.metas-grid__actions {
+/* Estado sempre em texto (nunca só cor). #cf6b52 em vez de #b2543a como texto: o segundo dá
+   ~3,4:1 no fundo escuro, abaixo de AA. */
+.metas-grid__state {
   display: flex;
+  align-items: center;
   gap: 4px;
-  margin-left: auto;
-}
-
-.metas-grid__actions button {
-  background: transparent;
-  border: none;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+}
+
+.metas-grid__state--completed {
+  color: #7fd9a0;
+}
+
+.metas-grid__state--overdue {
+  color: #cf6b52;
+}
+
+.metas-grid__footer {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
 }
 
-.metas-grid__actions button:hover {
+/* "Aportar": botão secundário em vidro. */
+.metas-grid__aportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-primary);
-  background: var(--color-bg-base);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.metas-grid__actions button:focus-visible {
+.metas-grid__aportar:hover {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-accent);
+}
+
+.metas-grid__aportar:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -103,12 +236,14 @@
 .metas-grid__confirm {
   display: flex;
   gap: 8px;
-  margin-left: auto;
+  margin-top: 4px;
 }
 
 .metas-list__confirm-delete,
 .metas-list__cancel-delete {
   width: auto;
+  background: transparent;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   padding: 6px 12px;
@@ -123,7 +258,35 @@
 
 .metas-list__cancel-delete {
   color: var(--color-text-muted);
-  border: 1px solid var(--color-bg-base);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Card fantasma: último item da grade, abre o mesmo formulário de criação. */
+.metas-grid__ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.metas-grid__ghost:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-accent);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.metas-grid__ghost:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .metas-list__empty {
@@ -132,5 +295,15 @@
   color: var(--color-text-muted);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+}
+
+.metas-list__empty svg {
+  color: var(--color-accent);
+  margin-bottom: 6px;
+}
+
+.metas-list__empty .ui-button {
+  margin-top: 10px;
 }

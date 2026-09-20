@@ -1,10 +1,10 @@
-import { Plus } from 'lucide-react'
+import { Plus, Wallet } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
-import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
+import { currentMonthString } from '../../utils/date'
 import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { categoriasService } from '../categorias/categorias.service'
 import type { Category } from '../categorias/categorias.types'
@@ -40,7 +40,10 @@ export function EntradasPage() {
   const [activeAccounts, setActiveAccounts] = useState<Account[]>([])
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [categories, setCategories] = useState<Category[]>([])
-  const [filters, setFilters] = useState<IncomeEntryFilters>({})
+  const [years, setYears] = useState<number[]>([])
+  // Sempre um mês concreto (nunca "sem filtro") — mostra o mês/ano atuais até o usuário
+  // trocar, em vez de deixar os dropdowns "Mês"/"Ano" vazios até o primeiro filtro.
+  const [filters, setFilters] = useState<IncomeEntryFilters>({ month: currentMonthString() })
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [sumCents, setSumCents] = useState(0)
@@ -64,15 +67,23 @@ export function EntradasPage() {
 
     async function load() {
       try {
-        const [activeAccountsResult, allAccountsResult, categoriesResult] = await Promise.all([
+        const [activeAccountsResult, allAccountsResult, categoriesResult, yearsResult] = await Promise.all([
           contasService.list('active'),
           contasService.list('all'),
           categoriasService.list('income'),
+          entradasService.getYears(),
         ])
         if (active) {
           setActiveAccounts(activeAccountsResult)
           setAllAccounts(allAccountsResult)
           setCategories(categoriesResult)
+          // Ano atual sempre disponível pro dropdown, mesmo sem nenhum lançamento ainda
+          // nele (senão o valor padrão pré-selecionado, ver useState acima, não teria uma
+          // <option> correspondente na lista).
+          const currentYear = new Date().getFullYear()
+          setYears(
+            Array.from(new Set([currentYear, ...yearsResult])).sort((a, b) => b - a),
+          )
         }
       } catch (error) {
         if (active) {
@@ -215,11 +226,16 @@ export function EntradasPage() {
     <div className="entradas-page">
       <PageHeader
         title="Entradas"
+        icon={<Wallet size={22} aria-hidden="true" />}
         action={
-          <Button type="button" onClick={() => setMode({ type: 'create' })}>
+          <button
+            type="button"
+            className="entradas-page__nova-entrada-button"
+            onClick={() => setMode({ type: 'create' })}
+          >
             <Plus size={16} aria-hidden="true" />
             Nova entrada
-          </Button>
+          </button>
         }
       />
       <FormError message={loadError} />
@@ -228,10 +244,12 @@ export function EntradasPage() {
           entries={entries}
           accounts={allAccounts}
           categories={categories}
+          years={years}
           filters={filters}
           onFiltersChange={handleFiltersChange}
           sumCents={sumCents}
           page={page}
+          total={total}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
           onPageChange={setPage}
           onEdit={(entry) => setMode({ type: 'edit', entry })}

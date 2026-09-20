@@ -1,7 +1,8 @@
-import { Plus } from 'lucide-react'
+import { PiggyBank, Plus, Target, Wallet } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { GlassStatCards } from '../../components/ui/GlassStatCards'
 import { Button } from '../../components/ui/Button'
 import { ApiError } from '../../services/api'
 import { currentMonthString } from '../../utils/date'
@@ -14,6 +15,7 @@ import { OrcamentosList } from './OrcamentosList'
 import { orcamentosService } from './orcamentos.service'
 import type { CreateOrcamentoFormData } from './orcamentos.schemas'
 import type { Budget } from './orcamentos.types'
+import '../../components/layout/GlowBackground.css'
 import './OrcamentosPage.css'
 
 type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; budget: Budget }
@@ -33,6 +35,8 @@ export function OrcamentosPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  // Totais do mes INTEIRO (todos os orcamentos, nao so a pagina atual da lista).
+  const [monthTotals, setMonthTotals] = useState({ limitCents: 0, spentCents: 0 })
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState<Mode>({ type: 'list' })
   const [submitting, setSubmitting] = useState(false)
@@ -55,6 +59,10 @@ export function OrcamentosPage() {
         if (active) {
           setBudgets(budgetsResult.items)
           setTotal(budgetsResult.total)
+          setMonthTotals({
+            limitCents: allBudgets.reduce((sum, budget) => sum + budget.limit_amount_cents, 0),
+            spentCents: allBudgets.reduce((sum, budget) => sum + budget.spentCents, 0),
+          })
           setAllBudgetedCategoryIds(new Set(allBudgets.map((budget) => budget.category_id)))
           setCategories(categoriesResult)
         }
@@ -135,7 +143,7 @@ export function OrcamentosPage() {
 
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
-      <div className="orcamentos-page">
+      <div className="orcamentos-page glow-bg">
         <PageHeader title={mode.type === 'create' ? 'Novo orçamento' : 'Editar orçamento'} />
         <OrcamentoForm
           categories={availableCategories}
@@ -152,9 +160,10 @@ export function OrcamentosPage() {
   }
 
   return (
-    <div className="orcamentos-page">
+    <div className="orcamentos-page glow-bg">
       <PageHeader
         title="Orçamentos"
+        icon={<PiggyBank size={22} aria-hidden="true" />}
         action={
           <div className="orcamentos-page__header-actions">
             <MonthSwitcher month={month} onChange={handleMonthChange} />
@@ -168,6 +177,22 @@ export function OrcamentosPage() {
         }
       />
       <FormError message={loadError} />
+      {!loading && total > 0 && (
+        <GlassStatCards
+          items={[
+            {
+              label: 'Total orçado',
+              valueCents: monthTotals.limitCents,
+              icon: <Target size={18} aria-hidden="true" />,
+            },
+            {
+              label: 'Total gasto no mês',
+              valueCents: monthTotals.spentCents,
+              icon: <Wallet size={18} aria-hidden="true" />,
+            },
+          ]}
+        />
+      )}
       {!loading && (
         <OrcamentosList
           budgets={budgets}

@@ -8,7 +8,7 @@ export function formatDateBR(isoDate: string): string {
   return `${day}/${month}/${year}`
 }
 
-const MONTH_NAMES_PT = [
+export const MONTH_NAMES_PT = [
   'Janeiro',
   'Fevereiro',
   'Março',
@@ -58,6 +58,13 @@ export function currentMonthString(): string {
   return `${year}-${month}`
 }
 
+// Separa 'YYYY-MM' nos dois <select> (Mês/Ano) dos filtros de Entradas/Despesas — mantém o
+// valor combinado como uma string só (o formato que a API já espera), só isso.
+export function splitMonthString(month: string): { year: string; monthNum: string } {
+  const [year, monthNum] = month.split('-')
+  return { year: year ?? String(new Date().getFullYear()), monthNum: monthNum ?? '01' }
+}
+
 // Espelha oikos-back/src/utils/date-range.ts (monthRange) — usado no cliente pra filtrar
 // entradas mescladas (pagamento/fatura em aberto) pelo mesmo mês em vista na lista, sem
 // depender de uma ida ao servidor só pra saber os limites do mês.
@@ -105,4 +112,30 @@ export function formatMonthShort(month: string): string {
   if (!year || !monthNum) return month
   const abbr = MONTH_ABBR_PT[Number(monthNum) - 1] ?? monthNum
   return `${abbr}/${year.slice(2)}`
+}
+
+// "Hoje" como YYYY-MM-DD no fuso America/Sao_Paulo. new Date().toISOString() daria a data em
+// UTC, que na noite de Sao Paulo ja e "amanha". O locale en-CA formata como YYYY-MM-DD.
+export function todayInSaoPaulo(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+// Diferenca em dias de calendario entre duas datas YYYY-MM-DD (to - from). Usa Date.UTC com
+// numeros ja separados, nunca new Date("YYYY-MM-DD") (que tambem parseia como UTC mas mistura
+// com o fuso local ao ler de volta e erra em 1 dia). Puramente aritmetica de calendario.
+export function daysBetween(fromIso: string, toIso: string): number {
+  const [fy, fm, fd] = fromIso.split('-').map(Number)
+  const [ty, tm, td] = toIso.split('-').map(Number)
+  return Math.round((Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86400000)
+}
+
+// "15 de setembro de 2026" — pro tooltip do prazo.
+export function formatDateLong(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return `${day} de ${MONTH_NAMES_PT[month - 1].toLowerCase()} de ${year}`
 }

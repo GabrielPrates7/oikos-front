@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Plus, Tags } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
@@ -10,6 +10,7 @@ import { CategoriasList } from './CategoriasList'
 import { categoriasService } from './categorias.service'
 import type { CreateCategoriaFormData } from './categorias.schemas'
 import type { Category } from './categorias.types'
+import '../../components/layout/GlowBackground.css'
 import './CategoriasPage.css'
 
 type Mode = { type: 'list' } | { type: 'create' } | { type: 'edit'; category: Category }
@@ -51,8 +52,14 @@ export function CategoriasPage() {
       setLoadError(null)
       try {
         const [expenseResult, incomeResult] = await Promise.all([
-          categoriasService.listPaginated('expense', { page: expensePage, pageSize: DEFAULT_PAGE_SIZE }),
-          categoriasService.listPaginated('income', { page: incomePage, pageSize: DEFAULT_PAGE_SIZE }),
+          categoriasService.listPaginated('expense', {
+            page: expensePage,
+            pageSize: DEFAULT_PAGE_SIZE,
+          }),
+          categoriasService.listPaginated('income', {
+            page: incomePage,
+            pageSize: DEFAULT_PAGE_SIZE,
+          }),
         ])
         if (active) {
           setExpenseCategories(expenseResult.items)
@@ -123,7 +130,7 @@ export function CategoriasPage() {
 
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
-      <div className="categorias-page">
+      <div className="categorias-page glow-bg">
         <PageHeader title={mode.type === 'create' ? 'Nova categoria' : 'Editar categoria'} />
         <CategoriaForm
           initialData={mode.type === 'edit' ? mode.category : undefined}
@@ -139,9 +146,10 @@ export function CategoriasPage() {
   }
 
   return (
-    <div className="categorias-page">
+    <div className="categorias-page glow-bg">
       <PageHeader
         title="Categorias"
+        icon={<Tags size={22} aria-hidden="true" />}
         action={
           <Button type="button" onClick={() => setMode({ type: 'create' })}>
             <Plus size={16} aria-hidden="true" />

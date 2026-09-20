@@ -1,4 +1,4 @@
-import { Wifi } from 'lucide-react'
+import { Nfc } from 'lucide-react'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
 import type { CreditCard } from './cartoes.types'
@@ -7,6 +7,11 @@ import './CartaoVisual.css'
 interface CartaoVisualProps {
   card: CreditCard
   size?: 'compact' | 'large'
+  // Na imagem de referência só o Nubank mostra o símbolo de contactless (PicPay não) — não
+  // dá pra saber se é intencional ou só artefato do mockup, então fica como prop (default
+  // true) em vez de hardcoded por nome aqui dentro, pra ligar/desligar por cartão depois
+  // ser trivial. Quem decide o valor hoje é o componente que chama (ver CartaoDetalhePage).
+  hasContactless?: boolean
 }
 
 // Alinhado ao relatório técnico-matemático do dashboard e ao mesmo esquema de
@@ -25,7 +30,14 @@ function usageLevel(usedPercent: number): 'ok' | 'warning' | 'danger' {
 // Não existe bank_name em cartão (só em conta) — o nome do cartão já É o nome do banco na
 // prática (usuário nomeia o cartão como "Nubank", "PicPay" etc.), então usamos card.name
 // direto pra cor e pro rótulo, sem duplicar a mesma informação em duas linhas.
-export function CartaoVisual({ card, size = 'compact' }: CartaoVisualProps) {
+//
+// Arquitetura de DUAS CAMADAS dentro do contêiner relativo (.cartao-visual) — ver comentário
+// completo em CartaoMiniVisual.tsx:
+// - Camada 1 (.card-surface): retângulo colorido, absolute, MENOR que o contêiner e
+//   inclinado (transform:rotate).
+// - Camada 2 (.footer): "bolso" de vidro com barra e saldo, absolute, bottom:0,
+//   width:100%, sem rotação, com backdrop-filter borrando a Camada 1 por trás.
+export function CartaoVisual({ card, size = 'compact', hasContactless = true }: CartaoVisualProps) {
   const { base, muted } = getBankColor(card.name)
   const usedCents = Math.max(0, card.credit_limit_cents - card.availableLimitCents)
   const usedPercent =
@@ -34,34 +46,47 @@ export function CartaoVisual({ card, size = 'compact' }: CartaoVisualProps) {
   const level = usageLevel(usedPercent)
   const roundedPercent = Math.round(usedPercent)
   const cardGradient = `linear-gradient(135deg, ${base}, ${muted})`
+  // Selo de bandeira genérico (dois círculos sobrepostos, não uma marca real) — pedido
+  // explícito de simetria visual: agora aparece em Nubank E PicPay (antes só Nubank).
+  const bankKey = card.name.trim().toLowerCase()
+  const showBadge = bankKey === 'nubank' || bankKey === 'picpay'
 
   return (
     <div className={`cartao-visual cartao-visual--${size}`}>
-      {/* Cartão "de trás" puramente decorativo — mesmo gradiente do cartão real, girado e
-          deslocado por baixo, pra dar a profundidade de pilha de cartões da imagem de
-          referência (não representa um cartão de verdade, só CSS). */}
-      <div className="cartao-visual__stack" aria-hidden="true" style={{ background: cardGradient }} />
-      <div className="cartao-visual__card" style={{ background: cardGradient }}>
-        <div className="cartao-visual__header">
-          {card.status === 'archived' ? (
-            <span className="cartao-visual__archived-badge">Arquivado</span>
-          ) : (
-            <span />
-          )}
-          <span className="cartao-visual__logo">{card.name}</span>
-        </div>
-
-        <div className="cartao-visual__chip-row">
+      {/* CAMADA 1 — cartão colorido, inclinado (ver CSS: margem + rotate). */}
+      <div className="cartao-visual__card-surface" style={{ background: cardGradient }}>
+        <div className="cartao-visual__top-row">
           <div className="cartao-visual__chip" aria-hidden="true">
             <div className="cartao-visual__chip-lines" />
           </div>
-          <Wifi className="cartao-visual__contactless" size={20} aria-hidden="true" />
+          {hasContactless && (
+            <Nfc className="cartao-visual__contactless" size={26} aria-hidden="true" />
+          )}
+          <div className="cartao-visual__top-row-right">
+            {card.status === 'archived' && (
+              <span className="cartao-visual__archived-badge">Arquivado</span>
+            )}
+            {/* Nome real do cartão (dado do usuário) — ver observação equivalente em
+                CartaoMiniVisual.tsx: não é logo/fonte de marca copiado, é texto simples. */}
+            <span className="cartao-visual__logo">{card.name}</span>
+          </div>
         </div>
 
         <span className="cartao-visual__brand">{card.brand ?? 'Sem bandeira'}</span>
+
+        {/* Selo de bandeira genérico — canto inferior direito da Camada 1, dentro da faixa
+            que a Camada 2 (vidro) cobre por cima, pra o backdrop-filter borrar ele. Sem
+            blur próprio (ver CSS). */}
+        {showBadge && (
+          <div className="cartao-visual__badge" aria-hidden="true">
+            <span className="cartao-visual__badge-circle cartao-visual__badge-circle--red" />
+            <span className="cartao-visual__badge-circle cartao-visual__badge-circle--orange" />
+          </div>
+        )}
       </div>
 
-      <div className="cartao-visual__progress">
+      {/* CAMADA 2 — "bolso" de vidro: bottom:0, width:100%, sem rotação (ver CSS). */}
+      <div className="cartao-visual__footer">
         <div
           className="cartao-visual__bar-track"
           role="progressbar"

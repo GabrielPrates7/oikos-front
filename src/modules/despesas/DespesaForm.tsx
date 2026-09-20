@@ -4,6 +4,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
 import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
+import { Checkbox } from '../../components/ui/Checkbox'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
@@ -88,6 +89,9 @@ export function DespesaForm({
       paidDate: source?.paid_date ?? source?.expense_date ?? today(),
       creditCardId: '',
       installmentsCount: 1,
+      // Marcado por padrão (fase 1 do campo "contar no total") — ?? true cobre tanto
+      // criação (source undefined) quanto registro antigo (de antes desse campo existir).
+      countInTotals: source?.count_in_totals ?? true,
     },
   })
 
@@ -263,6 +267,12 @@ export function DespesaForm({
           />
         )}
       />
+      {/* Não se aplica a compra no cartão — purchases (installments) não tem esse campo,
+          só income_entries/expenses (fase 1 do escopo). Some da UI nesse modo pra não
+          mostrar um controle que seria silenciosamente ignorado. */}
+      {!isCreditCard && (
+        <Checkbox label="Contar no total geral e nos gráficos" {...register('countInTotals')} />
+      )}
       <FormError message={error} />
       <div className="despesa-form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>

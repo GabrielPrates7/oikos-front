@@ -1,8 +1,17 @@
+/* Mesmo vidro fosco da barra de filtros das outras telas, no tint vermelho do tema de Faturas
+   (mesma cor-base do botão de Despesas), aplicado direto no container de flex. */
 .faturas-list__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
+  background: color-mix(in srgb, var(--color-expense-button-start) 10%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
   margin-bottom: 20px;
 }
 
@@ -21,8 +30,17 @@
   color: var(--color-text-muted);
 }
 
-.faturas-list__filter-field select {
-  background: var(--color-bg-base);
+/* appearance:none + seta customizada — mesmas correções dos filtros das outras telas (o
+   <select> nativo pintava um verniz mais claro que o <input> de busca). */
+.faturas-list__filter-field select,
+.faturas-list__filter-field input[type='date'] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-bg-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
   border: 1px solid var(--color-bg-elevated);
   border-radius: 8px;
   padding: 8px 10px;
@@ -33,7 +51,15 @@
   min-width: 200px;
 }
 
-.faturas-list__filter-field select:focus-visible {
+.faturas-list__filter-field input[type='date'] {
+  background-image: none;
+  padding-right: 10px;
+  min-width: 0;
+  color-scheme: normal;
+}
+
+.faturas-list__filter-field select:focus-visible,
+.faturas-list__filter-field input[type='date']:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
@@ -78,6 +104,11 @@
   margin-bottom: 16px;
 }
 
+.faturas-list__select-all input,
+.faturas-grid__checkbox {
+  accent-color: var(--color-accent);
+}
+
 .faturas-list__select-all {
   display: flex;
   align-items: center;
@@ -93,13 +124,29 @@
   gap: 16px;
 }
 
+/* Vidro fosco (mesmos valores dos cards de vidro do Dashboard) + faixa lateral esquerda de
+   4px na cor do banco (--bank-color, definida inline por card em FaturasList.tsx) — dá
+   identificação rápida por cor sem repetir o cartão físico, que é da tela de Cartões.
+   position:relative + :has() abaixo: o backdrop-filter faz de cada card um stacking context e
+   o menu "⋮" (z-index só dentro do card) ficaria atrás dos cards seguintes; enquanto ele
+   está aberto, o card sobe acima dos vizinhos. */
 .faturas-grid__card {
+  position: relative;
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: var(--color-bg-elevated);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-left: 4px solid var(--bank-color, var(--color-text-muted));
   border-radius: 12px;
   padding: 16px;
+}
+
+.faturas-grid__card:has([aria-expanded='true']) {
+  z-index: 5;
 }
 
 .faturas-grid__checkbox,
@@ -132,7 +179,7 @@
 }
 
 .faturas-grid__card-name {
-  color: var(--color-text-primary);
+  color: var(--bank-color, var(--color-text-primary));
   font-weight: 600;
   font-size: 15px;
   overflow: hidden;

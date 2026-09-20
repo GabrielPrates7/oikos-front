@@ -1,46 +1,82 @@
-.por-categoria-tab__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.type-toggle {
-  display: flex;
-  gap: 8px;
-}
-
-.type-toggle__button {
-  background: transparent;
-  border: 1px solid var(--color-bg-elevated);
+.por-categoria-tab__loading {
   color: var(--color-text-muted);
-  border-radius: 6px;
-  padding: 6px 14px;
   font-size: 13px;
-  cursor: pointer;
 }
 
-.type-toggle__button:hover {
+.por-categoria-tab__note {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.por-categoria-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 14px;
+}
+
+.por-categoria-panel__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 
-.type-toggle__button--active-expense {
-  border-color: var(--color-accent-expense);
-  color: var(--color-accent-expense);
+.por-categoria-panel__summary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
-.type-toggle__button--active-income {
-  border-color: var(--color-accent-income);
-  color: var(--color-accent-income);
+.por-categoria-panel__total {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
-.type-toggle__button--active-neutral {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+.por-categoria-panel__count {
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
-.type-toggle__button:focus-visible {
+.por-categoria-panel__insight {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #c9cfc9;
+  font-variant-numeric: tabular-nums;
+}
+
+.por-categoria-panel__empty {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.por-categoria-panel__filter-line {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #c9cfc9;
+  font-variant-numeric: tabular-nums;
+}
+
+.por-categoria-panel__clear {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.por-categoria-panel__clear:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }

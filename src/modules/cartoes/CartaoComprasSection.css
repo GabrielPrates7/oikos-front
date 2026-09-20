@@ -1,0 +1,257 @@
+.cartao-compras__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+
+/* Mesmo vidro fosco verde da barra de filtros de Entradas (rgba(82,114,102,.1) é #527266,
+   a cor-base do card "Total exibido") — aplicado direto no container de flex. */
+.cartao-compras__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  background: rgba(82, 114, 102, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.cartao-compras__filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cartao-compras__filter-field--search {
+  flex: 1 1 200px;
+}
+
+.cartao-compras__filter-field label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* appearance:none + seta customizada — mesmas correções dos filtros de Entradas/Despesas
+   (o <select> nativo pintava um verniz mais claro que o <input>). */
+.cartao-compras__filter-field select,
+.cartao-compras__filter-field input[type='date'] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-bg-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 8px 28px 8px 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.cartao-compras__filter-field input[type='date'] {
+  background-image: none;
+  padding-right: 10px;
+}
+
+.cartao-compras__filter-field select:focus-visible,
+.cartao-compras__filter-field input[type='date']:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.cartao-compras__search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.cartao-compras__search-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.cartao-compras__search-input input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: text;
+}
+
+.cartao-compras__search-input input:focus-visible {
+  outline: none;
+}
+
+.cartao-compras__clear-filters {
+  background: transparent;
+  border: 1px solid var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.cartao-compras__clear-filters:hover {
+  color: var(--color-text-primary);
+}
+
+.cartao-compras__clear-filters:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Mesmo vidro fosco neutro das listas de Entradas/Despesas/Transferências. */
+.cartao-compras__list-wrap {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.cartao-compras__list {
+  border-top: 1px solid var(--color-bg-elevated);
+}
+
+.cartao-compras__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.cartao-compras__row:last-child {
+  border-bottom: none;
+}
+
+.cartao-compras__date {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+}
+
+.cartao-compras__info {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cartao-compras__description-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.cartao-compras__description {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.cartao-compras__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.cartao-compras__amount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+  color: var(--color-accent-expense);
+}
+
+.cartao-compras__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botões circulares com fundo visível — mesmo padrão de Entradas/Despesas/Transferências
+   (:not() exclui os botões de texto de confirmar/cancelar exclusão, com estilo próprio). */
+.cartao-compras__actions button:not(.cartao-compras__confirm-delete):not(.cartao-compras__cancel-delete) {
+  background: var(--color-bg-elevated);
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartao-compras__actions button:not(.cartao-compras__confirm-delete):not(.cartao-compras__cancel-delete):hover {
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+}
+
+.cartao-compras__actions button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.cartao-compras__confirm-delete,
+.cartao-compras__cancel-delete {
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.cartao-compras__confirm-delete {
+  color: var(--color-accent-expense);
+  border: 1px solid var(--color-accent-expense);
+}
+
+.cartao-compras__cancel-delete {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-bg-elevated);
+}
+
+.cartao-compras__empty {
+  padding: 40px 4px;
+  text-align: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

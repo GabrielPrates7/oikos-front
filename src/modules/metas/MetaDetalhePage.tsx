@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
@@ -29,12 +29,21 @@ export function MetaDetalhePage() {
   const [allAccounts, setAllAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [showAporteForm, setShowAporteForm] = useState(false)
+  // ?aportar=1 (vindo do botao "Aportar" do card em /metas) abre o formulario ja aberto.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [showAporteForm, setShowAporteForm] = useState(() => searchParams.get('aportar') === '1')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [confirmingContributionId, setConfirmingContributionId] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const contributionsRef = useRef<HTMLUListElement>(null)
+
+  // Consome o parametro: recarregar a pagina depois de cancelar nao reabre o formulario.
+  useEffect(() => {
+    if (searchParams.get('aportar') === '1') {
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   useEffect(() => {
     if (!id) return
@@ -151,7 +160,10 @@ export function MetaDetalhePage() {
       </div>
       <div className="meta-detalhe-page__amounts">
         <span className="meta-detalhe-page__current">{centsToBRL(goal.currentAmountCents)}</span>
-        <span className="meta-detalhe-page__target"> de {centsToBRL(goal.target_amount_cents)}</span>
+        <span className="meta-detalhe-page__target">
+          {' '}
+          de {centsToBRL(goal.target_amount_cents)}
+        </span>
       </div>
       <div className="meta-detalhe-page__bar-track">
         <div className="meta-detalhe-page__bar-fill" style={{ width: `${percent}%` }} />

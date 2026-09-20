@@ -1,0 +1,77 @@
+/* Alinhado à direita da linha de filtros; mesma altura mínima de toque (40px) e mesmo vidro
+   sutil dos controles segmentados. */
+.report-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.report-view-toggle:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+.report-view-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.report-view-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.report-view-toggle--on {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-color: var(--color-accent);
+  color: #edeae2;
+  font-weight: 600;
+}
+
+.report-view-toggle__label {
+  white-space: nowrap;
+}
+
+.report-view-toggle__track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.report-view-toggle--on .report-view-toggle__track {
+  background: var(--color-accent);
+}
+
+.report-view-toggle__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #edeae2;
+  transition: transform 0.15s ease;
+}
+
+.report-view-toggle--on .report-view-toggle__knob {
+  transform: translateX(14px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-view-toggle__knob {
+    transition: none;
+  }
+}

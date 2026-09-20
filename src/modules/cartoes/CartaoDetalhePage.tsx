@@ -4,21 +4,19 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { Button } from '../../components/ui/Button'
-import { EssentialBadge } from '../../components/ui/EssentialBadge'
 import { ApiError } from '../../services/api'
-import { centsToBRL } from '../../utils/currency'
-import { formatDateBR } from '../../utils/date'
 import { categoriasService } from '../categorias/categorias.service'
 import type { Category } from '../categorias/categorias.types'
 import { CompraEditForm } from '../compras/CompraEditForm'
 import { CompraForm } from '../compras/CompraForm'
 import type { CreateCompraFormData, UpdateCompraFormData } from '../compras/compras.schemas'
 import type { Purchase } from '../compras/compras.types'
+import { CartaoComprasSection } from './CartaoComprasSection'
 import { CartaoVisual } from './CartaoVisual'
 import { cartoesService } from './cartoes.service'
 import type { CreditCard } from './cartoes.types'
-import { PurchaseStatusBadge } from './PurchaseStatusBadge'
 import './CartaoDetalhePage.css'
+import './HoloBackground.css'
 
 type Mode =
   | { type: 'view' }
@@ -109,7 +107,11 @@ export function CartaoDetalhePage() {
     setSubmitting(true)
     setFormError(null)
     try {
-      await cartoesService.updatePurchase(mode.purchase.id, data, mode.purchase.has_paid_installment)
+      await cartoesService.updatePurchase(
+        mode.purchase.id,
+        data,
+        mode.purchase.has_paid_installment,
+      )
       setMode({ type: 'view' })
       setRefreshKey((key) => key + 1)
     } catch (error) {
@@ -165,7 +167,7 @@ export function CartaoDetalhePage() {
 
   if (mode.type === 'create-purchase') {
     return (
-      <div className="cartao-detalhe-page">
+      <div className="cartao-detalhe-page holo-bg">
         <PageHeader title="Nova compra" />
         <CompraForm
           categories={categories}
@@ -181,7 +183,7 @@ export function CartaoDetalhePage() {
 
   if (mode.type === 'edit-purchase') {
     return (
-      <div className="cartao-detalhe-page">
+      <div className="cartao-detalhe-page holo-bg">
         <PageHeader title="Editar compra" />
         <CompraEditForm
           purchase={mode.purchase}
@@ -198,19 +200,19 @@ export function CartaoDetalhePage() {
   }
 
   if (loading) {
-    return <div className="cartao-detalhe-page" />
+    return <div className="cartao-detalhe-page holo-bg" />
   }
 
   if (!card) {
     return (
-      <div className="cartao-detalhe-page">
+      <div className="cartao-detalhe-page holo-bg">
         <FormError message={loadError ?? 'Não foi possível carregar o cartão.'} />
       </div>
     )
   }
 
   return (
-    <div className="cartao-detalhe-page">
+    <div className="cartao-detalhe-page holo-bg">
       <Link to="/cartoes" className="cartao-detalhe-page__back">
         ← Cartões
       </Link>
@@ -226,7 +228,9 @@ export function CartaoDetalhePage() {
         }
       />
       <FormError message={loadError} />
-      <CartaoVisual card={card} size="large" />
+      {/* Pedido explícito: contactless nos dois cartões agora (antes só o Nubank,
+          decisão revertida). */}
+      <CartaoVisual card={card} size="large" hasContactless />
       <div className="cartao-detalhe-page__meta">
         <span>
           Fecha dia {card.closing_day} · Vence dia {card.due_day}
@@ -236,75 +240,16 @@ export function CartaoDetalhePage() {
         Ver faturas
       </Link>
 
-      <h2 className="cartao-detalhe-page__section-title">Histórico de compras</h2>
       <FormError message={actionError} />
-      {purchases.length === 0 ? (
-        <div className="cartao-detalhe-page__empty">
-          <p>Nenhuma compra registrada nesse cartão ainda.</p>
-          <p>Crie a primeira compra pra começar a acompanhar o uso do limite.</p>
-        </div>
-      ) : (
-        <ul className="cartao-detalhe-page__purchases">
-          {purchases.map((purchase) => {
-            const isConfirmingDelete = confirmingDeleteId === purchase.id
-            return (
-              <li key={purchase.id} className="cartao-detalhe-page__purchase-row">
-                <span className="cartao-detalhe-page__purchase-date">
-                  {formatDateBR(purchase.purchase_date)}
-                </span>
-                <div className="cartao-detalhe-page__purchase-info">
-                  <div className="cartao-detalhe-page__purchase-description-row">
-                    <span className="cartao-detalhe-page__purchase-description">
-                      {purchase.description}
-                    </span>
-                    <EssentialBadge isEssential={purchase.is_essential} />
-                    <PurchaseStatusBadge status={purchase.payment_status} />
-                  </div>
-                  <span className="cartao-detalhe-page__purchase-meta">
-                    {purchase.category_icon ?? '📁'} {purchase.category_name} ·{' '}
-                    {purchase.installments_count}x
-                  </span>
-                </div>
-                <span className="cartao-detalhe-page__purchase-amount">
-                  {centsToBRL(purchase.total_amount_cents)}
-                </span>
-                <div className="cartao-detalhe-page__purchase-actions">
-                  {isConfirmingDelete ? (
-                    <>
-                      <button
-                        type="button"
-                        className="cartao-detalhe-page__confirm-delete"
-                        onClick={() => handleDeleteClick(purchase)}
-                      >
-                        Confirmar exclusão?
-                      </button>
-                      <button
-                        type="button"
-                        className="cartao-detalhe-page__cancel-delete"
-                        onClick={() => setConfirmingDeleteId(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" onClick={() => handleDuplicateClick(purchase)}>
-                        Duplicar
-                      </button>
-                      <button type="button" onClick={() => handleEditClick(purchase)}>
-                        Editar
-                      </button>
-                      <button type="button" onClick={() => handleDeleteClick(purchase)}>
-                        Excluir
-                      </button>
-                    </>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <CartaoComprasSection
+        purchases={purchases}
+        categories={categories}
+        confirmingDeleteId={confirmingDeleteId}
+        onDuplicate={handleDuplicateClick}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteClick}
+        onCancelDelete={() => setConfirmingDeleteId(null)}
+      />
     </div>
   )
 }

@@ -34,13 +34,29 @@
   gap: 16px;
 }
 
+/* Vidro fosco — mesmos valores dos cards de vidro do Dashboard (.summary-cards__stat-card--glass:
+   branco translúcido + blur + borda clara, mais clara no topo). Avatar, layout e botões
+   ficam como estavam; só o fundo (antes --color-bg-elevated, opaco) mudou.
+   position:relative + o :has() abaixo: o backdrop-filter faz de cada card um stacking
+   context, e o menu "Mais opções" (position:absolute, z-index só dentro do card) ficava
+   ATRÁS dos cards seguintes do grid — mesmo bug do dropdown de filtros. Enquanto o menu do
+   card está aberto, ele sobe acima dos irmãos. */
 .contas-grid__card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: var(--color-bg-elevated);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
   border-radius: 12px;
   padding: 16px;
+}
+
+.contas-grid__card:has([aria-expanded='true']) {
+  z-index: 5;
 }
 
 .contas-grid__header {

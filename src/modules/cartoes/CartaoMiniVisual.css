@@ -1,129 +1,235 @@
-/* Wrapper com espaço reservado pro cartão "de trás" (stack) — sem isso o deslocamento do
-   stack fica cortado por overflow do ancestral. */
+/* Contêiner relativo — as duas camadas (cartão inclinado + vidro horizontal) são filhas
+   absolutas dele. Fundo TOTALMENTE transparente + borda fina como moldura — as quinas do
+   wrap, onde o cartão rotacionado (menor que o wrap, ver .card) não alcança, mostram esse
+   fundo transparente (o painel por trás aparece) de propósito — são os 4 triângulos
+   escuros da referência, não espaço "sobrando" por engano. overflow:hidden aqui é só
+   precaução (o cartão cabe inteiro sem precisar de corte, ver .card). */
 .cartao-mini-visual-wrap {
+  /* 12px → 20px (entre rounded-2xl e rounded-3xl do Tailwind) — pedido de rodada
+     anterior, mantido. Camada 1 (.card) e a base da Camada 2 (.footer) usam a MESMA
+     variável, pra acompanhar exatamente essa curvatura. */
+  --cartao-mini-radius: 20px;
   position: relative;
-  padding-top: 5px;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1.586 / 1;
+  border-radius: var(--cartao-mini-radius);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.cartao-mini-visual {
-  position: relative;
+/* CAMADA 1 — cartão colorido: MENOR que o wrap (6% de margem lateral), inclinado a -4deg.
+   Mudança de abordagem: rodadas anteriores faziam o cartão MAIOR que o wrap e cortavam o
+   excesso com overflow:hidden — isso minimizava o vazio nas quinas, que é justamente o
+   que faz a rotação parecer óbvia na referência (triângulos escuros nos 4 cantos). Agora é
+   o inverso: o cartão cabe inteiro, rotacionado, dentro do espaço disponível, sem precisar
+   de nenhum corte. top:0;bottom:0;margin:auto 0 centraliza verticalmente a altura definida
+   por aspect-ratio (1.58/1, proporção real de cartão de crédito) dentro do wrap — mais
+   robusto que calcular um top:X% fixo à mão. 6% de margem + -4deg é o par medido (checando
+   os 4 cantos do retângulo rotacionado via matriz) que cabe inteiro com folga positiva nos
+   dois eixos, sem cortar nada. */
+.cartao-mini-visual__card {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6%;
+  right: 6%;
+  margin: auto 0;
+  aspect-ratio: 1.58 / 1;
   z-index: 1;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: var(--cartao-mini-radius);
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   color: #f5f3ee;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  /* Leve inclinação — mesma ideia do CartaoVisual de tela cheia, só um pouco mais sutil
-     nesse tamanho compacto. */
-  transform: rotate(-1.5deg);
-  transform-origin: bottom left;
+  transform: rotate(-4deg);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
 }
 
-/* Sheen sutil, mesmo padrão do CartaoVisual de tela cheia */
-.cartao-mini-visual::before {
+/* Sheen sutil no canto superior — textura leve sem competir com o texto */
+.cartao-mini-visual__card::before {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background: radial-gradient(circle at 85% -10%, rgba(255, 255, 255, 0.2), transparent 55%);
   pointer-events: none;
 }
 
-/* Cartão decorativo por baixo, mesmo gradiente do cartão real — só profundidade visual. */
-.cartao-mini-visual__stack {
-  position: absolute;
-  inset: 5px 6px auto 6px;
-  height: calc(100% - 5px);
-  border-radius: 12px;
-  transform: rotate(4deg) translate(8px, 4px);
-  filter: brightness(0.65) saturate(0.85);
-  opacity: 0.8;
-  z-index: 0;
-}
-
-.cartao-mini-visual__header {
-  position: relative;
+/* margin-top/left — chip e wordmark posicionados com folga da borda do CARTÃO (que agora
+   é menor que o wrap e centralizado, ver .card) — valor generoso mantido da rodada
+   anterior, ainda válido e medido (folga positiva confirmada nas bordas visíveis do
+   wrap). */
+.cartao-mini-visual__top-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   gap: 8px;
+  margin-top: 20px;
+  margin-left: 16px;
 }
 
-/* Wordmark estilizado (não um logo de verdade) — mesma ideia do CartaoVisual de tela
-   cheia, evocando um logotipo sem reproduzir a identidade visual real de nenhum banco. */
-.cartao-mini-visual__logo {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.cartao-mini-visual__contactless {
-  opacity: 0.85;
-  transform: rotate(90deg);
+/* Chip EMV desenhado em CSS puro (sem SVG/imagem) — RESTAURADO ao padrão cinza metálico
+   de antes (a tentativa de "sulco em relevo" com pares de 1px da rodada anterior saiu
+   bege/creme e com linhas de aparência tracejada — regressão, revertida). Gradiente
+   simples de 2 tons + contorno externo escurecido, sem box-shadow extra. 24x18 → 29x22
+   (+20%, mantido de rodada anterior — só a cor/padrão regrediu, não o tamanho). */
+.cartao-mini-visual__chip {
+  position: relative;
+  width: 29px;
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #b7b3b2, #8a8886);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  overflow: hidden;
   flex: 0 0 auto;
 }
 
-/* Chip EMV estilizado — mesma técnica do CartaoVisual de tela cheia, só menor. */
-.cartao-mini-visual__chip {
-  position: relative;
-  width: 24px;
-  height: 18px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #f3d98b, #b8933f);
-  overflow: hidden;
-}
-
+/* Padrão de 6 contatos (2 colunas x 3 linhas), como um chip EMV real. 1 divisória vertical
+   central cria as 2 colunas; o gradiente a 165deg (perto de 180deg/"to bottom") cria as
+   divisórias "horizontais" com leve ângulo — não retas, não tracejadas. */
 .cartao-mini-visual__chip-lines {
   position: absolute;
-  inset: 0;
+  inset: 1px;
   background:
-    linear-gradient(to right, transparent 45%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.35) 55%, transparent 55%),
-    linear-gradient(to bottom, transparent 35%, rgba(0, 0, 0, 0.3) 35%, rgba(0, 0, 0, 0.3) 65%, transparent 65%);
+    linear-gradient(to right, transparent 47%, rgba(0, 0, 0, 0.4) 47%, rgba(0, 0, 0, 0.4) 53%, transparent 53%),
+    linear-gradient(
+      165deg,
+      transparent 28%,
+      rgba(0, 0, 0, 0.4) 28%,
+      rgba(0, 0, 0, 0.4) 32%,
+      transparent 32%,
+      transparent 64%,
+      rgba(0, 0, 0, 0.4) 64%,
+      rgba(0, 0, 0, 0.4) 68%,
+      transparent 68%
+    );
 }
 
-/* Canal TOTALMENTE opaco (--color-bg-base, sem transparência) e independente da cor do
-   cartão — um overlay translúcido não bastava: sobre o verde claro do PicPay a barra de
-   aviso terracota caía pra ~1:1 de contraste WCAG. Sólido garante ~3.8:1 contra terracota
-   e ~17:1 contra o preenchimento normal (cream), com qualquer cor de banco por trás. */
-.cartao-mini-visual__progress {
-  position: relative;
-  background: var(--color-bg-base);
-  border-radius: 999px;
-  padding: 3px;
+/* Ícone de contactless (ondas de sinal, lucide-react "Nfc") — branco puro a 80% de
+   opacidade (não mais 70%), não tingido na cor do banco. */
+.cartao-mini-visual__contactless {
+  color: rgba(255, 255, 255, 0.8);
+  flex: 0 0 auto;
 }
 
+/* Wordmark — nome real do cartão (dado do usuário), tipografia genérica em itálico, não
+   um logo/fonte de marca. margin-left:auto empurra ele pro fim da .top-row. font-size
+   aumentado (15px→19px) — pedido explícito de nome do cartão maior. */
+.cartao-mini-visual__logo {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  font-style: italic;
+  margin-left: auto;
+}
+
+/* Selo de bandeira genérico (dois círculos, não uma marca real) — filho da Camada 1, gira
+   junto com ela. RESTAURADO: fica ACIMA da faixa de vidro (não mais mergulhado nela) —
+   a tentativa de deixar o brilho "vazar" através do backdrop-filter virou uma mancha
+   borrada única (regressão, revertida). Os círculos ficam nítidos, sem blur nenhum;
+   só a área ao redor deles (o vidro, ver .footer) pode ficar fosca. bottom recalculado
+   pra esse canto do cartão sobrar acima do topo do rodapé (ver .footer height:28%),
+   medido via getBoundingClientRect. display:flex + margin-left negativo no segundo
+   círculo cria a sobreposição. isolation:isolate escopa o mix-blend-mode do círculo
+   laranja contra o vermelho. */
+.cartao-mini-visual__badge {
+  position: absolute;
+  right: 32px;
+  bottom: 88px;
+  display: flex;
+  isolation: isolate;
+}
+
+.cartao-mini-visual__badge-circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+/* Vermelho e laranja clássicos (#EB001B / #F79E1B) — cores sólidas e nítidas, sem
+   depender de nenhum blur pra "acender". */
+.cartao-mini-visual__badge-circle--red {
+  background: #eb001b;
+}
+
+/* margin-left negativo sobrepõe metade do círculo vermelho. hard-light testado por
+   composição de canvas contra as 8 opções do spec, foi a mais próxima de um laranja
+   "bandeira genérica" na interseção. */
+.cartao-mini-visual__badge-circle--orange {
+  margin-left: -10px;
+  background: #f79e1b;
+  mix-blend-mode: hard-light;
+}
+
+/* CAMADA 2 — "bolso" de vidro: bottom:0, width:100% (mais largo que o cartão inclinado,
+   que tem 6% de margem de cada lado), SEM rotação — fica sempre horizontal, por cima da
+   Camada 1 (z-index:10 > 1). Fundo escuro translúcido LEVE (0.4, não mais 0.6) — a 0.6 o
+   vidro ficava opaco demais e apagava o selo de bandeira por trás (bug real: círculos
+   saturados mas quase invisíveis sob a camada escura). 0.4 + blur(12px, não mais 16px)
+   deixa o brilho atravessar de forma controlada, sem virar névoa (blur mais fraco = menos
+   espalhamento) nem desaparecer (opacidade mais baixa = mais luz passa). */
+.cartao-mini-visual__footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 28%;
+  z-index: 10;
+  border-radius: 0 0 var(--cartao-mini-radius) var(--cartao-mini-radius);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(42, 46, 53, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* 0.1 → 0.2 — linha superior mais brilhante, pedido explícito. */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Fundo bem mais escuro que a versão anterior (quase preto, não mais preto a 40%) —
+   pedido explícito, pra bater com a imagem de referência. */
 .cartao-mini-visual__bar-track {
-  height: 4px;
-  border-radius: 999px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #17191c;
   overflow: hidden;
 }
 
 .cartao-mini-visual__bar-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: 9999px;
 }
 
-/* <=70%: verde ("tranquilo") — mesma cor de sucesso usada em Orçamentos/BudgetComparisonChart. */
+/* <70%: cinza bem claro com brilho branco mais difuso e intenso (12px/0.7, não mais
+   8px/0.4) — pedido explícito, "simular emissão de luz real". */
 .cartao-mini-visual__bar-fill--ok {
-  background: var(--color-accent-income);
+  background: #e5e7eb;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
 }
 
-/* 70-100%: âmbar ("atenção"). */
+/* 70-100%: âmbar ("atenção"), mesmo tratamento de brilho reforçado pra ficar consistente. */
 .cartao-mini-visual__bar-fill--warning {
   background: #d9a441;
+  box-shadow: 0 0 12px rgba(217, 164, 65, 0.6);
 }
 
-/* >100%: terracota ("excedido"). */
+/* >100%: terracota ("excedido"), idem. */
 .cartao-mini-visual__bar-fill--danger {
   background: var(--color-accent-expense);
+  box-shadow: 0 0 12px rgba(178, 84, 58, 0.6);
 }
 
+/* text-xs/font-normal/text-white-80 — texto do saldo estava visualmente pesado
+   (font-weight herdado do .card não pegava aqui, mas deixo explícito) e com contraste
+   alto demais; mais leve e discreto (pedido explícito). */
 .cartao-mini-visual__available {
-  position: relative;
   font-size: 12px;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.8);
 }

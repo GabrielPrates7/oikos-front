@@ -23,6 +23,8 @@ function usageLabel(count: number): string {
 
 interface CategoriaSectionProps {
   title: string
+  // Cor semantica so do texto do titulo da coluna (nao da coluna inteira).
+  tone: 'expense' | 'income'
   categories: Category[]
   page: number
   totalPages: number
@@ -36,6 +38,7 @@ interface CategoriaSectionProps {
 // outra seção.
 function CategoriaSection({
   title,
+  tone,
   categories,
   page,
   totalPages,
@@ -72,7 +75,7 @@ function CategoriaSection({
 
   return (
     <section className="categorias-list__section" ref={containerRef}>
-      <h2 className="categorias-list__title">{title}</h2>
+      <h2 className={`categorias-list__title categorias-list__title--${tone}`}>{title}</h2>
       <ul className="categorias-list__rows">
         {categories.map((category) => {
           const isOwn = category.user_id !== null
@@ -135,8 +138,8 @@ function CategoriaSection({
           (os padrões sozinhos não chegam a 20), então restringir a página 1 é seguro. */}
       {page === 1 && ownCount === 0 && (
         <p className="categorias-list__hint">
-          Você ainda não tem categorias de {title.toLowerCase()} próprias. Crie uma pra
-          personalizar seus lançamentos.
+          Você ainda não tem categorias de {title.toLowerCase()} próprias. Crie uma pra personalizar
+          seus lançamentos.
         </p>
       )}
       <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
@@ -160,6 +163,7 @@ export function CategoriasList({
     <div className="categorias-list">
       <CategoriaSection
         title="Despesas"
+        tone="expense"
         categories={expenseCategories}
         page={expensePage}
         totalPages={expenseTotalPages}
@@ -169,6 +173,7 @@ export function CategoriasList({
       />
       <CategoriaSection
         title="Entradas"
+        tone="income"
         categories={incomeCategories}
         page={incomePage}
         totalPages={incomeTotalPages}

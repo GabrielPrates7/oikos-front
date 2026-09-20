@@ -1,9 +1,25 @@
+/* Mesmo vidro fosco de "Últimas transações"/"Análise de Saúde Financeira"
+   (.dashboard-panel--glass: blur + borda clara sutil), só que com tint esverdeado em vez
+   de neutro — rgba(82, 114, 102, X) é #527266, a mesma cor-base do gradiente do card
+   "Total exibido" (EntradasTotalCard.css), não uma paleta nova. Borda continua neutra/clara
+   (mesma família das outras telas de vidro fosco), só o preenchimento do fundo ganha o
+   verde. */
+.entradas-list__filters-panel {
+  background: rgba(82, 114, 102, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
 .entradas-list__filters {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 .entradas-list__filter-field {
@@ -21,8 +37,19 @@
   color: var(--color-text-muted);
 }
 
+/* appearance:none nos dois — investigando por que "De"/"Até" pareciam mais escuros que
+   "Conta"/"Categoria"/"Mês" (mesmo com o MESMO background-color declarado, confirmado via
+   getComputedStyle: var(--color-bg-base) nos dois), a causa real era o INVERSO do que
+   parecia: o <select> nativo (appearance:auto) pinta um verniz/relevo mais claro por cima
+   do background do autor nesse motor de renderização — testado isolando com
+   appearance:none só no <select>, que escureceu pra bater com o <input type="date">
+   (esse já mostrava a cor certa o tempo todo). Sem appearance:none uniforme aqui, os dois
+   tipos de campo nunca bateriam de verdade — um sempre teria o verniz nativo, o outro não.
+   Seta customizada via background-image abaixo substitui a seta nativa que o select perde. */
 .entradas-list__filter-field select,
 .entradas-list__filter-field input {
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--color-bg-base);
   border: 1px solid var(--color-bg-elevated);
   border-radius: 8px;
@@ -31,6 +58,13 @@
   color: var(--color-text-primary);
   font-family: var(--font-body);
   cursor: pointer;
+}
+
+.entradas-list__filter-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
 }
 
 .entradas-list__filter-field select:focus-visible,
@@ -87,10 +121,21 @@
   outline-offset: 2px;
 }
 
-/* Tabela pode ficar mais larga que a viewport em mobile (6 colunas) — scroll horizontal
-   confinado a esse wrapper, nunca a página inteira. */
+/* Mesmo vidro fosco de "Últimas transações"/"Análise de Saúde Financeira"
+   (.dashboard-panel--glass: fundo branco translúcido + blur + borda clara sutil) — aqui
+   sim neutro (não esverdeado como o painel de filtros/card "Total exibido" logo acima),
+   já que essa é a receita padrão usada nos outros painéis de vidro fosco do app. Tabela
+   pode ficar mais larga que a viewport em mobile (6 colunas) — scroll horizontal confinado
+   a esse wrapper, nunca a página inteira. */
 .entradas-list__table-wrap {
   overflow-x: auto;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .entradas-list__table {
@@ -162,23 +207,33 @@
 }
 
 .entradas-list__actions {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
   white-space: nowrap;
 }
 
-.entradas-list__actions button {
-  background: transparent;
+/* Botões circulares com fundo visível (sutil) — antes eram ícones soltos sem contorno,
+   quase invisíveis fora do hover. :not() exclui os botões de texto (marcar como
+   recebida/confirmar exclusão/cancelar, logo abaixo), que têm seu próprio estilo. */
+.entradas-list__actions button:not(.entradas-list__mark-received):not(.entradas-list__confirm-delete):not(.entradas-list__cancel-delete) {
+  background: var(--color-bg-elevated);
   border: none;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.entradas-list__actions button:hover {
+.entradas-list__actions button:not(.entradas-list__mark-received):not(.entradas-list__confirm-delete):not(.entradas-list__cancel-delete):hover {
   color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
 }
 
 .entradas-list__actions button:focus-visible {
@@ -186,23 +241,27 @@
   outline-offset: 2px;
 }
 
-/* Mesmo tratamento visual de DespesasList: pendente (aqui, "não recebida") usa a cor de
-   despesa de propósito — sinaliza "precisa de atenção", não a direção do dinheiro. */
+/* Decisão revertida: antes usava --color-accent-expense (vermelho/terracota) de propósito
+   pra sinalizar "precisa de atenção" — mas isso ambiguava com despesa/dívida (mesma cor,
+   contexto oposto: aqui é dinheiro que ainda vai ENTRAR, não uma saída em aberto). Ouro
+   (--color-accent-gold) sinaliza "pendente de confirmação" sem se confundir com o
+   vermelho de Falta Pagar/despesas, que continua vermelho de propósito — contextos
+   diferentes (dívida vs. entrada não confirmada), cores diferentes. */
 .entradas-list__row--pending {
-  background: color-mix(in srgb, var(--color-accent-expense) 8%, transparent);
+  background: color-mix(in srgb, var(--color-accent-gold) 8%, transparent);
 }
 
 .entradas-list__row--pending td:first-child {
-  box-shadow: inset 4px 0 0 var(--color-accent-expense);
+  box-shadow: inset 4px 0 0 var(--color-accent-gold);
 }
 
 .entradas-list__pending-badge {
   display: inline-flex;
   align-items: center;
-  color: var(--color-accent-expense);
+  color: var(--color-accent-gold);
   font-size: 11px;
   font-weight: 600;
-  border: 1px solid var(--color-accent-expense);
+  border: 1px solid var(--color-accent-gold);
   border-radius: 999px;
   padding: 2px 8px;
   white-space: nowrap;

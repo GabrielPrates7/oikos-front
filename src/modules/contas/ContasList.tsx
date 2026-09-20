@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
 import { DropdownMenu } from '../../components/ui/DropdownMenu'
-import { ListTotal } from '../../components/ui/ListTotal'
 import { Pagination } from '../../components/ui/Pagination'
 import { getBankColor } from '../../utils/bankColors'
 import { centsToBRL } from '../../utils/currency'
+import { EntradasTotalCard } from '../entradas/EntradasTotalCard'
 import { ACCOUNT_TYPE_LABELS } from './contas.types'
 import type { Account, AccountStatusFilter } from './contas.types'
 import './ContasList.css'
@@ -85,7 +85,14 @@ export function ContasList({
         </div>
       ) : (
         <>
-          <ListTotal items={[{ label: 'Total exibido', valueCents: sumCents }]} />
+          <EntradasTotalCard
+            showTrend={false}
+            sumCents={sumCents}
+            points={accounts.map((account) => ({
+              date: account.created_at,
+              amountCents: account.balanceCents,
+            }))}
+          />
           <div className="contas-grid">
             {accounts.map((account) => {
               const isConfirmingArchive =
