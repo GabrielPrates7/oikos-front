@@ -94,8 +94,10 @@
   cursor: pointer;
 }
 
-.ui-combobox__option:hover {
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .ui-combobox__option:hover {
+    background: var(--color-bg-elevated);
+  }
 }
 
 .ui-combobox__option--active {

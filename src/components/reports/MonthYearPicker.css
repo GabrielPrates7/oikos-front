@@ -39,3 +39,35 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* Mobile: com os selects a 16px (regra global em index.css) a fileira "‹ mês ano ›" passava da
+   borda do painel de filtros em 320px. Os selects passam a dividir o espaço que sobra e podem
+   encolher (min-width:0), então a fileira sempre cabe no painel. */
+@media (max-width: 767.98px) {
+  .month-year-picker {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .month-year-picker__row {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .month-year-picker__row {
+    gap: 4px;
+  }
+
+  .month-year-picker__row > button {
+    flex: 0 0 auto;
+    padding: 4px;
+  }
+
+  .month-year-picker__select,
+  .month-year-picker__select--year {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 7px 22px 7px 8px;
+    background-position: right 6px center;
+  }
+}

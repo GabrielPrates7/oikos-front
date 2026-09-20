@@ -112,8 +112,10 @@
   height: fit-content;
 }
 
-.entradas-list__clear-filters:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .entradas-list__clear-filters:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .entradas-list__clear-filters:focus-visible {
@@ -161,8 +163,10 @@
   transition: background-color 0.15s ease;
 }
 
-.entradas-list__table tbody tr:hover {
-  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .entradas-list__table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  }
 }
 
 .entradas-list__table td {
@@ -231,9 +235,11 @@
   justify-content: center;
 }
 
-.entradas-list__actions button:not(.entradas-list__mark-received):not(.entradas-list__confirm-delete):not(.entradas-list__cancel-delete):hover {
-  color: var(--color-text-primary);
-  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+@media (hover: hover) and (pointer: fine) {
+  .entradas-list__actions button:not(.entradas-list__mark-received):not(.entradas-list__confirm-delete):not(.entradas-list__cancel-delete):hover {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+  }
 }
 
 .entradas-list__actions button:focus-visible {
@@ -281,9 +287,11 @@
   white-space: nowrap;
 }
 
-.entradas-list__actions .entradas-list__mark-received:hover {
-  color: var(--color-accent-income);
-  background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .entradas-list__actions .entradas-list__mark-received:hover {
+    color: var(--color-accent-income);
+    background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+  }
 }
 
 .entradas-list__confirm-delete,

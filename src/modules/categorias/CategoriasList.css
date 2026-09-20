@@ -100,9 +100,11 @@
   display: flex;
 }
 
-.categorias-list__actions button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .categorias-list__actions button:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+  }
 }
 
 .categorias-list__actions button:focus-visible {

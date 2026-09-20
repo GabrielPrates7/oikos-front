@@ -34,6 +34,8 @@
   border-radius: 999px;
 }
 
-.category-breakdown-chart__scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .category-breakdown-chart__scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
 }

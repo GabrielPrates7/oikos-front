@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AuroraBackground } from './AuroraBackground'
 import { BottomNav } from './BottomNav'
-import { Header } from './Header'
+import { MoreSheet } from './MoreSheet'
 import { Sidebar } from './Sidebar'
+import { useIsMobile } from './useIsMobile'
 import './Shell.css'
 
 const SIDEBAR_COLLAPSED_KEY = 'oikos:sidebar-collapsed'
 
 export function Shell() {
   const { pathname } = useLocation()
+  const isMobile = useIsMobile()
   const isExpenseTheme = pathname.startsWith('/despesas')
   const isTransferTheme = pathname.startsWith('/transferencias')
   const isInvoiceTheme = pathname.startsWith('/faturas')
@@ -23,6 +25,14 @@ export function Shell() {
       return false
     }
   })
+  // A folha "Mais" guarda a rota em que foi aberta: trocar de rota (ou cruzar pro desktop) a fecha
+  // sem efeito nenhum — o estado é derivado.
+  const [moreOpenedOn, setMoreOpenedOn] = useState<string | null>(null)
+  const moreOpen = isMobile && moreOpenedOn === pathname
+  // Limpa o valor obsoleto (senão a folha reabriria ao voltar pra mesma rota).
+  if (moreOpenedOn !== null && !moreOpen) setMoreOpenedOn(null)
+  const moreButtonRef = useRef<HTMLButtonElement>(null)
+  const closeMore = useCallback(() => setMoreOpenedOn(null), [])
 
   useEffect(() => {
     try {
@@ -43,12 +53,20 @@ export function Shell() {
       <div className="shell__main">
         {/* Fundo aurora só em /relatorios/*: montado por rota, desmonta ao sair. */}
         {isReportsTheme && <AuroraBackground />}
-        <Header />
         <main className="shell__content">
           <Outlet />
         </main>
       </div>
-      <BottomNav />
+      {isMobile && (
+        <>
+          <BottomNav
+            moreOpen={moreOpen}
+            onToggleMore={() => setMoreOpenedOn(moreOpen ? null : pathname)}
+            moreButtonRef={moreButtonRef}
+          />
+          <MoreSheet open={moreOpen} onClose={closeMore} returnFocusRef={moreButtonRef} />
+        </>
+      )}
     </div>
   )
 }

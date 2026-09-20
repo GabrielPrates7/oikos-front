@@ -23,8 +23,10 @@
   cursor: pointer;
 }
 
-.cartoes-list__filter:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .cartoes-list__filter:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .cartoes-list__filter--active {
@@ -39,7 +41,7 @@
 
 .cartoes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 24px 16px;
 }
 
@@ -85,8 +87,10 @@
   text-decoration: none;
 }
 
-.cartoes-grid__move-button:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .cartoes-grid__move-button:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 .cartoes-grid__confirm {

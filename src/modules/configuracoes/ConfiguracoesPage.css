@@ -31,9 +31,11 @@
   font-weight: 500;
 }
 
-.configuracoes-page__tab:hover {
-  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .configuracoes-page__tab:hover {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-text-primary);
+  }
 }
 
 .configuracoes-page__tab--active {
@@ -60,14 +62,32 @@
   min-width: 0;
 }
 
-@media (max-width: 560px) {
+/* Mobile (< 768px, mesmo ponto do Shell): as abas viram uma fileira no topo e o conteúdo ocupa
+   100% da largura útil (antes, entre 561 e 767px a coluna de 160px das abas comia ~1/3 da tela e
+   o card ficava com ~68%). Abas e botões com alvo de toque >= 44px. */
+@media (max-width: 767.98px) {
   .configuracoes-page__layout {
     flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
   }
 
   .configuracoes-page__tabs {
     flex-direction: row;
     flex-wrap: wrap;
     flex: 0 0 auto;
+  }
+
+  .configuracoes-page__tab {
+    min-height: 44px;
+    padding: 0 12px;
+  }
+
+  .configuracoes-page__content {
+    width: 100%;
+  }
+
+  .configuracoes-page .ui-button {
+    min-height: 44px;
   }
 }

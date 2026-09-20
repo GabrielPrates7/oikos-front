@@ -6,8 +6,10 @@
   margin-bottom: 12px;
 }
 
-.meta-detalhe-page__back:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .meta-detalhe-page__back:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .meta-detalhe-page__back:focus-visible {
@@ -132,9 +134,11 @@
   display: flex;
 }
 
-.meta-detalhe-page__contribution-actions button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .meta-detalhe-page__contribution-actions button:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+  }
 }
 
 .meta-detalhe-page__contribution-actions button:focus-visible {

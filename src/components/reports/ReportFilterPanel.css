@@ -92,8 +92,10 @@
   height: fit-content;
 }
 
-.report-filters__clear:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .report-filters__clear:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .report-filters__clear:focus-visible,

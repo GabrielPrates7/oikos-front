@@ -14,8 +14,10 @@
   cursor: pointer;
 }
 
-.contas-list__filter:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .contas-list__filter:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .contas-list__filter--active {
@@ -30,7 +32,7 @@
 
 .contas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
   gap: 16px;
 }
 
@@ -139,8 +141,10 @@
   font-family: var(--font-body);
 }
 
-.contas-grid__move-button:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .contas-grid__move-button:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 .contas-grid__move-trigger {

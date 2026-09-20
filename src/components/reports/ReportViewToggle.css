@@ -17,8 +17,10 @@
   cursor: pointer;
 }
 
-.report-view-toggle:hover:not(:disabled) {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .report-view-toggle:hover:not(:disabled) {
+    color: var(--color-text-primary);
+  }
 }
 
 .report-view-toggle:focus-visible {

@@ -6,8 +6,10 @@
   margin-bottom: 12px;
 }
 
-.cartao-detalhe-page__back:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .cartao-detalhe-page__back:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .cartao-detalhe-page__back:focus-visible {
@@ -33,8 +35,10 @@
   margin-bottom: 32px;
 }
 
-.cartao-detalhe-page__invoices-link:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .cartao-detalhe-page__invoices-link:hover {
+    text-decoration: underline;
+  }
 }
 
 .cartao-detalhe-page__invoices-link:focus-visible {

@@ -11,8 +11,10 @@
   cursor: pointer;
 }
 
-.comparativo-tab__swap:hover {
-  background: rgba(255, 255, 255, 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .comparativo-tab__swap:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .comparativo-tab__swap:focus-visible {

@@ -1,5 +1,5 @@
 /* Fundo aurora (só /relatorios/*). Camada FIXA atrás do conteúdo: z-index 0 aqui, enquanto
-   .header e .shell__content (Shell.css) são z-index 1, BottomNav 10, MobileMenu 20 e os
+   .shell__content (Shell.css) é z-index 1, BottomNav 10, folha "Mais" 100 e os
    portais (Combobox, menu do Sidebar) 1000 — tudo continua acima. Nenhum stacking context é
    criado fora desta árvore. Nunca por cima da Sidebar (mesma regra de .shell__main::before).
 

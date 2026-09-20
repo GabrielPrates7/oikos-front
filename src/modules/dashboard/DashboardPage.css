@@ -105,8 +105,10 @@
   cursor: pointer;
 }
 
-.dashboard-page__nova-transacao-button:hover {
-  filter: brightness(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .dashboard-page__nova-transacao-button:hover {
+    filter: brightness(1.08);
+  }
 }
 
 .dashboard-page__nova-transacao-button:focus-visible {

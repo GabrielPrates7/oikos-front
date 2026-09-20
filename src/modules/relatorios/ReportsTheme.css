@@ -62,8 +62,10 @@
   color: var(--reports-muted);
 }
 
-.shell--theme-reports .tabs__link:not(.tabs__link--active):hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .shell--theme-reports .tabs__link:not(.tabs__link--active):hover {
+    color: var(--color-text-primary);
+  }
 }
 
 /* Títulos de seção da Visão Geral (só esses dois). */

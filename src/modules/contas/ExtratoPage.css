@@ -6,8 +6,10 @@
   margin-bottom: 12px;
 }
 
-.extrato-page__back:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .extrato-page__back:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .extrato-page__back:focus-visible {

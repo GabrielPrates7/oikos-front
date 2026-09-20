@@ -33,8 +33,10 @@
   cursor: pointer;
 }
 
-.transferencias-page__nova-transferencia-button:hover {
-  filter: brightness(1.12);
+@media (hover: hover) and (pointer: fine) {
+  .transferencias-page__nova-transferencia-button:hover {
+    filter: brightness(1.12);
+  }
 }
 
 .transferencias-page__nova-transferencia-button:focus-visible {

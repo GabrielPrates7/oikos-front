@@ -68,8 +68,10 @@
   height: fit-content;
 }
 
-.transferencias-list__clear-filters:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .transferencias-list__clear-filters:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .transferencias-list__clear-filters:focus-visible {
@@ -165,9 +167,11 @@
   justify-content: center;
 }
 
-.transferencias-list__actions button:not(.transferencias-list__confirm-delete):not(.transferencias-list__cancel-delete):hover {
-  color: var(--color-text-primary);
-  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+@media (hover: hover) and (pointer: fine) {
+  .transferencias-list__actions button:not(.transferencias-list__confirm-delete):not(.transferencias-list__cancel-delete):hover {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+  }
 }
 
 .transferencias-list__actions button:focus-visible {

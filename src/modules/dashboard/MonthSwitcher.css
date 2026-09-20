@@ -14,9 +14,11 @@
   display: flex;
 }
 
-.month-switcher button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .month-switcher button:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+  }
 }
 
 .month-switcher button:focus-visible {
@@ -30,4 +32,16 @@
   color: var(--color-text-primary);
   min-width: 140px;
   text-align: center;
+}
+
+/* Mobile: setas de mês do Dashboard com alvo de toque >= 44px. Os pickers de Relatórios reusam a
+   classe .month-switcher só pra layout (.month-year-picker__row) e ficam de fora: 2 setas de
+   44px + 2 selects não cabem em 320px. */
+@media (max-width: 767.98px) {
+  .month-switcher:not(.month-year-picker__row) button {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
 }

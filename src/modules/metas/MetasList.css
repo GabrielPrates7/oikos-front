@@ -1,6 +1,6 @@
 .metas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 16px;
 }
 
@@ -26,9 +26,11 @@
     box-shadow 0.18s ease;
 }
 
-.metas-grid__card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+@media (hover: hover) and (pointer: fine) {
+  .metas-grid__card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .metas-grid__card:has([aria-expanded='true']) {
@@ -71,8 +73,10 @@
   text-decoration: none;
 }
 
-.metas-grid__name:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .metas-grid__name:hover {
+    text-decoration: underline;
+  }
 }
 
 .metas-grid__name:focus-visible {
@@ -90,10 +94,16 @@
   color: var(--color-text-muted);
 }
 
-.metas-grid__card:hover .metas-grid__chevron,
 .metas-grid__name:focus-visible .metas-grid__chevron {
   opacity: 1;
   transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .metas-grid__card:hover .metas-grid__chevron {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -223,9 +233,11 @@
   cursor: pointer;
 }
 
-.metas-grid__aportar:hover {
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .metas-grid__aportar:hover {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    border-color: var(--color-accent);
+  }
 }
 
 .metas-grid__aportar:focus-visible {
@@ -278,10 +290,12 @@
   cursor: pointer;
 }
 
-.metas-grid__ghost:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-accent);
-  background: rgba(255, 255, 255, 0.04);
+@media (hover: hover) and (pointer: fine) {
+  .metas-grid__ghost:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 
 .metas-grid__ghost:focus-visible {

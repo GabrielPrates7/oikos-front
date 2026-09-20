@@ -32,9 +32,11 @@
   cursor: pointer;
 }
 
-.segmented-control__option:hover:not(:disabled):not(.segmented-control__option--selected) {
-  color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .segmented-control__option:hover:not(:disabled):not(.segmented-control__option--selected) {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.06);
+  }
 }
 
 /* Selecionada: fundo verde translúcido (~18%) + borda verde + texto #edeae2 em peso 600. */

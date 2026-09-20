@@ -28,8 +28,10 @@
   cursor: pointer;
 }
 
-.boolean-toggle__button:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .boolean-toggle__button:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .boolean-toggle__button--active {

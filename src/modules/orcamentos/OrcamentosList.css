@@ -111,9 +111,11 @@
   display: flex;
 }
 
-.orcamentos-list__actions button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .orcamentos-list__actions button:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+  }
 }
 
 .orcamentos-list__actions button:focus-visible {

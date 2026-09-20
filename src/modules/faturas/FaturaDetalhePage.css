@@ -6,8 +6,10 @@
   margin-bottom: 12px;
 }
 
-.fatura-detalhe-page__back:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .fatura-detalhe-page__back:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .fatura-detalhe-page__back:focus-visible {
@@ -187,9 +189,11 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.fatura-detalhe-page__card-link:hover {
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .fatura-detalhe-page__card-link:hover {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+    border-color: var(--color-accent);
+  }
 }
 
 .fatura-detalhe-page__card-link:focus-visible {

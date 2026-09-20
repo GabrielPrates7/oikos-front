@@ -53,8 +53,10 @@
   cursor: pointer;
 }
 
-.ui-pagination__page-button:hover:not(.ui-pagination__page-button--active) {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .ui-pagination__page-button:hover:not(.ui-pagination__page-button--active) {
+    border-color: var(--color-accent);
+  }
 }
 
 /* Setas ‹ › — círculo com fundo visível, mesmo padrão dos botões de ação circulares das
@@ -73,8 +75,10 @@
   justify-content: center;
 }
 
-.ui-pagination__nav-button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+@media (hover: hover) and (pointer: fine) {
+  .ui-pagination__nav-button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+  }
 }
 
 /* Desabilitado (1ª/última página): mais apagado que o habilitado, mas o círculo e a seta
@@ -101,4 +105,13 @@
 .ui-pagination__ellipsis {
   color: var(--pagination-text);
   padding: 0 2px;
+}
+
+/* Mobile: botões de página/anterior/próxima com alvo de toque >= 44px. */
+@media (max-width: 767.98px) {
+  .ui-pagination__nav-button,
+  .ui-pagination__page-button {
+    min-width: 44px;
+    height: 44px;
+  }
 }

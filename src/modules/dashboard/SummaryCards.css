@@ -106,6 +106,25 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+}
+
+/* <=480px: falta espaço pra ícone (58px) + valor lado a lado → o ícone vai ACIMA do valor, o
+   bloco fica centralizado e o card mantém pelo menos 16px de respiro interno de cada lado. Antes
+   a fileira estourava o card (ícone fora da tela à esquerda, valor cortado). */
+@media (max-width: 480px) {
+  .summary-cards__stat-card--hero {
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 16px;
+    min-width: 0;
+  }
+
+  .summary-cards__stat-card--hero .summary-cards__hero-body {
+    align-items: center;
+    max-width: 100%;
+    text-align: center;
+  }
 }
 
 .summary-cards__stat-card--hero .summary-cards__stat-icon {
@@ -156,7 +175,10 @@
    getComputedStyle, não style inline): bloco ícone+texto subiu de 20% pra ~49% da largura
    do banner. */
 .summary-cards__stat-value--hero {
-  font-size: 60px;
+  /* clamp: vale 60px a partir de ~667px de tela (desktop idêntico) e encolhe no mobile em vez de
+     estourar o card; overflow-wrap:anywhere é a rede de segurança pra valores muito grandes. */
+  font-size: clamp(28px, 9vw, 60px);
+  overflow-wrap: anywhere;
 }
 
 .summary-cards__stat-sub {

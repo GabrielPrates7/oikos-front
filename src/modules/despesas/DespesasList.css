@@ -104,8 +104,10 @@
   height: fit-content;
 }
 
-.despesas-list__clear-filters:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .despesas-list__clear-filters:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .despesas-list__clear-filters:focus-visible {
@@ -150,8 +152,10 @@
   transition: background-color 0.15s ease;
 }
 
-.despesas-list__table tbody tr:hover {
-  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .despesas-list__table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  }
 }
 
 .despesas-list__table td {
@@ -200,8 +204,10 @@
   text-decoration: none;
 }
 
-.despesas-list__view-invoice:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .despesas-list__view-invoice:hover {
+    text-decoration: underline;
+  }
 }
 
 .despesas-list__meta {
@@ -247,9 +253,11 @@
   display: inline-flex;
 }
 
-.despesas-list__actions button:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-elevated);
+@media (hover: hover) and (pointer: fine) {
+  .despesas-list__actions button:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-elevated);
+  }
 }
 
 .despesas-list__actions button:focus-visible {
@@ -294,9 +302,11 @@
   white-space: nowrap;
 }
 
-.despesas-list__actions .despesas-list__mark-paid:hover {
-  color: var(--color-accent-income);
-  background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .despesas-list__actions .despesas-list__mark-paid:hover {
+    color: var(--color-accent-income);
+    background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+  }
 }
 
 .despesas-list__confirm-delete,

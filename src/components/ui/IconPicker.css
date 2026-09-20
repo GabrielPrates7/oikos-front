@@ -17,8 +17,10 @@
   justify-content: center;
 }
 
-.icon-picker__option:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .icon-picker__option:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 .icon-picker__option--selected {

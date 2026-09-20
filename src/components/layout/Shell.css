@@ -1,5 +1,6 @@
 .shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
 }
 
@@ -104,7 +105,6 @@
   }
 }
 
-.header,
 .shell__content {
   position: relative;
   z-index: 1;
@@ -114,18 +114,23 @@
    ele fica preso na largura fixa de cada página (720-1040px, ver *.Page.css) plantada no
    canto esquerdo, sobrando uma faixa enorme vazia à direita em 1440/1920px. O teto de
    1400px com centralização garante uma margem confortável em telas ultra-largas em vez
-   de esticar o conteúdo até a borda. */
+   de esticar o conteúdo até a borda.
+
+   Mobile (< 768px): uma coluna, 16px nas laterais (+ áreas seguras), topo com a área segura e
+   folga embaixo pra barra inferior fixa (--bottom-nav-h) + área segura — o último botão nunca
+   fica sob a barra. min-width:0 pra filhos de grid/flex nunca alargarem o documento. */
 .shell__content {
   flex: 1;
   width: 100%;
+  min-width: 0;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
-  padding-bottom: 88px;
+  padding: calc(var(--safe-top) + 16px) calc(var(--safe-right) + 16px)
+    calc(var(--bottom-nav-h) + var(--safe-bottom) + 16px) calc(var(--safe-left) + 16px);
 }
 
 @media (min-width: 768px) {
   .shell__content {
-    padding-bottom: 24px;
+    padding: 24px;
   }
 }

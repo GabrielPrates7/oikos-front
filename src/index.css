@@ -65,3 +65,29 @@ input[type='date']::-webkit-calendar-picker-indicator {
 :focus-visible {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-deep) 35%, transparent);
 }
+
+/* Mobile (< 768px = o mesmo ponto do Shell, ver components/layout/breakpoints.ts).
+   1) Campos de formulário a 16px: abaixo disso o iOS Safari dá zoom ao focar o campo. !important
+      porque cada tela define o tamanho do próprio campo (13/15px, às vezes por #id). Desktop
+      não é afetado.
+   2) touch-action: manipulation tira o zoom por toque duplo dos controles (o zoom por pinça do
+      usuário continua funcionando: nada de user-scalable/maximum-scale). */
+@media (max-width: 767.98px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']):not(
+      [type='file']
+    ),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+}

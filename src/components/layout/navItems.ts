@@ -59,20 +59,13 @@ export const SIDEBAR_NAV_GROUPS: NavGroup[] = [
 
 export const SIDEBAR_NAV_ITEMS: NavItem[] = SIDEBAR_NAV_GROUPS.flatMap((group) => group.items)
 
-// Seção 11 do documento: só os módulos mais usados no mobile. "Entradas/Despesas" é citado
-// como um único item no doc — aponto pra /entradas como destino primário (decisão de escopo,
-// sem uma tela combinada ainda); dá pra revisar isso quando as telas reais existirem.
-export const BOTTOM_NAV_ITEMS: NavItem[] = [
-  DASHBOARD_ITEM,
-  { ...ENTRADAS_ITEM, label: 'Entradas/Despesas' },
-  CARTOES_ITEM,
-  SETTINGS_NAV_ITEM,
+// Folha "Mais" do mobile: o que não tem posição própria na BottomNav (Início, Entradas, Despesas
+// e Cartões têm). Grupos do Sidebar, com Configurações em "Sistema" no fim. Conferido contra
+// getActiveNavKey (mobileNav.ts): todas estas rotas → "Mais".
+export const MORE_SHEET_GROUPS: NavGroup[] = [
+  { label: 'Movimentações', items: [TRANSFERENCIAS_ITEM] },
+  { label: 'Financeiro', items: [CONTAS_ITEM, FATURAS_ITEM] },
+  { label: 'Planejamento', items: [CATEGORIAS_ITEM, ORCAMENTOS_ITEM, METAS_ITEM] },
+  { label: 'Análises', items: [RELATORIOS_ITEM] },
+  { label: 'Sistema', items: [SETTINGS_NAV_ITEM] },
 ]
-
-// Tudo que fica de fora do BottomNav (pro menu hambúrguer mobile), derivado por exclusão
-// de path — garante que nenhum módulo do Sidebar fique inalcançável no mobile.
-const BOTTOM_NAV_PATHS = new Set(BOTTOM_NAV_ITEMS.map((item) => item.path))
-
-export const OVERFLOW_NAV_ITEMS: NavItem[] = SIDEBAR_NAV_ITEMS.filter(
-  (item) => !BOTTOM_NAV_PATHS.has(item.path),
-)

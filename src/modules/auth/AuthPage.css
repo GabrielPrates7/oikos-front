@@ -1,5 +1,6 @@
 .auth-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,6 +44,8 @@
   text-decoration: none;
 }
 
-.auth-page__switch a:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .auth-page__switch a:hover {
+    text-decoration: underline;
+  }
 }

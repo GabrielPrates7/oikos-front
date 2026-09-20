@@ -110,8 +110,10 @@
   height: fit-content;
 }
 
-.cartao-compras__clear-filters:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .cartao-compras__clear-filters:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .cartao-compras__clear-filters:focus-visible {
@@ -216,9 +218,11 @@
   justify-content: center;
 }
 
-.cartao-compras__actions button:not(.cartao-compras__confirm-delete):not(.cartao-compras__cancel-delete):hover {
-  color: var(--color-text-primary);
-  background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+@media (hover: hover) and (pointer: fine) {
+  .cartao-compras__actions button:not(.cartao-compras__confirm-delete):not(.cartao-compras__cancel-delete):hover {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+  }
 }
 
 .cartao-compras__actions button:focus-visible {

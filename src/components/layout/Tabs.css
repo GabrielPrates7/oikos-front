@@ -18,8 +18,10 @@
   border-bottom: 2px solid transparent;
 }
 
-.tabs__link:hover {
-  color: var(--color-text-primary);
+@media (hover: hover) and (pointer: fine) {
+  .tabs__link:hover {
+    color: var(--color-text-primary);
+  }
 }
 
 .tabs__link--active {
@@ -30,4 +32,30 @@
 .tabs__link:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Mobile (< 768px, mesmo ponto do Shell): alvo de toque >= 44px e, se as abas não couberem na
+   largura (ex.: 4 abas de Relatórios a 320px), a fileira rola na horizontal DENTRO dela
+   mesma — o documento nunca ganha rolagem horizontal. Sem barra de rolagem visível. */
+@media (max-width: 767.98px) {
+  .tabs__list {
+    gap: 16px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .tabs__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs__link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 2px;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
 }

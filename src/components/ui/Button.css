@@ -30,8 +30,10 @@
   color: var(--color-text-primary);
 }
 
-.ui-button--primary:not(:disabled):hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .ui-button--primary:not(:disabled):hover {
+    opacity: 0.9;
+  }
 }
 
 .ui-button--secondary {
@@ -40,8 +42,10 @@
   color: var(--color-text-primary);
 }
 
-.ui-button--secondary:not(:disabled):hover {
-  border-color: var(--color-accent);
+@media (hover: hover) and (pointer: fine) {
+  .ui-button--secondary:not(:disabled):hover {
+    border-color: var(--color-accent);
+  }
 }
 
 .ui-button__spinner {

@@ -1,14 +1,16 @@
+/* Barra inferior do mobile: 5 posições, fixa, opaca (sem backdrop-filter). Some em >= 768px (o
+   mesmo breakpoint do Shell — ver breakpoints.ts). */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 0;
+  z-index: var(--z-bottom-nav);
   display: flex;
-  justify-content: space-around;
-  background: var(--color-bg-surface);
-  border-top: 1px solid var(--color-accent-deep);
-  padding: 8px 0;
-  z-index: 10;
+  height: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  padding: 0 var(--safe-right) var(--safe-bottom) var(--safe-left);
+  background: rgba(13, 19, 16, 0.96);
+  border-top: 1px solid rgba(127, 217, 160, 0.16);
 }
 
 @media (min-width: 768px) {
@@ -17,18 +19,77 @@
   }
 }
 
-.bottom-nav__link {
+.bottom-nav__item {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  color: var(--color-text-muted);
+  justify-content: center;
+  gap: 3px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  color: #9ca79e;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
   text-decoration: none;
-  font-size: 11px;
-  padding: 4px 8px;
-  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.bottom-nav__link--active {
-  color: var(--color-accent);
+/* Barra de 2px no topo do item ativo (o estado não depende só da cor). */
+.bottom-nav__item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 22%;
+  right: 22%;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: transparent;
+}
+
+.bottom-nav__item--active {
+  color: #7fd9a0;
+  font-weight: 600;
+}
+
+.bottom-nav__item--active::before {
+  background: #7fd9a0;
+}
+
+.bottom-nav__label {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.bottom-nav__item:focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: -3px;
+  border-radius: 6px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bottom-nav__item:hover {
+    color: var(--color-text-primary);
+  }
+
+  .bottom-nav__item--active:hover {
+    color: #7fd9a0;
+  }
+}
+
+/* 320px: rótulos em 11px e sem padding lateral pra "Relatórios"/"Entradas" caber sem truncar
+   nos 64px de cada posição. */
+@media (max-width: 340px) {
+  .bottom-nav__item {
+    padding: 0;
+    font-size: 11px;
+  }
 }

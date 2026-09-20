@@ -28,6 +28,8 @@
   border-radius: 999px;
 }
 
-.budget-comparison-chart__scroll-x::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
+@media (hover: hover) and (pointer: fine) {
+  .budget-comparison-chart__scroll-x::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
 }
