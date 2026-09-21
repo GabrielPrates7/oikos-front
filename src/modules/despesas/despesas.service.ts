@@ -1,6 +1,7 @@
 import { apiFetch } from '../../services/api'
 import { currentMonthString, monthRange } from '../../utils/date'
 import type { PaginatedResult } from '../../utils/pagination'
+import { isAllMonths, periodQuery } from '../../utils/period'
 import { cartoesService } from '../cartoes/cartoes.service'
 import { faturasService } from '../faturas/faturas.service'
 import type { CreateDespesaFormData, UpdateDespesaFormData } from './despesas.schemas'
@@ -38,12 +39,21 @@ function buildQuery(filters: ExpenseFilters, pagination: PageParams): string {
   if (filters.accountId) params.set('accountId', filters.accountId)
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
   if (filters.paymentMethod) params.set('paymentMethod', filters.paymentMethod)
-  if (filters.from) params.set('from', filters.from)
-  if (filters.to) params.set('to', filters.to)
-  if (filters.month !== undefined) params.set('month', filters.month)
+  if (filters.status) params.set('status', filters.status)
+  if (filters.essential) params.set('essential', filters.essential)
+  if (filters.planned) params.set('planned', filters.planned)
+  const period = periodQuery(filters)
+  if (period.from) params.set('from', period.from)
+  if (period.to) params.set('to', period.to)
+  if (period.month !== undefined) params.set('month', period.month)
   params.set('page', String(pagination.page))
   params.set('pageSize', String(pagination.pageSize))
   return `?${params.toString()}`
+}
+
+// Requisição obsoleta (AbortController) — mesmo tipo de erro que o fetch lança ao abortar.
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
 }
 
 function entryDate(entry: DespesaListEntry): string {
@@ -55,10 +65,12 @@ function entryDate(entry: DespesaListEntry): string {
 // eles, usa o mês do filtro (ou mês atual, se nenhum foi escolhido ainda). null = sem limite
 // nenhum ('all').
 function resolveInvoiceDateBounds(filters: ExpenseFilters): { from?: string; to?: string } | null {
-  if (filters.from || filters.to) {
-    return { from: filters.from, to: filters.to }
+  // periodQuery já resolve De/Até explícitos e o "Todos os meses" de um ano (vira 1º/1 a 31/12).
+  const period = periodQuery(filters)
+  if (period.from || period.to) {
+    return { from: period.from, to: period.to }
   }
-  const month = filters.month ?? currentMonthString()
+  const month = period.month ?? currentMonthString()
   if (month === 'all') return null
   const { monthStart, monthEnd } = monthRange(month)
   return { from: monthStart, to: monthEnd }
@@ -68,18 +80,21 @@ export const despesasService = {
   async list(
     filters: ExpenseFilters = {},
     pagination: PageParams,
+    signal?: AbortSignal,
   ): Promise<PaginatedResult<Expense>> {
     const result = await apiFetch<{
       expenses: Expense[]
       total: number
       sumCents: number
+      sumMode?: 'pending' | 'default'
       page: number
       pageSize: number
-    }>(`/expenses${buildQuery(filters, pagination)}`)
+    }>(`/expenses${buildQuery(filters, pagination)}`, { signal })
     return {
       items: result.expenses,
       total: result.total,
       sumCents: result.sumCents,
+      sumMode: result.sumMode,
       page: result.page,
       pageSize: result.pageSize,
     }
@@ -117,11 +132,19 @@ export const despesasService = {
   // pageSize:100 abaixo é o teto do endpoint de faturas — cobre o uso real (fatura é mensal
   // por cartão), mas um histórico com mais de 100 faturas pagas não seria varrido por
   // inteiro aqui.
+  //
+  // Filtros novos e as linhas especiais (pagamento de fatura / fatura em aberto):
+  //  - Tipo (essencial/supérfluo) ou Planejamento ativos: as duas somem (fatura não tem esses
+  //    atributos, nunca poderia satisfazê-los) — mesma regra de categoria/forma de pagamento;
+  //  - Situação = Pendentes: só as faturas em aberto (a fatura paga não é pendente);
+  //  - Situação = Pagas: só os pagamentos de fatura;
+  //  - Todas: como antes.
   async listWithInvoicePayments(
     filters: ExpenseFilters = {},
     pagination: PageParams,
+    signal?: AbortSignal,
   ): Promise<PaginatedResult<DespesaListEntry>> {
-    const expensesResult = await despesasService.list(filters, pagination)
+    const expensesResult = await despesasService.list(filters, pagination, signal)
     const expenseEntries: DespesaListEntry[] = expensesResult.items.map((expense) => ({
       type: 'expense',
       data: expense,
@@ -129,11 +152,20 @@ export const despesasService = {
     const base = {
       total: expensesResult.total,
       sumCents: expensesResult.sumCents,
+      sumMode: expensesResult.sumMode,
       page: expensesResult.page,
       pageSize: expensesResult.pageSize,
     }
 
-    if (filters.categoryId || filters.paymentMethod) {
+    const includePaymentLines = filters.status !== 'pending'
+    const includeUnpaidLines = filters.status !== 'paid' && !filters.accountId
+    if (
+      filters.categoryId ||
+      filters.paymentMethod ||
+      filters.essential ||
+      filters.planned ||
+      (!includePaymentLines && !includeUnpaidLines)
+    ) {
       return {
         items: expenseEntries.sort((a, b) => entryDate(b).localeCompare(entryDate(a))),
         ...base,
@@ -158,8 +190,12 @@ export const despesasService = {
       return true
     }
 
-    const paidInvoices = invoicesResult.items.filter((invoice) => invoice.displayStatus === 'paid')
+    throwIfAborted(signal)
+    const paidInvoices = includePaymentLines
+      ? invoicesResult.items.filter((invoice) => invoice.displayStatus === 'paid')
+      : []
     const paidDetails = await Promise.all(paidInvoices.map((invoice) => faturasService.getById(invoice.id)))
+    throwIfAborted(signal)
 
     const invoiceEntries: DespesaListEntry[] = []
     for (const detail of paidDetails) {
@@ -181,7 +217,7 @@ export const despesasService = {
     // mesclagem se o filtro de conta estiver ativo, mesma regra de categoria/forma de
     // pagamento acima.
     const unpaidEntries: DespesaListEntry[] = []
-    if (!filters.accountId) {
+    if (includeUnpaidLines) {
       const unpaidInvoices = invoicesResult.items.filter((invoice) => invoice.displayStatus !== 'paid')
       for (const invoice of unpaidInvoices) {
         if (!inBounds(invoice.due_date)) continue
@@ -206,9 +242,12 @@ export const despesasService = {
 
   // Totais do mês (geral/pago/falta pagar) — independentes da paginação da lista, sempre
   // pro mês inteiro. month undefined deixa o backend decidir (mês atual).
-  async getMonthlySummary(month?: string): Promise<MonthlySummary> {
-    const query = month !== undefined ? `?month=${encodeURIComponent(month)}` : ''
-    return apiFetch<MonthlySummary>(`/expenses/monthly-summary${query}`)
+  // O endpoint só entende 'YYYY-MM' ou 'all': "Todos os meses" de um ano ('YYYY-all') consulta
+  // 'all' (todos os períodos) — ver a decisão registrada no resumo do Bloco B.
+  async getMonthlySummary(month?: string, signal?: AbortSignal): Promise<MonthlySummary> {
+    const effective = month !== undefined && isAllMonths(month) ? 'all' : month
+    const query = effective !== undefined ? `?month=${encodeURIComponent(effective)}` : ''
+    return apiFetch<MonthlySummary>(`/expenses/monthly-summary${query}`, { signal })
   },
 
   // Anos com pelo menos uma despesa de verdade — popula o filtro "Ano" sem lista fixa

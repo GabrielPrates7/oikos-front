@@ -1,0 +1,285 @@
+/* Campos dos formulários de Entrada/Despesa (LaunchFields.tsx). */
+.launch-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.launch-section__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* 2 colunas no desktop, 1 no mobile. Os campos já têm margin-bottom (.ui-input): aqui o gap manda. */
+.launch-section__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+}
+
+.launch-section__grid > * {
+  min-width: 0;
+}
+
+.launch-section__grid .ui-input,
+.launch-form__panel .ui-input {
+  margin-bottom: 0;
+}
+
+.launch-section__grid > .launch-span-2 {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 767.98px) {
+  .launch-section__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.launch-required {
+  color: #cf6b52;
+}
+
+/* Bloco herói: Valor grande e centralizado, Descrição logo abaixo em largura total. */
+.launch-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.launch-amount {
+  align-items: center;
+  text-align: center;
+}
+
+.launch-amount .ui-input__label {
+  text-align: center;
+}
+
+.launch-amount__input {
+  width: 100%;
+  padding: 10px 12px;
+  border-color: transparent;
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--lf-accent-text);
+}
+
+.launch-amount__input::placeholder {
+  color: color-mix(in srgb, var(--lf-accent-text) 45%, transparent);
+}
+
+.launch-amount__input:focus-visible {
+  border-color: color-mix(in srgb, var(--lf-accent) 50%, transparent);
+}
+
+@media (max-width: 767.98px) {
+  .launch-amount__input {
+    font-size: clamp(28px, 9vw, 40px);
+  }
+}
+
+/* Atalhos de data. */
+.launch-date__chips {
+  display: flex;
+  gap: 8px;
+}
+
+.launch-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.launch-chip[aria-pressed='true'] {
+  border-color: var(--lf-accent);
+  background: color-mix(in srgb, var(--lf-accent) 18%, transparent);
+  color: #edeae2;
+  font-weight: 600;
+}
+
+.launch-chip:focus-visible {
+  outline: 2px solid var(--lf-accent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .launch-chip:not([aria-pressed='true']):hover {
+    color: var(--color-text-primary);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .launch-chip {
+    min-height: 44px;
+    padding: 0 16px;
+  }
+}
+
+/* Chip informativo (não é botão). */
+.launch-chip--static {
+  min-height: 24px;
+  padding: 0 10px;
+  cursor: default;
+  border-color: #cf6b52;
+  color: #cf6b52;
+  font-weight: 600;
+}
+
+/* Conteúdo que aparece/some (grid 0fr → 1fr: anima a altura sem medir). */
+.launch-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.launch-reveal--open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.launch-reveal__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.launch-reveal--open .launch-reveal__inner {
+  /* aberto: o anel de foco dos campos não pode ser cortado */
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-reveal {
+    transition: none;
+  }
+}
+
+/* Coluna do Situação: o campo revelado fica logo abaixo do controle. */
+.launch-situation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.launch-situation .launch-reveal--open {
+  margin-top: 0;
+}
+
+/* Parcelas: − [n] +. */
+.launch-stepper__row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.launch-stepper__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.launch-stepper__button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.launch-stepper__button:focus-visible {
+  outline: 2px solid var(--lf-accent);
+  outline-offset: 2px;
+}
+
+.launch-stepper__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  min-height: 44px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.launch-stepper__input::-webkit-outer-spin-button,
+.launch-stepper__input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Contar no total: linha compacta. */
+.launch-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.launch-count .ui-checkbox {
+  min-height: 44px;
+}
+
+.launch-count__help {
+  flex: 1 0 100%;
+  margin: -6px 0 0;
+  padding-left: 24px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .launch-count .ui-checkbox {
+    min-height: 0;
+  }
+}
+
+/* Cartão miniatura no Combobox de Cartão. */
+.launch-card-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.launch-card-swatch {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 17px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Campos de formulário em 44px no mobile (os <input>/<select> já são 16px pela regra global). */
+@media (max-width: 767.98px) {
+  .launch-form__panel .ui-input__field {
+    min-height: 44px;
+  }
+}

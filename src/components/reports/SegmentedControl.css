@@ -1,4 +1,6 @@
 .segmented-control {
+  /* Cor da opção selecionada: verde (padrão, o de Relatórios) ou vermelho (tone="red"). */
+  --seg-accent: var(--color-accent);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -39,10 +41,14 @@
   }
 }
 
-/* Selecionada: fundo verde translúcido (~18%) + borda verde + texto #edeae2 em peso 600. */
+.segmented-control--red {
+  --seg-accent: var(--color-accent-expense);
+}
+
+/* Selecionada: fundo translúcido (~18%) + borda + texto #edeae2 em peso 600. */
 .segmented-control__option--selected {
-  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
-  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--seg-accent) 18%, transparent);
+  border-color: var(--seg-accent);
   color: #edeae2;
   font-weight: 600;
 }
@@ -53,6 +59,81 @@
 }
 
 .segmented-control__option:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--seg-accent);
   outline-offset: 2px;
+}
+
+/* Destaque opcional da opção selecionada (ex.: "Pendentes"): dourado = badge Pendente de
+   Entradas; vermelho = o de Despesas (texto #cf6b52). O peso 600 segue valendo. */
+.segmented-control__option--selected.segmented-control__option--accent-gold {
+  background: color-mix(in srgb, var(--color-accent-gold) 20%, transparent);
+  border-color: var(--color-accent-gold);
+}
+
+.segmented-control__option--selected.segmented-control__option--accent-red {
+  background: color-mix(in srgb, var(--color-accent-expense) 24%, transparent);
+  border-color: #cf6b52;
+  color: #cf6b52;
+}
+
+/* stretch: só abaixo de 768px (mesmo ponto do Shell). Grupo em largura total, opções dividem o
+   espaço e têm alvo de toque >= 44px; se não couberem, quebram linha em vez de estourar. */
+@media (max-width: 767.98px) {
+  .segmented-control--stretch {
+    width: 100%;
+  }
+
+  .segmented-control--stretch .segmented-control__group {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .segmented-control--stretch .segmented-control__option {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 8px;
+    white-space: normal;
+    touch-action: manipulation;
+  }
+}
+
+/* Formulários (Entrada/Despesa): ícone antes do rótulo, marcador de obrigatório e erro inline. */
+.segmented-control__option--with-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.segmented-control__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.segmented-control__required {
+  color: #cf6b52;
+}
+
+.segmented-control__error {
+  margin: 0;
+  font-size: 13px;
+  color: #cf6b52;
+}
+
+.segmented-control__group[aria-invalid='true'] {
+  border-color: #cf6b52;
+}
+
+/* grid2 (mobile, com stretch): 2 colunas — 4 opções quebram em 2x2. */
+@media (max-width: 767.98px) {
+  .segmented-control--stretch.segmented-control--grid2 .segmented-control__group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .segmented-control--stretch.segmented-control--grid2 .segmented-control__option {
+    flex: initial;
+  }
 }

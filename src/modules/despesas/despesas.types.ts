@@ -22,6 +22,11 @@ export interface Expense {
 
 // undefined = mês atual (default do backend); 'all' = sem filtro de mês. Ignorado pelo
 // backend quando from/to explícitos estão presentes (ver expenses.controller.resolveDateRange).
+// month: 'YYYY-MM' ou 'YYYY-all' (todos os meses de um ano — ver utils/period.ts).
+export type ExpenseStatusFilter = 'pending' | 'paid'
+export type ExpenseEssentialFilter = 'essential' | 'superfluous'
+export type ExpensePlannedFilter = 'planned' | 'unplanned'
+
 export interface ExpenseFilters {
   accountId?: string
   categoryId?: string
@@ -29,6 +34,10 @@ export interface ExpenseFilters {
   from?: string
   to?: string
   month?: string
+  // undefined = todos
+  status?: ExpenseStatusFilter
+  essential?: ExpenseEssentialFilter
+  planned?: ExpensePlannedFilter
 }
 
 export interface MonthlySummary {

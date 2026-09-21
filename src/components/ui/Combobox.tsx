@@ -1,11 +1,16 @@
 import { ChevronDown, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import './Combobox.css'
 
 export interface ComboboxOption {
   value: string
+  // Texto: usado na busca e como nome acessível.
   label: string
+  // Opcional: o que é DESENHADO no gatilho e na lista no lugar do texto (ex.: CategoryBadge). A
+  // busca continua usando `label`.
+  node?: ReactNode
 }
 
 interface ComboboxProps {
@@ -16,6 +21,13 @@ interface ComboboxProps {
   // o componente não assume isso sozinho, pra funcionar também em campos obrigatórios.
   options: ComboboxOption[]
   placeholder?: string
+  // 'field': aparência de campo de formulário (altura de toque de 44px, 16px de fonte). Sem isso,
+  // o visual é o de sempre (filtros das listas).
+  variant?: 'field'
+  // Formulários: campo inválido/obrigatório e a mensagem de erro que o descreve.
+  invalid?: boolean
+  required?: boolean
+  describedBy?: string
 }
 
 interface PanelPosition {
@@ -26,7 +38,17 @@ interface PanelPosition {
 
 // Combobox pesquisável — usado em Conta/Categoria (Entradas e Despesas), listas que podem
 // crescer o bastante pra um <select> nativo virar uma rolagem longa sem filtro nenhum.
-export function Combobox({ id, value, onChange, options, placeholder = 'Selecione' }: ComboboxProps) {
+export function Combobox({
+  id,
+  value,
+  onChange,
+  options,
+  placeholder = 'Selecione',
+  variant,
+  invalid,
+  required,
+  describedBy,
+}: ComboboxProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [panelPosition, setPanelPosition] = useState<PanelPosition | null>(null)
@@ -102,7 +124,7 @@ export function Combobox({ id, value, onChange, options, placeholder = 'Selecion
   }
 
   return (
-    <div className="ui-combobox" ref={containerRef}>
+    <div className={`ui-combobox${variant === 'field' ? ' ui-combobox--field' : ''}`} ref={containerRef}>
       <button
         type="button"
         id={id}
@@ -110,8 +132,13 @@ export function Combobox({ id, value, onChange, options, placeholder = 'Selecion
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-invalid={invalid || undefined}
+        aria-required={required || undefined}
+        aria-describedby={describedBy}
       >
-        <span className="ui-combobox__trigger-label">{selected ? selected.label : placeholder}</span>
+        <span className="ui-combobox__trigger-label">
+          {selected ? (selected.node ?? selected.label) : placeholder}
+        </span>
         <ChevronDown size={14} aria-hidden="true" />
       </button>
       {open &&
@@ -156,7 +183,7 @@ export function Combobox({ id, value, onChange, options, placeholder = 'Selecion
                       aria-selected={option.value === value}
                       onClick={() => handleSelect(option.value)}
                     >
-                      {option.label}
+                      {option.node ?? option.label}
                     </button>
                   </li>
                 ))

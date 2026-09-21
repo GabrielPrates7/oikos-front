@@ -75,7 +75,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
 @media (max-width: 767.98px) {
   input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='hidden']):not(
       [type='file']
-    ),
+    ):not(.launch-amount__input),
   select,
   textarea {
     font-size: 16px !important;

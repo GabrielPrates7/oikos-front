@@ -1,5 +1,6 @@
 import { apiFetch } from '../../services/api'
 import type { PaginatedResult } from '../../utils/pagination'
+import { periodQuery } from '../../utils/period'
 import type { CreateEntradaFormData, UpdateEntradaFormData } from './entradas.schemas'
 import type { IncomeEntry, IncomeEntryFilters } from './entradas.types'
 
@@ -33,9 +34,11 @@ function buildQuery(filters: IncomeEntryFilters, pagination: PageParams): string
   const params = new URLSearchParams()
   if (filters.accountId) params.set('accountId', filters.accountId)
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
-  if (filters.from) params.set('from', filters.from)
-  if (filters.to) params.set('to', filters.to)
-  if (filters.month !== undefined) params.set('month', filters.month)
+  if (filters.status) params.set('status', filters.status)
+  const period = periodQuery(filters)
+  if (period.from) params.set('from', period.from)
+  if (period.to) params.set('to', period.to)
+  if (period.month !== undefined) params.set('month', period.month)
   params.set('page', String(pagination.page))
   params.set('pageSize', String(pagination.pageSize))
   return `?${params.toString()}`
@@ -45,18 +48,21 @@ export const entradasService = {
   async list(
     filters: IncomeEntryFilters = {},
     pagination: PageParams,
+    signal?: AbortSignal,
   ): Promise<PaginatedResult<IncomeEntry>> {
     const result = await apiFetch<{
       incomeEntries: IncomeEntry[]
       total: number
       sumCents: number
+      sumMode?: 'pending' | 'default'
       page: number
       pageSize: number
-    }>(`/income-entries${buildQuery(filters, pagination)}`)
+    }>(`/income-entries${buildQuery(filters, pagination)}`, { signal })
     return {
       items: result.incomeEntries,
       total: result.total,
       sumCents: result.sumCents,
+      sumMode: result.sumMode,
       page: result.page,
       pageSize: result.pageSize,
     }

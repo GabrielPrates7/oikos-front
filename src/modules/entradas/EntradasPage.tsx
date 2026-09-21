@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { isAbortError } from '../../components/reports/abort'
 import { ApiError } from '../../services/api'
 import { currentMonthString } from '../../utils/date'
 import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
@@ -47,7 +48,12 @@ export function EntradasPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [sumCents, setSumCents] = useState(0)
+  const [sumMode, setSumMode] = useState<'pending' | 'default'>('default')
   const [loading, setLoading] = useState(true)
+  // A lista (e o painel de filtros dentro dela) fica montada depois da 1ª carga: desmontar a cada
+  // troca de filtro tirava o foco do teclado do controle recém-alterado. Durante a recarga ela
+  // continua na tela, esmaecida (aria-busy), até a resposta mais nova chegar.
+  const [loadedOnce, setLoadedOnce] = useState(false)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
     // ?nova=1 vem do menu "Nova Transação" do Dashboard — mesma ideia de ?conta=ID, mas sem
@@ -99,26 +105,32 @@ export function EntradasPage() {
     }
   }, [refreshKey])
 
+  // Cada troca de filtro/página cancela a requisição anterior (AbortController): uma resposta
+  // antiga nunca sobrescreve a mais nova, mesmo com troca rápida de filtros.
   useEffect(() => {
-    let active = true
+    const controller = new AbortController()
 
     async function load() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await entradasService.list(filters, { page, pageSize: DEFAULT_PAGE_SIZE })
-        if (active) {
-          setEntries(result.items)
-          setTotal(result.total)
-          setSumCents(result.sumCents)
-        }
+        const result = await entradasService.list(
+          filters,
+          { page, pageSize: DEFAULT_PAGE_SIZE },
+          controller.signal,
+        )
+        if (controller.signal.aborted) return
+        setEntries(result.items)
+        setTotal(result.total)
+        setSumCents(result.sumCents)
+        setSumMode(result.sumMode === 'pending' ? 'pending' : 'default')
       } catch (error) {
-        if (active) {
-          setLoadError(errorMessage(error, 'Não foi possível carregar as entradas.'))
-        }
+        if (isAbortError(error) || controller.signal.aborted) return
+        setLoadError(errorMessage(error, 'Não foi possível carregar as entradas.'))
       } finally {
-        if (active) {
+        if (!controller.signal.aborted) {
           setLoading(false)
+          setLoadedOnce(true)
         }
       }
     }
@@ -126,7 +138,7 @@ export function EntradasPage() {
     void load()
 
     return () => {
-      active = false
+      controller.abort()
     }
   }, [filters, page, refreshKey])
 
@@ -201,7 +213,6 @@ export function EntradasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="entradas-page">
-        <PageHeader title={mode.type === 'create' ? 'Nova entrada' : 'Editar entrada'} />
         <EntradaForm
           // Mesmo motivo do key em DespesasPage: <select> não-controlado do RHF só aplica
           // o valor inicial contra as options que já existem no primeiro render.
@@ -239,7 +250,11 @@ export function EntradasPage() {
         }
       />
       <FormError message={loadError} />
-      {!loading && (
+      {loadedOnce && (
+        <div
+          className={`entradas-page__list${loading ? ' entradas-page__list--loading' : ''}`}
+          aria-busy={loading}
+        >
         <EntradasList
           entries={entries}
           accounts={allAccounts}
@@ -248,6 +263,7 @@ export function EntradasPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           sumCents={sumCents}
+          sumMode={sumMode}
           page={page}
           total={total}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
@@ -257,6 +273,7 @@ export function EntradasPage() {
           onMarkAsReceived={handleMarkAsReceived}
           onDuplicate={handleDuplicate}
         />
+        </div>
       )}
     </div>
   )

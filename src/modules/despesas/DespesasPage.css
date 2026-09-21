@@ -48,3 +48,9 @@
   outline: 2px solid var(--color-expense-button-start);
   outline-offset: 2px;
 }
+
+/* Recarregando com filtro novo: a lista anterior fica esmaecida até a resposta chegar. */
+.despesas-page__list--loading {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}

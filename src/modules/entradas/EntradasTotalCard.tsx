@@ -30,6 +30,10 @@ interface EntradasTotalCardProps {
   // false esconde só a linha de fundo (sparkline) e mantém a seta de tendência — usado em
   // Faturas, onde a linha vermelha cruzando o valor atrapalhava a leitura.
   showSparkline?: boolean
+  // Rótulo do card ("Total exibido" por padrão) e explicação curta em tooltip nativo — Entradas
+  // troca pra "Total pendente" quando a lista está filtrada por Situação = Pendentes.
+  label?: string
+  title?: string
 }
 
 // Card com gradiente verde (mesmo princípio do "Saldo Real" do Dashboard) em vez do texto
@@ -42,6 +46,8 @@ export function EntradasTotalCard({
   showTrend = true,
   tone = 'green',
   showSparkline = true,
+  label = 'Total exibido',
+  title,
 }: EntradasTotalCardProps) {
   // Ordem cronológica (mais antiga primeiro) — é o que faz sentido pra "tendência": ler da
   // esquerda pra direita como "como isso evoluiu no tempo", não a ordem de exibição da
@@ -60,9 +66,12 @@ export function EntradasTotalCard({
   const hasTrend = showTrend && values.length >= 2
 
   return (
-    <div className={`entradas-total-card${tone === 'red' ? ' entradas-total-card--red' : ''}`}>
+    <div
+      className={`entradas-total-card${tone === 'red' ? ' entradas-total-card--red' : ''}`}
+      title={title}
+    >
       <div className="entradas-total-card__main">
-        <span className="entradas-total-card__label">Total exibido</span>
+        <span className="entradas-total-card__label">{label}</span>
         <div className="entradas-total-card__value-row">
           <span className="entradas-total-card__value">{centsToBRL(sumCents)}</span>
           {hasTrend && (

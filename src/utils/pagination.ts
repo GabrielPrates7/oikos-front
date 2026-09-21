@@ -4,6 +4,10 @@ export interface PaginatedResult<T> {
   items: T[]
   total: number
   sumCents: number
+  // Só Entradas/Despesas: 'pending' quando a lista foi filtrada por Situação = Pendentes — aí
+  // sumCents é a soma dos PENDENTES (a tela troca o rótulo pra "Total pendente"). Ausente ou
+  // 'default' = a soma de sempre.
+  sumMode?: 'pending' | 'default'
   page: number
   pageSize: number
 }

@@ -336,3 +336,47 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* Total da LISTA filtrada, no cabeçalho do painel da tabela (só com algum filtro ativo). */
+.despesas-list__filtered-total {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.despesas-list__filtered-total strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Aviso das pendentes: só o período em vista (ver showPeriodHint em DespesasList.tsx). */
+.despesas-list__period-hint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.despesas-list__period-hint button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #cf6b52;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.despesas-list__empty .despesas-list__clear-filters {
+  margin-top: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .despesas-list__period-hint button {
+    min-height: 44px;
+  }
+
+  .despesas-list__clear-filters {
+    min-height: 44px;
+  }
+}

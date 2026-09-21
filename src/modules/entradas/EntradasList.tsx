@@ -3,15 +3,26 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Combobox } from '../../components/ui/Combobox'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
+import { SegmentedControl } from '../../components/reports/SegmentedControl'
+import { ListFilterRow } from '../../components/ui/ListFilterRow'
 import { Pagination } from '../../components/ui/Pagination'
 import { assignCategoryColors } from '../../utils/chartColors'
 import { centsToBRL } from '../../utils/currency'
-import { currentMonthString, formatDateBR, MONTH_NAMES_PT, splitMonthString } from '../../utils/date'
+import { currentMonthString, formatDateBR, MONTH_NAMES_PT } from '../../utils/date'
 import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
+import {
+  ALL_MONTHS,
+  describePeriod,
+  isAllPeriods,
+  periodFiltersOffDefault,
+  splitPeriod,
+  withMonthSelected,
+  withYearSelected,
+} from '../../utils/period'
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { EntradasTotalCard } from './EntradasTotalCard'
-import type { IncomeEntry, IncomeEntryFilters } from './entradas.types'
+import type { IncomeEntry, IncomeEntryFilters, IncomeStatusFilter } from './entradas.types'
 import './EntradasList.css'
 
 interface EntradasListProps {
@@ -22,6 +33,8 @@ interface EntradasListProps {
   filters: IncomeEntryFilters
   onFiltersChange: (filters: IncomeEntryFilters) => void
   sumCents: number
+  // 'pending' = a lista está filtrada por Situação = Pendentes e sumCents é a soma dos pendentes.
+  sumMode: 'pending' | 'default'
   page: number
   total: number
   totalPages: number
@@ -40,6 +53,7 @@ export function EntradasList({
   filters,
   onFiltersChange,
   sumCents,
+  sumMode,
   page,
   total,
   totalPages,
@@ -89,12 +103,27 @@ export function EntradasList({
   // SpendingTrendsChart.tsx pro mesmo tipo de bug (cor por item isolado permite colisão
   // que assignCategoryColors só evita vendo o conjunto inteiro de uma vez).
   const categoryColors = assignCategoryColors(categories.map((category) => category.name))
-  // month não entra aqui — agora é sempre um valor concreto (navegação normal, tipo o
-  // MonthSwitcher do Dashboard), não um "filtro ativo" que precise do botão de limpar.
-  const hasFilters = !!(filters.accountId || filters.categoryId || filters.from || filters.to)
-  const { year: selectedYear, monthNum: selectedMonthNum } = splitMonthString(
-    filters.month ?? currentMonthString(),
-  )
+  const { year: selectedYear, monthNum: selectedMonthNum } = splitPeriod(filters.month)
+  // Contador de filtros ativos: os filtros de sempre + Situação + Mês/Ano FORA do padrão (mês e
+  // ano correntes; "Todos" conta). "Limpar filtros" volta tudo ao padrão.
+  const activeFilterCount =
+    [filters.accountId, filters.categoryId, filters.from, filters.to, filters.status].filter(Boolean)
+      .length + periodFiltersOffDefault(filters.month)
+  const hasFilters = activeFilterCount > 0
+  const isPendingMode = sumMode === 'pending'
+  // Pendentes com Mês/Ano (sem De/Até) mostra só aquele período — avisa, com atalho pra ampliar.
+  const showPeriodHint = filters.status === 'pending' && !filters.from && !filters.to
+
+  function handleClearFilters() {
+    handleFilterChange({
+      accountId: undefined,
+      categoryId: undefined,
+      status: undefined,
+      from: undefined,
+      to: undefined,
+      month: currentMonthString(),
+    })
+  }
 
   const visibleEntries = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -152,9 +181,10 @@ export function EntradasList({
             id="filter-month"
             value={selectedMonthNum}
             onChange={(event) =>
-              handleFilterChange({ month: `${selectedYear}-${event.target.value}` })
+              handleFilterChange({ month: withMonthSelected(filters.month, event.target.value) })
             }
           >
+            <option value={ALL_MONTHS}>Todos</option>
             {MONTH_NAMES_PT.map((name, index) => (
               <option key={name} value={String(index + 1).padStart(2, '0')}>
                 {name}
@@ -168,9 +198,10 @@ export function EntradasList({
             id="filter-year"
             value={selectedYear}
             onChange={(event) =>
-              handleFilterChange({ month: `${event.target.value}-${selectedMonthNum}` })
+              handleFilterChange({ month: withYearSelected(filters.month, event.target.value) })
             }
           >
+            <option value={ALL_MONTHS}>Todos</option>
             {years.map((year) => (
               <option key={year} value={year}>
                 {year}
@@ -200,26 +231,61 @@ export function EntradasList({
           <button
             type="button"
             className="entradas-list__clear-filters"
-            onClick={() =>
-              handleFilterChange({
-                accountId: undefined,
-                categoryId: undefined,
-                from: undefined,
-                to: undefined,
-                month: currentMonthString(),
-              })
-            }
+            onClick={handleClearFilters}
           >
-            Limpar filtros
+            Limpar filtros ({activeFilterCount})
           </button>
         )}
       </div>
+      <ListFilterRow label="Situação e classificação">
+        <SegmentedControl<IncomeStatusFilter | 'all'>
+          label="Situação"
+          stretch
+          value={filters.status ?? 'all'}
+          options={[
+            { value: 'all', label: 'Todas' },
+            { value: 'pending', label: 'Pendentes', accent: 'gold' },
+            { value: 'received', label: 'Recebidas' },
+          ]}
+          onChange={(value) =>
+            handleFilterChange({ status: value === 'all' ? undefined : value })
+          }
+        />
+        {showPeriodHint && (
+          <p className="entradas-list__period-hint" role="status">
+            Mostrando pendentes de {describePeriod(filters.month)}.
+            {!isAllPeriods(filters.month) && (
+              <>
+                {' '}
+                <button
+                  type="button"
+                  onClick={() => handleFilterChange({ month: ALL_MONTHS })}
+                >
+                  Ver de todos os meses
+                </button>
+              </>
+            )}
+          </p>
+        )}
+      </ListFilterRow>
       </div>
 
       {visibleEntries.length === 0 ? (
         <div className="entradas-list__empty">
           {hasFilters || search ? (
-            <p>Nenhuma entrada encontrada com esses filtros.</p>
+            <>
+              <p>Nenhum lançamento corresponde aos filtros.</p>
+              <button
+                type="button"
+                className="entradas-list__clear-filters"
+                onClick={() => {
+                  setSearch('')
+                  handleClearFilters()
+                }}
+              >
+                Limpar filtros
+              </button>
+            </>
           ) : (
             <>
               <p>Você ainda não tem nenhuma entrada cadastrada.</p>
@@ -231,6 +297,13 @@ export function EntradasList({
         <>
           <EntradasTotalCard
             sumCents={sumCents}
+            label={isPendingMode ? 'Total pendente' : undefined}
+            title={
+              isPendingMode
+                ? 'Soma das entradas ainda não recebidas que aparecem com os filtros atuais (respeita "Contar no total").'
+                : undefined
+            }
+            showTrend={!isPendingMode}
             points={visibleEntries.map((entry) => ({
               date: entry.entry_date,
               amountCents: entry.amount_cents,

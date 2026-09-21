@@ -1,0 +1,171 @@
+/* Casca dos formulários de Entrada (verde) e Despesa (vermelho). Só tokens e o vidro que as telas
+   já usam; a cor do tom entra por variáveis. */
+.launch-form {
+  --lf-accent: var(--color-accent-income);
+  --lf-accent-text: var(--color-accent-income);
+  --lf-glass: rgba(82, 114, 102, 0.1);
+  --lf-button-from: var(--color-accent-income);
+  --lf-button-to: color-mix(in srgb, var(--color-accent-income) 55%, black);
+  --lf-button-text: #10241a;
+  --lf-pad: 24px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.launch-form--red {
+  --lf-accent: var(--color-accent-expense);
+  --lf-accent-text: #cf6b52;
+  --lf-glass: color-mix(in srgb, var(--color-expense-button-start) 10%, transparent);
+  --lf-button-from: var(--color-expense-button-start);
+  --lf-button-to: var(--color-expense-button-end);
+  --lf-button-text: #f7e9e7;
+}
+
+.launch-form__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+/* "← Entradas": botão (o formulário troca a lista na mesma rota, não navega); alvo >= 44px. */
+.launch-form__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  margin-left: -4px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .launch-form__back:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.launch-form__back:focus-visible {
+  outline: 2px solid var(--lf-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.launch-form__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.launch-form__title-icon {
+  display: inline-flex;
+  color: var(--lf-accent-text);
+}
+
+/* Um único painel de vidro, borda tingida pelo tom da tela. Sem overflow: o rodapé sticky do
+   mobile precisa rolar junto com a página. */
+.launch-form__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: var(--lf-pad);
+  background: var(--lf-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--lf-accent) 38%, transparent);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+}
+
+.launch-form__error {
+  padding: 10px 12px;
+  border: 1px solid var(--color-accent-expense);
+  border-radius: 8px;
+  background: rgba(178, 84, 58, 0.12);
+  color: #cf6b52;
+  font-size: 14px;
+}
+
+.launch-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.launch-form__submit {
+  border: none;
+  background: linear-gradient(135deg, var(--lf-button-from), var(--lf-button-to));
+  color: var(--lf-button-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .launch-form__submit:not(:disabled):hover {
+    filter: brightness(1.08);
+  }
+}
+
+.launch-form__submit:focus-visible {
+  outline: 2px solid var(--lf-accent);
+  outline-offset: 2px;
+}
+
+.launch-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile (< 768px, mesmo ponto do Shell): painel em 100% da largura, alvos >= 44px e rodapé
+   STICKY acima da barra inferior (fundo opaco + borda superior). O painel ganha padding-bottom
+   equivalente à barra + área segura, e os campos têm scroll-margin, pra o último campo nunca
+   ficar coberto pelo rodapé. */
+@media (max-width: 767.98px) {
+  .launch-form {
+    --lf-pad: 16px;
+    max-width: none;
+  }
+
+  .launch-form__title {
+    font-size: 24px;
+  }
+
+  .launch-form__panel {
+    gap: 18px;
+    padding-bottom: calc(var(--bottom-nav-h, 0px) + var(--safe-bottom, 0px));
+  }
+
+  .launch-form__footer {
+    position: sticky;
+    bottom: calc(var(--bottom-nav-h, 0px) + var(--safe-bottom, 0px));
+    z-index: 2;
+    margin: 0 calc(var(--lf-pad) * -1);
+    padding: 12px var(--lf-pad);
+    background: var(--color-bg-surface);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .launch-form__footer > * {
+    flex: 1 1 0;
+    min-height: 44px;
+  }
+
+  .launch-form__panel input,
+  .launch-form__panel select,
+  .launch-form__panel button,
+  .launch-form__panel [role='radiogroup'] {
+    scroll-margin-bottom: calc(var(--bottom-nav-h, 0px) + var(--safe-bottom, 0px) + 96px);
+  }
+}

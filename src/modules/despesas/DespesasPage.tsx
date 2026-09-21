@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { SuccessMessage } from '../../components/feedback/SuccessMessage'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { isAbortError } from '../../components/reports/abort'
 import { DEFAULT_PAGE_SIZE, totalPages } from '../../utils/pagination'
 import { cartoesService } from '../cartoes/cartoes.service'
 import type { CreditCard } from '../cartoes/cartoes.types'
@@ -55,8 +56,14 @@ export function DespesasPage() {
   const [filters, setFilters] = useState<ExpenseFilters>({ month: currentMonthString() })
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [sumCents, setSumCents] = useState(0)
+  const [sumMode, setSumMode] = useState<'pending' | 'default'>('default')
   const [summary, setSummary] = useState<MonthlySummary>(EMPTY_SUMMARY)
   const [loading, setLoading] = useState(true)
+  // A lista (e o painel de filtros dentro dela) fica montada depois da 1ª carga: desmontar a cada
+  // troca de filtro tirava o foco do teclado do controle recém-alterado. Durante a recarga ela
+  // continua na tela, esmaecida (aria-busy), até a resposta mais nova chegar.
+  const [loadedOnce, setLoadedOnce] = useState(false)
   const [mode, setMode] = useState<Mode>(() => {
     const conta = searchParams.get('conta')
     // ?nova=1 vem do menu "Nova Transação" do Dashboard — mesma ideia de ?conta=ID, mas sem
@@ -107,28 +114,32 @@ export function DespesasPage() {
     }
   }, [refreshKey])
 
+  // Cada troca de filtro/página cancela a requisição anterior (AbortController): uma resposta
+  // antiga nunca sobrescreve a mais nova, mesmo com troca rápida de filtros.
   useEffect(() => {
-    let active = true
+    const controller = new AbortController()
 
     async function load() {
       setLoading(true)
       setLoadError(null)
       try {
-        const result = await despesasService.listWithInvoicePayments(filters, {
-          page,
-          pageSize: DEFAULT_PAGE_SIZE,
-        })
-        if (active) {
-          setEntries(result.items)
-          setTotal(result.total)
-        }
+        const result = await despesasService.listWithInvoicePayments(
+          filters,
+          { page, pageSize: DEFAULT_PAGE_SIZE },
+          controller.signal,
+        )
+        if (controller.signal.aborted) return
+        setEntries(result.items)
+        setTotal(result.total)
+        setSumCents(result.sumCents)
+        setSumMode(result.sumMode === 'pending' ? 'pending' : 'default')
       } catch (error) {
-        if (active) {
-          setLoadError(errorMessage(error, 'Não foi possível carregar as despesas.'))
-        }
+        if (isAbortError(error) || controller.signal.aborted) return
+        setLoadError(errorMessage(error, 'Não foi possível carregar as despesas.'))
       } finally {
-        if (active) {
+        if (!controller.signal.aborted) {
           setLoading(false)
+          setLoadedOnce(true)
         }
       }
     }
@@ -136,32 +147,31 @@ export function DespesasPage() {
     void load()
 
     return () => {
-      active = false
+      controller.abort()
     }
   }, [filters, page, refreshKey])
 
   // Totais do mês são independentes da paginação da lista — recarregam junto (mesmo
   // gatilho de filtros/refresh), mas não competem com "loading" da lista em si.
   useEffect(() => {
-    let active = true
+    const controller = new AbortController()
 
     async function loadSummary() {
       try {
-        const result = await despesasService.getMonthlySummary(filters.month)
-        if (active) {
+        const result = await despesasService.getMonthlySummary(filters.month, controller.signal)
+        if (!controller.signal.aborted) {
           setSummary(result)
         }
       } catch (error) {
-        if (active) {
-          setLoadError(errorMessage(error, 'Não foi possível carregar os totais do mês.'))
-        }
+        if (isAbortError(error) || controller.signal.aborted) return
+        setLoadError(errorMessage(error, 'Não foi possível carregar os totais do mês.'))
       }
     }
 
     void loadSummary()
 
     return () => {
-      active = false
+      controller.abort()
     }
   }, [filters.month, refreshKey])
 
@@ -268,7 +278,6 @@ export function DespesasPage() {
   if (mode.type === 'create' || mode.type === 'edit') {
     return (
       <div className="despesas-page">
-        <PageHeader title={mode.type === 'create' ? 'Nova despesa' : 'Editar despesa'} />
         <DespesaForm
           // react-hook-form registra o <select> como não-controlado: se a lista de contas
           // ou cartões ainda estiver vazia no primeiro render (dado assíncrono), o valor
@@ -311,7 +320,11 @@ export function DespesasPage() {
       />
       <FormError message={loadError} />
       <SuccessMessage message={successMessage} />
-      {!loading && (
+      {loadedOnce && (
+        <div
+          className={`despesas-page__list${loading ? ' despesas-page__list--loading' : ''}`}
+          aria-busy={loading}
+        >
         <DespesasList
           entries={entries}
           accounts={allAccounts}
@@ -320,6 +333,8 @@ export function DespesasPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           summary={summary}
+          sumCents={sumCents}
+          sumMode={sumMode}
           total={total}
           page={page}
           totalPages={totalPages(total, DEFAULT_PAGE_SIZE)}
@@ -329,6 +344,7 @@ export function DespesasPage() {
           onMarkAsPaid={handleMarkAsPaid}
           onDuplicate={handleDuplicate}
         />
+        </div>
       )}
     </div>
   )

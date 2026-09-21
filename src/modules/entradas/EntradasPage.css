@@ -53,3 +53,9 @@
   outline: 2px solid var(--color-accent-income);
   outline-offset: 2px;
 }
+
+/* Recarregando com filtro novo: a lista anterior fica esmaecida até a resposta chegar. */
+.entradas-page__list--loading {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}

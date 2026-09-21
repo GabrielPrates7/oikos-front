@@ -111,3 +111,23 @@
   color: var(--color-text-muted);
   text-align: center;
 }
+
+/* variant="field" (formulários de Entrada/Despesa): mesma cara dos campos .ui-input__field, com
+   alvo de toque >= 44px e 16px de fonte (evita zoom do iOS ao focar). O painel de opções
+   (portal) mantém o visual de sempre. */
+.ui-combobox--field .ui-combobox__trigger {
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 16px;
+}
+
+.ui-combobox--field .ui-combobox__trigger[aria-invalid='true'] {
+  border-color: var(--color-accent-expense);
+}
+
+@media (min-width: 768px) {
+  .ui-combobox--field .ui-combobox__trigger {
+    min-height: 42px;
+    font-size: 15px;
+  }
+}

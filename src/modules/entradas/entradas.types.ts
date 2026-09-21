@@ -20,12 +20,17 @@ export interface IncomeEntry {
 
 // undefined = mês atual (default do backend); 'all' = sem filtro de mês. Ignorado pelo
 // backend quando from/to explícitos estão presentes (mesma regra de expenses.types).
+// month: 'YYYY-MM' ou 'YYYY-all' (todos os meses de um ano — ver utils/period.ts).
+export type IncomeStatusFilter = 'pending' | 'received'
+
 export interface IncomeEntryFilters {
   accountId?: string
   categoryId?: string
   from?: string
   to?: string
   month?: string
+  // undefined = todas
+  status?: IncomeStatusFilter
 }
 
 export const RECEIPT_METHOD_LABELS: Record<ReceiptMethod, string> = {

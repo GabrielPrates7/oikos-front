@@ -321,3 +321,35 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* Aviso das pendentes: só o período em vista (ver showPeriodHint em EntradasList.tsx). */
+.entradas-list__period-hint {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.entradas-list__period-hint button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-accent-gold);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.entradas-list__empty .entradas-list__clear-filters {
+  margin-top: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .entradas-list__period-hint button {
+    min-height: 44px;
+  }
+
+  .entradas-list__clear-filters {
+    min-height: 44px;
+  }
+}
