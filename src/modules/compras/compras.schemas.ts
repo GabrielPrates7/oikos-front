@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NOTES_MAX_LENGTH, countCodePoints } from '../../utils/notes'
 
 // creditCardId não faz parte do schema: vem fixo do contexto da rota (/cartoes/:id),
 // só é adicionado ao payload na hora de chamar a API (ver cartoes.service.createPurchase).
@@ -11,6 +12,10 @@ export const createSchema = z.object({
   isEssential: z.boolean({ required_error: 'Selecione se é essencial ou supérfluo' }),
   isFixed: z.boolean({ required_error: 'Selecione se é um gasto fixo' }),
   isPlanned: z.boolean({ required_error: 'Selecione se é planejada' }),
+  // Observação opcional ('' = sem observação). O limite é por pontos de código, igual ao backend.
+  notes: z.string().refine((value) => countCodePoints(value) <= NOTES_MAX_LENGTH, {
+    message: `Observação: no máximo ${NOTES_MAX_LENGTH} caracteres`,
+  }),
 })
 
 export type CreateCompraFormData = z.infer<typeof createSchema>

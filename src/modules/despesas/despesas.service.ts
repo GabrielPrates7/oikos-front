@@ -12,7 +12,10 @@ export interface PageParams {
   pageSize: number
 }
 
-function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unknown> {
+function toApiPayload(
+  data: Partial<CreateDespesaFormData>,
+  mode: 'create' | 'update',
+): Record<string, unknown> {
   const payload: Record<string, unknown> = {}
   if (data.accountId !== undefined) payload.account_id = data.accountId
   if (data.categoryId !== undefined) payload.category_id = data.categoryId
@@ -23,6 +26,13 @@ function toApiPayload(data: Partial<CreateDespesaFormData>): Record<string, unkn
   if (data.isEssential !== undefined) payload.is_essential = data.isEssential
   if (data.isFixed !== undefined) payload.is_fixed = data.isFixed
   if (data.isPlanned !== undefined) payload.is_planned = data.isPlanned
+  // Observação: na CRIAÇÃO só vai no payload quando preenchida; na EDIÇÃO sempre vai (texto, ou null se
+  // o usuário apagou). PUT parcial sem o campo (atalho "Marcar como recebida/paga") NÃO envia notes,
+  // então o backend preserva o valor gravado. Trim e "vazio vira null" são do backend.
+  if (data.notes !== undefined) {
+    if (mode === 'update') payload.notes = data.notes === '' ? null : data.notes
+    else if (data.notes !== '') payload.notes = data.notes
+  }
   if (data.countInTotals !== undefined) payload.count_in_totals = data.countInTotals
   // paid_date sempre acompanha is_paid — null explícito quando pendente, mesmo que o
   // formulário ainda tenha algum valor "sobrando" no campo (que nem aparece na tela nesse
@@ -42,6 +52,7 @@ function buildQuery(filters: ExpenseFilters, pagination: PageParams): string {
   if (filters.status) params.set('status', filters.status)
   if (filters.essential) params.set('essential', filters.essential)
   if (filters.planned) params.set('planned', filters.planned)
+  if (filters.fixed) params.set('fixed', filters.fixed)
   const period = periodQuery(filters)
   if (period.from) params.set('from', period.from)
   if (period.to) params.set('to', period.to)
@@ -103,7 +114,7 @@ export const despesasService = {
   async create(data: CreateDespesaFormData): Promise<Expense> {
     const result = await apiFetch<{ expense: Expense }>('/expenses', {
       method: 'POST',
-      body: JSON.stringify(toApiPayload(data)),
+      body: JSON.stringify(toApiPayload(data, 'create')),
     })
     return result.expense
   },
@@ -111,7 +122,7 @@ export const despesasService = {
   async update(id: string, data: UpdateDespesaFormData): Promise<Expense> {
     const result = await apiFetch<{ expense: Expense }>(`/expenses/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(toApiPayload(data)),
+      body: JSON.stringify(toApiPayload(data, 'update')),
     })
     return result.expense
   },
@@ -134,7 +145,7 @@ export const despesasService = {
   // inteiro aqui.
   //
   // Filtros novos e as linhas especiais (pagamento de fatura / fatura em aberto):
-  //  - Tipo (essencial/supérfluo) ou Planejamento ativos: as duas somem (fatura não tem esses
+  //  - Tipo (essencial/supérfluo), Planejamento ou Recorrência ativos: as duas somem (fatura não tem esses
   //    atributos, nunca poderia satisfazê-los) — mesma regra de categoria/forma de pagamento;
   //  - Situação = Pendentes: só as faturas em aberto (a fatura paga não é pendente);
   //  - Situação = Pagas: só os pagamentos de fatura;
@@ -164,6 +175,7 @@ export const despesasService = {
       filters.paymentMethod ||
       filters.essential ||
       filters.planned ||
+      filters.fixed ||
       (!includePaymentLines && !includeUnpaidLines)
     ) {
       return {

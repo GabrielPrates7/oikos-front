@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
+import { NotesField } from '../../components/forms/NotesField'
 import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
@@ -52,6 +53,8 @@ export function CompraForm({
       isEssential: duplicateFrom?.is_essential,
       isFixed: duplicateFrom?.is_fixed,
       isPlanned: duplicateFrom?.is_planned,
+      // Observação: '' = sem observação (na criação só vai no payload se preenchida). Duplicar copia.
+      notes: duplicateFrom?.notes ?? '',
     },
   })
 
@@ -145,6 +148,19 @@ export function CompraForm({
             ]}
             onChange={field.onChange}
             error={errors.isPlanned?.message}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="notes"
+        render={({ field }) => (
+          <NotesField
+            id="compra-notes"
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            defaultOpen={!!duplicateFrom?.notes}
+            error={errors.notes?.message}
           />
         )}
       />

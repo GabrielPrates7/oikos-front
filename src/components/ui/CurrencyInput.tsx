@@ -9,6 +9,7 @@ interface CurrencyInputProps<T extends FieldValues> {
   label: string
   error?: string
   disabled?: boolean
+  requiredMark?: boolean
   // Opcionais (formulários de Entrada/Despesa): ref do <input> (foco automático) e classes extras.
   inputRef?: Ref<HTMLInputElement>
   className?: string
@@ -23,6 +24,7 @@ export function CurrencyInput<T extends FieldValues>({
   label,
   error,
   disabled,
+  requiredMark,
   inputRef,
   className,
   inputClassName,
@@ -39,6 +41,12 @@ export function CurrencyInput<T extends FieldValues>({
           <div className={`ui-input${className ? ` ${className}` : ''}`}>
             <label htmlFor={name} className="ui-input__label">
               {label}
+              {requiredMark && (
+                <span className="ui-input__required" aria-hidden="true">
+                  {' '}
+                  *
+                </span>
+              )}
             </label>
             <input
               id={name}
@@ -53,6 +61,7 @@ export function CurrencyInput<T extends FieldValues>({
               value={centsToBRL(cents)}
               disabled={disabled}
               aria-invalid={!!error}
+              aria-required={requiredMark || undefined}
               aria-describedby={errorId}
               onChange={(event) => field.onChange(parseBRLToCents(event.target.value))}
               onBlur={field.onBlur}

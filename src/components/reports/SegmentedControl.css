@@ -137,3 +137,10 @@
     flex: initial;
   }
 }
+
+/* Dica de 1 linha sob o rótulo (formulários). */
+.segmented-control__hint {
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+}

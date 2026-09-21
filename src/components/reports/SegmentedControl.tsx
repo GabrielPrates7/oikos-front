@@ -36,6 +36,8 @@ interface SegmentedControlProps<T extends string> {
   // e erro inline (aria-invalid + aria-describedby + mensagem com role="alert").
   required?: boolean
   error?: string
+  // Texto de ajuda de 1 linha logo abaixo do rótulo (ex.: "Sim para valores que se repetem…").
+  hint?: string
 }
 
 // Controle segmentado acessível (role="radiogroup"): o rótulo do grupo fica SEMPRE visível
@@ -53,9 +55,11 @@ export function SegmentedControl<T extends string>({
   layout,
   required = false,
   error,
+  hint,
 }: SegmentedControlProps<T>) {
   const labelId = useId()
   const errorId = useId()
+  const hintId = useId()
   const groupRef = useRef<HTMLDivElement>(null)
   const enabled = options.filter((option) => !option.disabled)
   const hasSelection = enabled.some((option) => option.value === value)
@@ -92,6 +96,11 @@ export function SegmentedControl<T extends string>({
           </span>
         )}
       </span>
+      {hint && (
+        <span id={hintId} className="segmented-control__hint">
+          {hint}
+        </span>
+      )}
       <div
         ref={groupRef}
         className="segmented-control__group"
@@ -99,7 +108,9 @@ export function SegmentedControl<T extends string>({
         aria-labelledby={labelId}
         aria-required={required || undefined}
         aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
+        aria-describedby={
+          [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
+        }
       >
         {options.map((option) => {
           const selected = option.value === value

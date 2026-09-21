@@ -17,6 +17,8 @@ export interface Expense {
   // Fase 1: só afeta o "Total exibido" desta tela (Geral/Já pago/Falta pagar) — Saldo
   // Real/extrato de conta e o resto do sistema continuam somando tudo, de propósito.
   count_in_totals: boolean
+  // Observação opcional (texto livre, até 500 caracteres). Sempre renderizar como texto.
+  notes: string | null
   created_at: string
 }
 
@@ -26,6 +28,7 @@ export interface Expense {
 export type ExpenseStatusFilter = 'pending' | 'paid'
 export type ExpenseEssentialFilter = 'essential' | 'superfluous'
 export type ExpensePlannedFilter = 'planned' | 'unplanned'
+export type ExpenseFixedFilter = 'fixed' | 'unfixed'
 
 export interface ExpenseFilters {
   accountId?: string
@@ -38,6 +41,8 @@ export interface ExpenseFilters {
   status?: ExpenseStatusFilter
   essential?: ExpenseEssentialFilter
   planned?: ExpensePlannedFilter
+  // undefined = todas; fixed = só recorrentes (is_fixed); unfixed = só as demais
+  fixed?: ExpenseFixedFilter
 }
 
 export interface MonthlySummary {

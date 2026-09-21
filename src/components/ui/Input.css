@@ -53,3 +53,8 @@
 select.ui-input__field {
   cursor: pointer;
 }
+
+/* Marcador de campo obrigatório (asterisco). */
+.ui-input__required {
+  color: #cf6b52;
+}

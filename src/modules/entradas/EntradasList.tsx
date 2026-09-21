@@ -1,11 +1,14 @@
 import { CircleDollarSign, Copy, Edit2, Search, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Combobox } from '../../components/ui/Combobox'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
 import { SegmentedControl } from '../../components/reports/SegmentedControl'
 import { ListFilterRow } from '../../components/ui/ListFilterRow'
+import { FixedBadge } from '../../components/ui/FixedBadge'
 import { Pagination } from '../../components/ui/Pagination'
+import { NotesText, NotesToggle } from '../../components/ui/RowNotes'
+import { useOpenNotes } from '../../components/ui/useOpenNotes'
 import { assignCategoryColors } from '../../utils/chartColors'
 import { centsToBRL } from '../../utils/currency'
 import { currentMonthString, formatDateBR, MONTH_NAMES_PT } from '../../utils/date'
@@ -22,7 +25,12 @@ import {
 import type { Account } from '../contas/contas.types'
 import type { Category } from '../categorias/categorias.types'
 import { EntradasTotalCard } from './EntradasTotalCard'
-import type { IncomeEntry, IncomeEntryFilters, IncomeStatusFilter } from './entradas.types'
+import type {
+  FixedFilter,
+  IncomeEntry,
+  IncomeEntryFilters,
+  IncomeStatusFilter,
+} from './entradas.types'
 import './EntradasList.css'
 
 interface EntradasListProps {
@@ -68,6 +76,7 @@ export function EntradasList({
   // (mesma decisão em DespesasList), mas agora restrita aos 20 itens já carregados, já que
   // a busca nunca foi enviada ao servidor.
   const [search, setSearch] = useState('')
+  const notes = useOpenNotes()
   const rowsRef = useRef<HTMLTableSectionElement>(null)
 
   useEffect(() => {
@@ -107,8 +116,14 @@ export function EntradasList({
   // Contador de filtros ativos: os filtros de sempre + Situação + Mês/Ano FORA do padrão (mês e
   // ano correntes; "Todos" conta). "Limpar filtros" volta tudo ao padrão.
   const activeFilterCount =
-    [filters.accountId, filters.categoryId, filters.from, filters.to, filters.status].filter(Boolean)
-      .length + periodFiltersOffDefault(filters.month)
+    [
+      filters.accountId,
+      filters.categoryId,
+      filters.from,
+      filters.to,
+      filters.status,
+      filters.fixed,
+    ].filter(Boolean).length + periodFiltersOffDefault(filters.month)
   const hasFilters = activeFilterCount > 0
   const isPendingMode = sumMode === 'pending'
   // Pendentes com Mês/Ano (sem De/Até) mostra só aquele período — avisa, com atalho pra ampliar.
@@ -119,6 +134,7 @@ export function EntradasList({
       accountId: undefined,
       categoryId: undefined,
       status: undefined,
+      fixed: undefined,
       from: undefined,
       to: undefined,
       month: currentMonthString(),
@@ -128,7 +144,12 @@ export function EntradasList({
   const visibleEntries = useMemo(() => {
     const query = search.trim().toLowerCase()
     if (!query) return entries
-    return entries.filter((entry) => entry.description.toLowerCase().includes(query))
+    // Busca no navegador, só na página atual: descrição OU observação.
+    return entries.filter(
+      (entry) =>
+        entry.description.toLowerCase().includes(query) ||
+        (entry.notes ?? '').toLowerCase().includes(query),
+    )
   }, [entries, search])
 
   return (
@@ -142,7 +163,7 @@ export function EntradasList({
             <input
               id="filter-search"
               type="text"
-              placeholder="Buscar por descrição..."
+              placeholder="Buscar por descrição ou observação..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -251,6 +272,17 @@ export function EntradasList({
             handleFilterChange({ status: value === 'all' ? undefined : value })
           }
         />
+        <SegmentedControl<FixedFilter | 'all'>
+          label="Recorrência"
+          stretch
+          value={filters.fixed ?? 'all'}
+          options={[
+            { value: 'all', label: 'Todas' },
+            { value: 'fixed', label: 'Fixas' },
+            { value: 'unfixed', label: 'Não fixas' },
+          ]}
+          onChange={(value) => handleFilterChange({ fixed: value === 'all' ? undefined : value })}
+        />
         {showPeriodHint && (
           <p className="entradas-list__period-hint" role="status">
             Mostrando pendentes de {describePeriod(filters.month)}.
@@ -327,13 +359,21 @@ export function EntradasList({
                   const category = categoriesById.get(entry.category_id)
                   const isConfirming = confirmingId === entry.id
                   return (
+                    <Fragment key={entry.id}>
                     <tr
-                      key={entry.id}
                       className={entry.is_received ? undefined : 'entradas-list__row--pending'}
                     >
                       <td className="entradas-list__description">
                         <div className="entradas-list__description-row">
                           <span>{entry.description}</span>
+                          {entry.notes && (
+                            <NotesToggle
+                              panelId={`notes-${entry.id}`}
+                              open={notes.isOpen(entry.id)}
+                              onToggle={() => notes.toggle(entry.id)}
+                            />
+                          )}
+                          {entry.is_fixed && <FixedBadge />}
                           {!entry.is_received && (
                             <span className="entradas-list__pending-badge">Pendente</span>
                           )}
@@ -419,6 +459,18 @@ export function EntradasList({
                         )}
                       </td>
                     </tr>
+                    {entry.notes && (
+                      <tr
+                        id={`notes-${entry.id}`}
+                        className="notes-row"
+                        hidden={!notes.isOpen(entry.id)}
+                      >
+                        <td colSpan={6}>
+                          <NotesText notes={entry.notes} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   )
                 })}
               </tbody>

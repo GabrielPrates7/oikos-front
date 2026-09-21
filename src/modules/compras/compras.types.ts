@@ -15,6 +15,8 @@ export interface Purchase {
   is_essential: boolean
   is_fixed: boolean
   is_planned: boolean
+  // Observação opcional (texto livre, até 500 caracteres). Sempre renderizar como texto.
+  notes: string | null
   created_at: string
   category_name: string
   category_icon: string | null
@@ -43,6 +45,7 @@ export interface RawPurchase {
   is_essential: boolean
   is_fixed: boolean
   is_planned: boolean
+  notes: string | null
   created_at: string
 }
 

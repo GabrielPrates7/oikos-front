@@ -4,6 +4,8 @@ import { CategoryBadge } from '../../components/ui/CategoryBadge'
 import { Combobox } from '../../components/ui/Combobox'
 import { EssentialBadge } from '../../components/ui/EssentialBadge'
 import { Pagination } from '../../components/ui/Pagination'
+import { NotesText, NotesToggle } from '../../components/ui/RowNotes'
+import { useOpenNotes } from '../../components/ui/useOpenNotes'
 import { assignCategoryColors } from '../../utils/chartColors'
 import { centsToBRL } from '../../utils/currency'
 import {
@@ -136,6 +138,8 @@ export function CartaoComprasSection({
     (currentPage - 1) * DEFAULT_PAGE_SIZE,
     currentPage * DEFAULT_PAGE_SIZE,
   )
+
+  const notes = useOpenNotes()
 
   return (
     <section className="cartao-compras">
@@ -272,6 +276,13 @@ export function CartaoComprasSection({
                     <div className="cartao-compras__info">
                       <div className="cartao-compras__description-row">
                         <span className="cartao-compras__description">{purchase.description}</span>
+                        {purchase.notes && (
+                          <NotesToggle
+                            panelId={`notes-${purchase.id}`}
+                            open={notes.isOpen(purchase.id)}
+                            onToggle={() => notes.toggle(purchase.id)}
+                          />
+                        )}
                         <EssentialBadge isEssential={purchase.is_essential} />
                         <PurchaseStatusBadge status={purchase.payment_status} />
                       </div>
@@ -333,6 +344,15 @@ export function CartaoComprasSection({
                         </>
                       )}
                     </div>
+                    {purchase.notes && (
+                      <div
+                        id={`notes-${purchase.id}`}
+                        className="notes-panel"
+                        hidden={!notes.isOpen(purchase.id)}
+                      >
+                        <NotesText notes={purchase.notes} />
+                      </div>
+                    )}
                   </li>
                 )
               })}

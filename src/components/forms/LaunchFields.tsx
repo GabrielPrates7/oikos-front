@@ -64,6 +64,7 @@ export function DateField({
   onPick,
   error,
   chips = true,
+  requiredMark,
 }: {
   id: string
   label: string
@@ -73,6 +74,7 @@ export function DateField({
   onPick: (isoDate: string) => void
   error?: string
   chips?: boolean
+  requiredMark?: boolean
 }) {
   const today = todayInSaoPaulo()
   const yesterday = yesterdayInSaoPaulo()
@@ -80,11 +82,18 @@ export function DateField({
     <div className="ui-input launch-date">
       <label htmlFor={id} className="ui-input__label">
         {label}
+        {requiredMark && (
+          <span className="ui-input__required" aria-hidden="true">
+            {' '}
+            *
+          </span>
+        )}
       </label>
       <input
         id={id}
         type="date"
         className="ui-input__field"
+        aria-required={requiredMark || undefined}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         {...register}
@@ -138,10 +147,12 @@ export function InstallmentsStepper({
   value,
   onChange,
   error,
+  requiredMark,
 }: {
   id: string
   label: string
   register: UseFormRegisterReturn
+  requiredMark?: boolean
   value: number | undefined
   onChange: (next: number) => void
   error?: string
@@ -151,6 +162,12 @@ export function InstallmentsStepper({
     <div className="ui-input launch-stepper">
       <label htmlFor={id} className="ui-input__label">
         {label}
+        {requiredMark && (
+          <span className="ui-input__required" aria-hidden="true">
+            {' '}
+            *
+          </span>
+        )}
       </label>
       <div className="launch-stepper__row">
         <button
@@ -168,6 +185,7 @@ export function InstallmentsStepper({
           min={1}
           inputMode="numeric"
           className="ui-input__field launch-stepper__input"
+          aria-required={requiredMark || undefined}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
           {...register}

@@ -1,0 +1,13 @@
+/* Neutro de propósito (igual ao selo Essencial/Supérfluo): não compete com o valor nem com o
+   selo Pendente. */
+.fixed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}

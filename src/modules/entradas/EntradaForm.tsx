@@ -12,6 +12,7 @@ import {
   Reveal,
 } from '../../components/forms/LaunchFields'
 import { LaunchForm } from '../../components/forms/LaunchForm'
+import { NotesField } from '../../components/forms/NotesField'
 import { SHELL_DESKTOP_QUERY } from '../../components/layout/breakpoints'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
@@ -103,6 +104,11 @@ export function EntradaForm({
       // Sem valor padrão de propósito (escolha obrigatória) — igual ao formulário anterior.
       isReceived: source?.is_received,
       isPlanned: source?.is_planned,
+      // Recebimento fixo: sem valor padrão ao criar (obrigatório). Editar traz o valor gravado
+      // (entradas anteriores à migração vêm como "Não"); duplicar copia.
+      isFixed: source?.is_fixed,
+      // Observação: '' = sem observação (na criação só vai no payload se preenchida).
+      notes: source?.notes ?? '',
       // Registro antigo (de antes desse campo existir) pode ter is_received=true com
       // received_date nulo — cai pra data do lançamento em vez de deixar em branco.
       receivedDate: source?.received_date ?? source?.entry_date ?? todayInSaoPaulo(),
@@ -181,6 +187,7 @@ export function EntradaForm({
           control={control}
           name="amountCents"
           label="Valor"
+          requiredMark
           error={errors.amountCents?.message}
           inputRef={amountRef}
           className="launch-amount"
@@ -188,6 +195,7 @@ export function EntradaForm({
         />
         <Input
           label="Descrição"
+          requiredMark
           type="text"
           error={errors.description?.message}
           {...register('description')}
@@ -240,6 +248,7 @@ export function EntradaForm({
             render={({ field }) => (
               <SegmentedControl<ReceiptMethod>
                 label="Forma de recebimento"
+                required
                 stretch
                 layout="grid2"
                 value={field.value}
@@ -256,6 +265,7 @@ export function EntradaForm({
         <DateField
           id="entryDate"
           label="Data"
+          requiredMark
           register={register('entryDate')}
           value={entryDate}
           onPick={(iso) => setValue('entryDate', iso, { shouldDirty: true, shouldValidate: true })}
@@ -283,6 +293,7 @@ export function EntradaForm({
           <Reveal open={isReceived === true}>
             <Input
               label="Data do recebimento"
+              requiredMark
               type="date"
               error={errors.receivedDate?.message}
               {...register('receivedDate')}
@@ -310,7 +321,43 @@ export function EntradaForm({
             />
           )}
         />
+        <Controller
+          control={control}
+          name="isFixed"
+          render={({ field }) => (
+            <SegmentedControl<'true' | 'false'>
+              label="Recebimento fixo"
+              hint="Sim para valores que se repetem, como salário."
+              required
+              stretch
+              value={boolToSegment(field.value)}
+              options={[
+                { value: 'true', label: 'Sim' },
+                { value: 'false', label: 'Não' },
+              ]}
+              onChange={(value) => field.onChange(value === 'true')}
+              error={errors.isFixed?.message}
+            />
+          )}
+        />
       </FormSection>
+
+      <div className="launch-section">
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field }) => (
+            <NotesField
+              id="entrada-notes"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              // editar/duplicar um registro que já tem observação abre expandido
+              defaultOpen={!!source?.notes}
+              error={errors.notes?.message}
+            />
+          )}
+        />
+      </div>
 
       <CountInTotalsRow register={register('countInTotals')} checked={countInTotals} />
     </LaunchForm>

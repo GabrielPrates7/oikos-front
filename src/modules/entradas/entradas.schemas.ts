@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NOTES_MAX_LENGTH, countCodePoints } from '../../utils/notes'
 
 export const receiptMethodSchema = z.enum(['pix', 'transfer', 'cash', 'other'])
 
@@ -11,6 +12,12 @@ const baseFields = {
   receiptMethod: receiptMethodSchema,
   isReceived: z.boolean({ required_error: 'Selecione se foi recebida ou está pendente' }),
   isPlanned: z.boolean({ required_error: 'Selecione se é planejada' }),
+  // Recebimento fixo (recorrente): obrigatório, sem valor padrão ao criar (is_fixed na API).
+  isFixed: z.boolean({ required_error: 'Informe se o recebimento é fixo' }),
+  // Observação opcional ('' = sem observação). O limite é por pontos de código, igual ao backend.
+  notes: z.string().refine((value) => countCodePoints(value) <= NOTES_MAX_LENGTH, {
+    message: `Observação: no máximo ${NOTES_MAX_LENGTH} caracteres`,
+  }),
   receivedDate: z.string().optional(),
   // Fase 1 do campo "contar no total" — default true no formulário (useForm), não aqui:
   // zod .default() em campo dentro de .partial() (update) resolveria pra true mesmo quando

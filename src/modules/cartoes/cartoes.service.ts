@@ -128,19 +128,22 @@ export const cartoesService = {
     cardId: string,
     data: CreateCompraFormData,
   ): Promise<{ purchase: RawPurchase; installments: PurchaseInstallment[] }> {
+    const payload: Record<string, unknown> = {
+      credit_card_id: cardId,
+      category_id: data.categoryId,
+      description: data.description,
+      total_amount_cents: data.totalAmountCents,
+      installments_count: data.installmentsCount,
+      purchase_date: data.purchaseDate,
+      is_essential: data.isEssential,
+      is_fixed: data.isFixed,
+      is_planned: data.isPlanned,
+    }
+    // Criação: notes só quando preenchida (trim e vazio→null são do backend).
+    if (data.notes) payload.notes = data.notes
     return apiFetch('/purchases', {
       method: 'POST',
-      body: JSON.stringify({
-        credit_card_id: cardId,
-        category_id: data.categoryId,
-        description: data.description,
-        total_amount_cents: data.totalAmountCents,
-        installments_count: data.installmentsCount,
-        purchase_date: data.purchaseDate,
-        is_essential: data.isEssential,
-        is_fixed: data.isFixed,
-        is_planned: data.isPlanned,
-      }),
+      body: JSON.stringify(payload),
     })
   },
 
@@ -160,6 +163,9 @@ export const cartoesService = {
       is_essential: data.isEssential,
       is_fixed: data.isFixed,
     }
+    // Edição: notes SEMPRE vai (texto, ou null se apagada). Não é campo estrutural: vale também com
+    // parcela já paga (locked).
+    if (data.notes !== undefined) payload.notes = data.notes === '' ? null : data.notes
     if (!locked) {
       payload.credit_card_id = data.creditCardId
       payload.total_amount_cents = data.totalAmountCents

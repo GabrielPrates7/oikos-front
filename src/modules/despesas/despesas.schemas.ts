@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NOTES_MAX_LENGTH, countCodePoints } from '../../utils/notes'
 
 export const paymentMethodSchema = z.enum(['debit', 'cash', 'pix'])
 
@@ -26,6 +27,10 @@ const baseFields = {
   installmentsCount: z.number().int().min(1).optional(),
   // Fase 1 do campo "contar no total" — default true no formulário (useForm), não aqui.
   countInTotals: z.boolean(),
+  // Observação opcional ('' = sem observação). O limite é por pontos de código, igual ao backend.
+  notes: z.string().refine((value) => countCodePoints(value) <= NOTES_MAX_LENGTH, {
+    message: `Observação: no máximo ${NOTES_MAX_LENGTH} caracteres`,
+  }),
 }
 
 // superRefine (não refine) porque os dois ramos validam campos diferentes — precisa poder

@@ -201,6 +201,7 @@ export function DespesasPage() {
           isEssential: data.isEssential,
           isFixed: data.isFixed,
           isPlanned: data.isPlanned,
+          notes: data.notes,
         })
         const cardName = activeCards.find((card) => card.id === cardId)?.name ?? 'cartão'
         const firstInstallment = [...installments].sort(

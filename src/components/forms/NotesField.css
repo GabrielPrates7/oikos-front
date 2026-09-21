@@ -1,0 +1,105 @@
+/* Observação opcional (NotesField.tsx). Independente do tom do formulário: só tokens base. */
+.notes-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.notes-field__add,
+.notes-field__collapse {
+  align-self: flex-start;
+  min-height: 32px;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.notes-field__add {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.notes-field__collapse:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .notes-field__add:hover,
+  .notes-field__collapse:not(:disabled):hover {
+    text-decoration: underline;
+  }
+}
+
+.notes-field__add:focus-visible,
+.notes-field__collapse:focus-visible {
+  outline: 2px solid var(--lf-accent, var(--color-accent));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.notes-field__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notes-field__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.notes-field__area {
+  width: 100%;
+  min-height: 84px;
+  line-height: 1.45;
+  resize: none;
+  font-family: var(--font-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.notes-field__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notes-field__count {
+  margin-left: auto;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.notes-field__warn {
+  font-size: 12px;
+  color: var(--color-warning);
+}
+
+/* Mobile (< 768px, mesmo ponto do Shell): alvos >= 44px (o textarea já é 16px pela regra global
+   de campos em index.css). */
+@media (max-width: 767.98px) {
+  .notes-field__add,
+  .notes-field__collapse {
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
+  .notes-field__area {
+    min-height: 96px;
+  }
+
+  .notes-field {
+    scroll-margin-bottom: calc(var(--bottom-nav-h, 0px) + var(--safe-bottom, 0px) + 96px);
+  }
+}

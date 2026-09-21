@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { FormError } from '../../components/feedback/FormError'
+import { NotesField } from '../../components/forms/NotesField'
 import { BooleanToggle } from '../../components/ui/BooleanToggle'
 import { Button } from '../../components/ui/Button'
 import { CurrencyInput } from '../../components/ui/CurrencyInput'
@@ -57,6 +58,9 @@ export function CompraEditForm({
       // descartado silenciosamente pelo schema do servidor.
       isPlanned: purchase.is_planned,
       creditCardId: purchase.credit_card_id,
+      // Observação atual ('' = sem). Editar SEMPRE envia notes (texto ou null se apagada) — inclusive
+      // com parcela já paga, porque não é campo estrutural.
+      notes: purchase.notes ?? '',
     },
   })
 
@@ -157,6 +161,19 @@ export function CompraEditForm({
         {...register('creditCardId')}
       />
 
+      <Controller
+        control={control}
+        name="notes"
+        render={({ field }) => (
+          <NotesField
+            id="compra-edit-notes"
+            value={field.value ?? ''}
+            onChange={field.onChange}
+            defaultOpen={!!purchase.notes}
+            error={errors.notes?.message}
+          />
+        )}
+      />
       <FormError message={error} />
       <div className="compra-form__actions">
         <Button type="button" variant="secondary" onClick={onCancel}>

@@ -14,6 +14,7 @@ import {
   Reveal,
 } from '../../components/forms/LaunchFields'
 import { LaunchForm } from '../../components/forms/LaunchForm'
+import { NotesField } from '../../components/forms/NotesField'
 import { SHELL_DESKTOP_QUERY } from '../../components/layout/breakpoints'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
@@ -121,6 +122,8 @@ export function DespesaForm({
       paidDate: source?.paid_date ?? source?.expense_date ?? todayInSaoPaulo(),
       creditCardId: '',
       installmentsCount: 1,
+      // Observação: '' = sem observação (na criação só vai no payload se preenchida).
+      notes: source?.notes ?? '',
       // Marcado por padrão (fase 1 do campo "contar no total") — ?? true cobre tanto
       // criação (source undefined) quanto registro antigo (de antes desse campo existir).
       countInTotals: source?.count_in_totals ?? true,
@@ -245,6 +248,7 @@ export function DespesaForm({
           control={control}
           name="amountCents"
           label="Valor"
+          requiredMark
           error={errors.amountCents?.message}
           inputRef={amountRef}
           className="launch-amount"
@@ -252,6 +256,7 @@ export function DespesaForm({
         />
         <Input
           label="Descrição"
+          requiredMark
           type="text"
           error={errors.description?.message}
           {...register('description')}
@@ -326,6 +331,7 @@ export function DespesaForm({
             render={({ field }) => (
               <SegmentedControl<LaunchPaymentMethod>
                 label="Forma de pagamento"
+                required
                 tone="red"
                 stretch
                 layout="grid2"
@@ -341,6 +347,7 @@ export function DespesaForm({
           <InstallmentsStepper
             id="installmentsCount"
             label="Parcelas"
+            requiredMark
             register={register('installmentsCount', { valueAsNumber: true })}
             value={installmentsCount}
             onChange={(next) =>
@@ -355,6 +362,7 @@ export function DespesaForm({
         <DateField
           id="expenseDate"
           label="Data"
+          requiredMark
           register={register('expenseDate')}
           value={expenseDate}
           onPick={(iso) =>
@@ -386,6 +394,7 @@ export function DespesaForm({
             <Reveal open={isPaid === true}>
               <Input
                 label="Data do pagamento"
+                requiredMark
                 type="date"
                 error={errors.paidDate?.message}
                 {...register('paidDate')}
@@ -410,6 +419,23 @@ export function DespesaForm({
           errors.isPlanned?.message,
         )}
       </FormSection>
+
+      <div className="launch-section">
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field }) => (
+            <NotesField
+              id="despesa-notes"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              // editar/duplicar um registro que já tem observação abre expandido
+              defaultOpen={!!source?.notes}
+              error={errors.notes?.message}
+            />
+          )}
+        />
+      </div>
 
       {/* Não se aplica a compra no cartão — purchases (installments) não tem esse campo, só
           income_entries/expenses (fase 1 do escopo). Some da UI nesse modo pra não mostrar um

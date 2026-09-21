@@ -1,11 +1,14 @@
 import { CircleDollarSign, Copy, Edit2, Receipt, Search, Tag, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { Combobox } from '../../components/ui/Combobox'
 import { SegmentedControl } from '../../components/reports/SegmentedControl'
 import { ListFilterRow } from '../../components/ui/ListFilterRow'
+import { FixedBadge } from '../../components/ui/FixedBadge'
 import { Pagination } from '../../components/ui/Pagination'
+import { NotesText, NotesToggle } from '../../components/ui/RowNotes'
+import { useOpenNotes } from '../../components/ui/useOpenNotes'
 import { centsToBRL } from '../../utils/currency'
 import { DEFAULT_PAGE_SIZE } from '../../utils/pagination'
 import {
@@ -27,6 +30,7 @@ import type {
   Expense,
   ExpenseEssentialFilter,
   ExpenseFilters,
+  ExpenseFixedFilter,
   ExpensePlannedFilter,
   ExpenseStatusFilter,
   MonthlySummary,
@@ -65,6 +69,10 @@ function entryDescription(entry: DespesaListEntry): string {
   return entry.type === 'expense' ? entry.data.description : entry.description
 }
 
+function entryNotes(entry: DespesaListEntry): string {
+  return entry.type === 'expense' ? (entry.data.notes ?? '') : ''
+}
+
 export function DespesasList({
   entries,
   accounts,
@@ -88,6 +96,7 @@ export function DespesasList({
   // Busca client-side — o volume de despesas de um usuário não justifica ida ao servidor
   // (mesma decisão em EntradasList).
   const [search, setSearch] = useState('')
+  const notes = useOpenNotes()
   const rowsRef = useRef<HTMLTableSectionElement>(null)
 
   useEffect(() => {
@@ -125,6 +134,7 @@ export function DespesasList({
     filters.status,
     filters.essential,
     filters.planned,
+    filters.fixed,
     filters.accountId,
     filters.categoryId,
     filters.paymentMethod,
@@ -147,6 +157,7 @@ export function DespesasList({
       status: undefined,
       essential: undefined,
       planned: undefined,
+      fixed: undefined,
       from: undefined,
       to: undefined,
       month: currentMonthString(),
@@ -156,7 +167,13 @@ export function DespesasList({
   const visibleEntries = useMemo(() => {
     const query = search.trim().toLowerCase()
     if (!query) return entries
-    return entries.filter((entry) => entryDescription(entry).toLowerCase().includes(query))
+    // Busca no navegador, só na página atual: descrição OU observação (linhas de fatura só têm
+    // descrição).
+    return entries.filter(
+      (entry) =>
+        entryDescription(entry).toLowerCase().includes(query) ||
+        entryNotes(entry).toLowerCase().includes(query),
+    )
   }, [entries, search])
 
   return (
@@ -169,7 +186,7 @@ export function DespesasList({
             <input
               id="filter-search"
               type="text"
-              placeholder="Buscar por descrição..."
+              placeholder="Buscar por descrição ou observação..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -325,6 +342,20 @@ export function DespesasList({
               handleFilterChange({ planned: value === 'all' ? undefined : value })
             }
           />
+          <SegmentedControl<ExpenseFixedFilter | 'all'>
+            label="Recorrência"
+            tone="red"
+            stretch
+            value={filters.fixed ?? 'all'}
+            options={[
+              { value: 'all', label: 'Todas' },
+              { value: 'fixed', label: 'Fixas' },
+              { value: 'unfixed', label: 'Não fixas' },
+            ]}
+            onChange={(value) =>
+              handleFilterChange({ fixed: value === 'all' ? undefined : value })
+            }
+          />
           {showPeriodHint && (
             <p className="despesas-list__period-hint" role="status">
               Mostrando pendentes de {describePeriod(filters.month)}.
@@ -466,8 +497,8 @@ export function DespesasList({
                   const category = categoriesById.get(expense.category_id)
                   const isConfirming = confirmingId === expense.id
                   return (
+                    <Fragment key={expense.id}>
                     <tr
-                      key={expense.id}
                       className={
                         expense.is_paid ? undefined : 'despesas-list__row--pending'
                       }
@@ -475,10 +506,18 @@ export function DespesasList({
                       <td className="despesas-list__description">
                         <div className="despesas-list__description-row">
                           <span>{expense.description}</span>
+                          {expense.notes && (
+                            <NotesToggle
+                              panelId={`notes-${expense.id}`}
+                              open={notes.isOpen(expense.id)}
+                              onToggle={() => notes.toggle(expense.id)}
+                            />
+                          )}
                           <span className="despesas-list__essential-badge">
                             <Tag size={12} aria-hidden="true" />
                             {expense.is_essential ? 'Essencial' : 'Supérfluo'}
                           </span>
+                          {expense.is_fixed && <FixedBadge />}
                           {!expense.is_paid && (
                             <span className="despesas-list__pending-badge">Pendente</span>
                           )}
@@ -558,6 +597,18 @@ export function DespesasList({
                         )}
                       </td>
                     </tr>
+                    {expense.notes && (
+                      <tr
+                        id={`notes-${expense.id}`}
+                        className="notes-row"
+                        hidden={!notes.isOpen(expense.id)}
+                      >
+                        <td colSpan={6}>
+                          <NotesText notes={expense.notes} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   )
                 })}
               </tbody>
