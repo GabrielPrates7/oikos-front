@@ -1,145 +1,6 @@
-/* Folha "Mais" (mobile). Portal no <body>: fora de qualquer contexto de empilhamento do app.
-   Fica acima da BottomNav (--z-sheet > --z-bottom-nav). Some em >= 768px (mesmo breakpoint do
-   Shell). Animação só com transform/opacity. */
-.mobile-sheet {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-sheet);
-}
-
-@media (min-width: 768px) {
-  .mobile-sheet {
-    display: none;
-  }
-}
-
-.mobile-sheet__backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  background: rgba(0, 0, 0, 0.55);
-  animation: sheet-fade-in 220ms ease both;
-  cursor: default;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-sheet__panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  max-height: 85vh;
-  max-height: 85dvh;
-  padding-bottom: var(--safe-bottom);
-  background: var(--color-bg-surface);
-  border-top: 1px solid rgba(127, 217, 160, 0.16);
-  border-radius: 16px 16px 0 0;
-  overscroll-behavior: contain;
-  animation: sheet-slide-in 220ms ease both;
-}
-
-/* Saída: mesma animação ao contrário; o componente desmonta 220ms depois. */
-.mobile-sheet--closing .mobile-sheet__backdrop {
-  animation-name: sheet-fade-out;
-}
-
-.mobile-sheet--closing .mobile-sheet__panel {
-  animation-name: sheet-slide-out;
-}
-
-@keyframes sheet-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes sheet-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes sheet-slide-in {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes sheet-slide-out {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mobile-sheet__backdrop,
-  .mobile-sheet__panel {
-    animation: none;
-  }
-}
-
-.mobile-sheet__header {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px 0 20px;
-}
-
-.mobile-sheet__title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.mobile-sheet__close {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0 14px;
-  border: none;
-  background: transparent;
-  color: #9ca79e;
-  font-family: var(--font-body);
-  font-size: 14px;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.mobile-sheet__scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 0 12px 8px;
-}
-
-.mobile-sheet__scroll::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
+/* Casca de folha/portal (fundo, painel, animação, cabeçalho, área de rolagem) mora em
+   ../ui/Sheet.css, compartilhada com a folha de filtros (FilterSheet). Aqui só o que é
+   específico da folha "Mais": grupos de navegação, links e rodapé de usuário. */
 
 /* Espaçamentos compactos de propósito: com 8 itens de 48px + 5 títulos, a folha cabe inteira (sem
    rolar) a partir de ~740px de altura de tela. */
@@ -180,7 +41,6 @@
 }
 
 .mobile-sheet__link:focus-visible,
-.mobile-sheet__close:focus-visible,
 .mobile-sheet__logout:focus-visible {
   outline: 2px solid var(--color-accent-bright);
   outline-offset: -2px;
@@ -189,10 +49,6 @@
 @media (hover: hover) and (pointer: fine) {
   .mobile-sheet__link:hover {
     background: color-mix(in srgb, var(--color-accent) 12%, transparent);
-  }
-
-  .mobile-sheet__close:hover {
-    color: var(--color-text-primary);
   }
 }
 

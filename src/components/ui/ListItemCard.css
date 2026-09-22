@@ -1,0 +1,193 @@
+/* Extraído de CartaoComprasSection.css (linha de "Histórico de compras") sem alterar nenhum
+   valor — só generalizado pra outras listas usarem o mesmo cartão. */
+.list-item-card-list {
+  border-top: 1px solid var(--color-bg-elevated);
+}
+
+.list-item-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--color-bg-elevated);
+}
+
+.list-item-card:last-child {
+  border-bottom: none;
+}
+
+.list-item-card__date {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+}
+
+.list-item-card__info {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.list-item-card__title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.list-item-card__title {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.list-item-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.list-item-card__amount {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+  min-width: 100px;
+}
+
+.list-item-card__amount--income {
+  color: var(--color-accent-income);
+}
+
+.list-item-card__amount--expense {
+  color: var(--color-accent-expense);
+}
+
+.list-item-card__actions {
+  flex: 0 0 auto;
+  /* Trava o tamanho no que sobra da linha: sem isso, um botão de texto longo (ex.: "Marcar
+     como recebida") nunca quebra pra 2ª linha, só estoura a largura do cartão (visto em
+     320px). Nunca afeta Compras (3 ícones sempre cabem bem abaixo de 100%). */
+  max-width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Botões circulares com fundo visível — mesmo padrão de Entradas/Despesas/Transferências.
+   :not() exclui os botões de texto (confirmar/cancelar exclusão) e o botão "marcar como", que
+   têm estilo próprio abaixo. */
+.list-item-card__actions
+  button:not(.list-item-card__action-confirm):not(.list-item-card__action-cancel):not(
+    .list-item-card__action-mark
+  ) {
+  background: var(--color-bg-elevated);
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .list-item-card__actions
+    button:not(.list-item-card__action-confirm):not(.list-item-card__action-cancel):not(
+      .list-item-card__action-mark
+    ):hover {
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-elevated));
+  }
+}
+
+.list-item-card__actions button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.list-item-card__action-confirm,
+.list-item-card__action-cancel {
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.list-item-card__action-confirm {
+  color: var(--color-accent-expense);
+  border: 1px solid var(--color-accent-expense);
+}
+
+.list-item-card__action-cancel {
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-bg-elevated);
+}
+
+.list-item-card__action-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  color: var(--color-accent-income);
+  border: 1px solid var(--color-accent-income);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: transparent;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .list-item-card__action-mark:hover {
+    color: var(--color-accent-income);
+    background: color-mix(in srgb, var(--color-accent-income) 15%, transparent);
+  }
+}
+
+/* Linha pendente: tinta de fundo + barra lateral (mesma receita das tabelas de
+   Entradas/Despesas, só que no <li> inteiro em vez de td:first-child). */
+.list-item-card--tint-gold {
+  background: color-mix(in srgb, var(--color-accent-gold) 8%, transparent);
+  box-shadow: inset 4px 0 0 var(--color-accent-gold);
+}
+
+.list-item-card--tint-expense {
+  background: color-mix(in srgb, var(--color-accent-expense) 8%, transparent);
+  box-shadow: inset 4px 0 0 var(--color-accent-expense);
+}
+
+/* Mobile (< 768px, mesmo ponto do Shell): alvos de toque >= 44px nos botões de ação. */
+@media (max-width: 767.98px) {
+  .list-item-card__actions
+    button:not(.list-item-card__action-confirm):not(.list-item-card__action-cancel):not(
+      .list-item-card__action-mark
+    ) {
+    width: 44px;
+    height: 44px;
+  }
+
+  .list-item-card__action-confirm,
+  .list-item-card__action-cancel,
+  .list-item-card__action-mark {
+    min-height: 44px;
+  }
+}

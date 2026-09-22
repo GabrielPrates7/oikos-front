@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { useReducedMotion } from '../reports/useReducedMotion'
 import { MORE_SHEET_GROUPS } from './navItems'
+import '../ui/Sheet.css'
 import './MoreSheet.css'
 
 interface MoreSheetProps {

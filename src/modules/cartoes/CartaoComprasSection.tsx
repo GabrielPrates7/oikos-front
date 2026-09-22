@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
 import { Combobox } from '../../components/ui/Combobox'
 import { EssentialBadge } from '../../components/ui/EssentialBadge'
+import { ListItemCard } from '../../components/ui/ListItemCard'
 import { Pagination } from '../../components/ui/Pagination'
 import { NotesText, NotesToggle } from '../../components/ui/RowNotes'
 import { useOpenNotes } from '../../components/ui/useOpenNotes'
@@ -265,17 +266,16 @@ export function CartaoComprasSection({
       ) : (
         <>
           <div className="cartao-compras__list-wrap">
-            <ul className="cartao-compras__list">
+            <ul className="list-item-card-list">
               {visible.map((purchase) => {
                 const isConfirmingDelete = confirmingDeleteId === purchase.id
                 return (
-                  <li key={purchase.id} className="cartao-compras__row">
-                    <span className="cartao-compras__date">
-                      {formatDateBR(purchase.purchase_date)}
-                    </span>
-                    <div className="cartao-compras__info">
-                      <div className="cartao-compras__description-row">
-                        <span className="cartao-compras__description">{purchase.description}</span>
+                  <ListItemCard
+                    key={purchase.id}
+                    date={formatDateBR(purchase.purchase_date)}
+                    title={purchase.description}
+                    badges={
+                      <>
                         {purchase.notes && (
                           <NotesToggle
                             panelId={`notes-${purchase.id}`}
@@ -285,8 +285,10 @@ export function CartaoComprasSection({
                         )}
                         <EssentialBadge isEssential={purchase.is_essential} />
                         <PurchaseStatusBadge status={purchase.payment_status} />
-                      </div>
-                      <span className="cartao-compras__meta">
+                      </>
+                    }
+                    meta={
+                      <>
                         <CategoryBadge
                           name={purchase.category_name}
                           icon={purchase.category_icon}
@@ -295,24 +297,23 @@ export function CartaoComprasSection({
                           }
                         />
                         <span>{purchase.installments_count}x</span>
-                      </span>
-                    </div>
-                    <span className="cartao-compras__amount">
-                      {centsToBRL(purchase.total_amount_cents)}
-                    </span>
-                    <div className="cartao-compras__actions">
-                      {isConfirmingDelete ? (
+                      </>
+                    }
+                    amount={centsToBRL(purchase.total_amount_cents)}
+                    amountTone="expense"
+                    actions={
+                      isConfirmingDelete ? (
                         <>
                           <button
                             type="button"
-                            className="cartao-compras__confirm-delete"
+                            className="list-item-card__action-confirm"
                             onClick={() => onDelete(purchase)}
                           >
                             Confirmar exclusão?
                           </button>
                           <button
                             type="button"
-                            className="cartao-compras__cancel-delete"
+                            className="list-item-card__action-cancel"
                             onClick={onCancelDelete}
                           >
                             Cancelar
@@ -342,18 +343,20 @@ export function CartaoComprasSection({
                             <Trash2 size={16} aria-hidden="true" />
                           </button>
                         </>
-                      )}
-                    </div>
-                    {purchase.notes && (
-                      <div
-                        id={`notes-${purchase.id}`}
-                        className="notes-panel"
-                        hidden={!notes.isOpen(purchase.id)}
-                      >
-                        <NotesText notes={purchase.notes} />
-                      </div>
-                    )}
-                  </li>
+                      )
+                    }
+                    notesPanel={
+                      purchase.notes && (
+                        <div
+                          id={`notes-${purchase.id}`}
+                          className="notes-panel"
+                          hidden={!notes.isOpen(purchase.id)}
+                        >
+                          <NotesText notes={purchase.notes} />
+                        </div>
+                      )
+                    }
+                  />
                 )
               })}
             </ul>

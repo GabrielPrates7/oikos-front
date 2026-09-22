@@ -353,3 +353,49 @@
     min-height: 44px;
   }
 }
+
+/* Barra do mobile: Buscar sempre visível + botão que abre a folha de filtros (o resto do
+   painel de filtros só existe dentro da folha nessa largura). */
+.entradas-list__mobile-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.entradas-list__mobile-toolbar .entradas-list__filter-field--search {
+  flex: 1 1 auto;
+}
+
+.entradas-list__filters-trigger {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.entradas-list__filters-trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Mesmo vidro fosco do wrapper da tabela — cartões usam o mesmo container. */
+.entradas-list__cards-wrap {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+}
