@@ -22,9 +22,45 @@
   gap: 4px;
 }
 
+.transferencias-list__filter-field--search {
+  flex: 1 1 200px;
+}
+
 .transferencias-list__filter-field label {
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+/* Mesmo campo de busca de Entradas/Despesas (ícone + input, sem verniz do <input type=date>). */
+.transferencias-list__search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--color-text-muted);
+}
+
+.transferencias-list__search-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.transferencias-list__search-input input {
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  width: 100%;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: text;
+}
+
+.transferencias-list__search-input input:focus-visible {
+  outline: none;
 }
 
 /* appearance:none uniforme + seta customizada + ícone de calendário invertido — mesmas
@@ -205,4 +241,14 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.transferencias-list__empty .transferencias-list__clear-filters {
+  margin-top: 12px;
+}
+
+@media (max-width: 767.98px) {
+  .transferencias-list__clear-filters {
+    min-height: 44px;
+  }
 }

@@ -1,5 +1,5 @@
-import { Copy, Edit2, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Copy, Edit2, Search, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AccountBadge } from '../../components/ui/AccountBadge'
 import { Pagination } from '../../components/ui/Pagination'
 import { centsToBRL } from '../../utils/currency'
@@ -40,6 +40,10 @@ export function TransferenciasList({
   onEdit,
 }: TransferenciasListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  // Busca client-side, só dentro da página atual — mesma decisão e mesma limitação de
+  // Entradas/Despesas (a API de transferências não tem parâmetro de busca; a soma/contagem
+  // ("Total exibido") continua vindo do backend, sem levar a busca em conta, igual lá).
+  const [search, setSearch] = useState('')
   const rowsRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
@@ -70,11 +74,32 @@ export function TransferenciasList({
   }
 
   const accountsById = new Map(accounts.map((account) => [account.id, account]))
-  const hasFilters = !!(filters.accountId || filters.from || filters.to)
+  // Contador de filtros ativos, mesmo padrão de Entradas/Despesas (Limpar filtros (N)).
+  const activeFilterCount = [filters.accountId, filters.from, filters.to].filter(Boolean).length
+  const hasFilters = activeFilterCount > 0
+
+  const visibleTransfers = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return transfers
+    return transfers.filter((transfer) => (transfer.description ?? '').toLowerCase().includes(query))
+  }, [transfers, search])
 
   return (
     <div className="transferencias-list">
       <div className="transferencias-list__filters">
+        <div className="transferencias-list__filter-field transferencias-list__filter-field--search">
+          <label htmlFor="filter-search">Buscar</label>
+          <div className="transferencias-list__search-input">
+            <Search size={14} aria-hidden="true" />
+            <input
+              id="filter-search"
+              type="text"
+              placeholder="Buscar por descrição..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+        </div>
         <div className="transferencias-list__filter-field">
           <label htmlFor="filter-account">Conta</label>
           <select
@@ -116,15 +141,27 @@ export function TransferenciasList({
               handleFilterChange({ accountId: undefined, from: undefined, to: undefined })
             }
           >
-            Limpar filtros
+            Limpar filtros ({activeFilterCount})
           </button>
         )}
       </div>
 
-      {transfers.length === 0 ? (
+      {visibleTransfers.length === 0 ? (
         <div className="transferencias-list__empty">
-          {hasFilters ? (
-            <p>Nenhuma transferência encontrada com esses filtros.</p>
+          {hasFilters || search ? (
+            <>
+              <p>Nenhuma transferência encontrada com esses filtros.</p>
+              <button
+                type="button"
+                className="transferencias-list__clear-filters"
+                onClick={() => {
+                  setSearch('')
+                  handleFilterChange({ accountId: undefined, from: undefined, to: undefined })
+                }}
+              >
+                Limpar filtros
+              </button>
+            </>
           ) : (
             <>
               <p>Você ainda não tem nenhuma transferência cadastrada.</p>
@@ -136,14 +173,14 @@ export function TransferenciasList({
         <>
           <EntradasTotalCard
             sumCents={sumCents}
-            points={transfers.map((transfer) => ({
+            points={visibleTransfers.map((transfer) => ({
               date: transfer.transfer_date,
               amountCents: transfer.amount_cents,
             }))}
           />
           <div className="transferencias-list__table-wrap">
             <ul className="transferencias-list__rows" ref={rowsRef}>
-              {transfers.map((transfer) => {
+              {visibleTransfers.map((transfer) => {
                 const fromAccount = accountsById.get(transfer.from_account_id)
                 const toAccount = accountsById.get(transfer.to_account_id)
                 const isConfirming = confirmingId === transfer.id
