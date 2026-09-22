@@ -1,5 +1,6 @@
 import { MoreVertical } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { KeyboardEvent, ReactNode } from 'react'
 import './DropdownMenu.css'
 
@@ -10,6 +11,11 @@ interface DropdownMenuProps {
   trigger?: ReactNode
   triggerClassName?: string
   align?: 'left' | 'right'
+  // Painel "flutuante": renderizado em um portal no <body>, com position: fixed acima de qualquer card, e que
+  // abre PARA CIMA quando não cabe abaixo do botão (descontando a barra inferior do mobile). Necessário
+  // dentro de cartões com backdrop-filter, cujo contexto de empilhamento prende o z-index do menu e deixa o
+  // card seguinte pintar por cima dele. Opt-in: as outras telas continuam com o painel absoluto de sempre.
+  floating?: boolean
   children: (close: () => void) => ReactNode
 }
 
@@ -24,6 +30,7 @@ export function DropdownMenu({
   trigger,
   triggerClassName,
   align = 'right',
+  floating = false,
   children,
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false)
@@ -35,7 +42,8 @@ export function DropdownMenu({
     if (!open) return
 
     function handlePointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (!rootRef.current?.contains(target) && !panelRef.current?.contains(target)) {
         setOpen(false)
       }
     }
@@ -43,6 +51,48 @@ export function DropdownMenu({
     document.addEventListener('mousedown', handlePointerDown)
     return () => document.removeEventListener('mousedown', handlePointerDown)
   }, [open])
+
+  // Posição do painel flutuante: abaixo do botão; acima quando não couber abaixo e houver mais espaço em
+  // cima; sempre dentro da tela e acima da barra inferior (mobile). Recalcula quando o painel muda de
+  // tamanho (ex.: pedido de confirmação), na rolagem e no redimensionamento.
+  useLayoutEffect(() => {
+    if (!open || !floating) return
+    const trigger = triggerRef.current
+    const panel = panelRef.current
+    if (!trigger || !panel) return
+
+    function place() {
+      if (!trigger || !panel) return
+      const EDGE = 8
+      const GAP = 6
+      const anchor = trigger.getBoundingClientRect()
+      const width = panel.offsetWidth
+      const height = panel.offsetHeight
+      const nav = document.querySelector('.bottom-nav')
+      const navTop =
+        nav && getComputedStyle(nav).display !== 'none' ? nav.getBoundingClientRect().top : Infinity
+      const bottomLimit = Math.min(window.innerHeight, navTop) - EDGE
+      const spaceBelow = bottomLimit - (anchor.bottom + GAP)
+      const spaceAbove = anchor.top - GAP - EDGE
+      const openUp = height > spaceBelow && spaceAbove > spaceBelow
+      const top = openUp ? anchor.top - GAP - height : anchor.bottom + GAP
+      const left = align === 'right' ? anchor.right - width : anchor.left
+      panel.style.top = `${Math.min(Math.max(top, EDGE), Math.max(EDGE, bottomLimit - height))}px`
+      panel.style.left = `${Math.min(Math.max(left, EDGE), Math.max(EDGE, window.innerWidth - EDGE - width))}px`
+      panel.dataset.placement = openUp ? 'top' : 'bottom'
+    }
+
+    place()
+    const observer = new ResizeObserver(place)
+    observer.observe(panel)
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', place, true)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [open, floating, align])
 
   // Ao abrir (mouse ou teclado), o foco entra no menu — sem isso setas/Escape não têm
   // onde agir, e quem usa teclado fica preso no botão que abriu.
@@ -94,6 +144,21 @@ export function DropdownMenu({
     }
   }
 
+  const panel = open ? (
+    <div
+      ref={panelRef}
+      className={
+        floating
+          ? 'dropdown-menu__panel dropdown-menu__panel--floating'
+          : `dropdown-menu__panel dropdown-menu__panel--${align}`
+      }
+      role="menu"
+      onKeyDown={handlePanelKeyDown}
+    >
+      {children(closeAndRefocusTrigger)}
+    </div>
+  ) : null
+
   return (
     <div className="dropdown-menu" ref={rootRef}>
       <button
@@ -108,16 +173,7 @@ export function DropdownMenu({
       >
         {trigger ?? <MoreVertical size={16} aria-hidden="true" />}
       </button>
-      {open && (
-        <div
-          ref={panelRef}
-          className={`dropdown-menu__panel dropdown-menu__panel--${align}`}
-          role="menu"
-          onKeyDown={handlePanelKeyDown}
-        >
-          {children(closeAndRefocusTrigger)}
-        </div>
-      )}
+      {floating && panel ? createPortal(panel, document.body) : panel}
     </div>
   )
 }

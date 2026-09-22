@@ -1,0 +1,100 @@
+.plan-health {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 12px;
+}
+
+/* Vidro fosco, mesma receita dos cards de resumo. */
+.plan-health__main,
+.plan-health__side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+}
+
+/* A borda esquerda também carrega o nível (reforço, não o único sinal). */
+.plan-health__main--green {
+  border-left: 4px solid #6baf82;
+}
+.plan-health__main--amber {
+  border-left: 4px solid #d4af37;
+}
+.plan-health__main--red {
+  border-left: 4px solid #cf6b52;
+}
+
+.plan-health__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.plan-health__value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.plan-health__headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.plan-health__detail {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-text-primary);
+}
+
+.plan-health__hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.plan-health__side-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.plan-health__min {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 767.98px) {
+  .plan-health {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-health__value {
+    font-size: 32px;
+  }
+
+  .plan-health__side-value {
+    font-size: 26px;
+  }
+}

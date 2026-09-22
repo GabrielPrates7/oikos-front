@@ -1,0 +1,63 @@
+/* Botão "?" — visual pequeno, alvo de toque de 44px no mobile (padding invisível). */
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: help;
+  flex: none;
+}
+
+.info-tip:hover,
+.info-tip[aria-expanded='true'] {
+  color: var(--color-text-primary);
+}
+
+.info-tip:focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767.98px) {
+  .info-tip {
+    width: 44px;
+    height: 44px;
+    margin: -10px;
+  }
+}
+
+.info-tip__panel {
+  position: fixed;
+  z-index: var(--z-sheet);
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(30, 38, 32, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 400;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.info-tip__panel p {
+  margin: 0 0 6px;
+}
+
+.info-tip__panel ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.info-tip__panel li + li {
+  margin-top: 4px;
+}

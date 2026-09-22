@@ -42,6 +42,15 @@
   gap: 2px;
 }
 
+/* Painel flutuante (portal no <body>): a posição vem do JS (top/left inline); o z-index fica acima de qualquer
+   card, da barra inferior e do menu lateral recolhido, e abaixo dos diálogos nativos (camada superior). */
+.dropdown-menu__panel--floating {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+}
+
 .dropdown-menu__panel--right {
   right: 0;
 }

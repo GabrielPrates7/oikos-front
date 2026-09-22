@@ -1,0 +1,128 @@
+/* <dialog> nativo: ocupa a tela toda (o fundo escurecido é o próprio elemento) e o painel fica dentro. */
+.plan-sheet {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+.plan-sheet::backdrop {
+  background: transparent;
+}
+
+.plan-sheet__panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--color-text-primary);
+  /* Desktop: gaveta à direita. */
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(520px, 100%);
+  border-radius: 16px 0 0 16px;
+  animation: plan-sheet-in-right 0.2s ease;
+}
+
+.plan-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-sheet__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.plan-sheet__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.plan-sheet__close:focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 2px;
+}
+
+.plan-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 18px;
+}
+
+.plan-sheet__footer {
+  padding: 12px 18px calc(12px + var(--safe-bottom));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-bg-surface);
+}
+
+@keyframes plan-sheet-in-right {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes plan-sheet-in-bottom {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Mobile: folha inferior, quase toda a altura útil. */
+@media (max-width: 767.98px) {
+  .plan-sheet__panel {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: calc(100dvh - var(--safe-top) - 24px);
+    height: calc(100dvh - var(--safe-top) - 24px);
+    border-radius: 16px 16px 0 0;
+    animation-name: plan-sheet-in-bottom;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-sheet__panel {
+    animation: none;
+  }
+}

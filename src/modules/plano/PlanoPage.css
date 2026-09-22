@@ -1,0 +1,156 @@
+/* Plano do mês: tema padrão (verde) do app, sem aurora nem efeitos pesados. */
+.plano {
+  max-width: 1200px;
+}
+
+.plano .page-header {
+  margin-bottom: 12px;
+}
+
+.plano__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.plano__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-bottom: 16px;
+}
+
+.plano__opening {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Alvos de toque de 44px no mobile (a seta do seletor de mês é pequena por padrão). */
+@media (max-width: 767.98px) {
+  .plano .month-switcher button {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .plano .month-switcher__label {
+    min-width: 0;
+  }
+
+  .plano__toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.plano__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  border: 1px solid;
+}
+
+.plano__notice--ok {
+  color: var(--color-text-primary);
+  background: rgba(107, 175, 130, 0.12);
+  border-color: rgba(107, 175, 130, 0.45);
+}
+
+.plano__notice--error {
+  color: var(--color-text-primary);
+  background: rgba(207, 107, 82, 0.12);
+  border-color: rgba(207, 107, 82, 0.5);
+}
+
+.plano__notice-close {
+  flex: none;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.plano__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: var(--color-text-primary);
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  border-left-width: 4px;
+}
+
+.plano__warning svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--color-accent-gold);
+}
+
+.plano__warning p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Trocar de mês: o conteúdo antigo fica esmaecido até o novo chegar (sem salto de layout). Espaçamento
+   entre as seções empilhadas (semáforo, KPIs, alertas, listas, gráficos, categoria, cortes): um só
+   `gap`, mesmo valor usado entre os cards do Dashboard (.dashboard-page__panels/__grid), em vez de
+   margem individual em cada seção — sem isso, duas seções sem margem declarada ficam coladas (ex.:
+   "Fora do plano" e as listas logo abaixo). As seções que tinham margin-top/bottom próprios de sobra
+   tiveram essa margem removida (ficaria somada ao gap, alargando o espaço só ali). */
+.plano__content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  transition: opacity 0.15s ease;
+}
+
+.plano__content--stale {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.plano-form-context {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.plano-form-readonly {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.plano-form-readonly__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plano__content {
+    transition: none;
+  }
+}

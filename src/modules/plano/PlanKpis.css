@@ -1,0 +1,56 @@
+.plan-kpi__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.plan-kpi__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.plan-kpi__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent-bright);
+}
+
+.plan-kpi__progress-text,
+.plan-kpi__note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.plan-kpi__note {
+  margin-top: 6px;
+}
+
+/* Quatro KPIs na mesma linha no desktop; empilhados no mobile (o semáforo vem antes, no DOM).
+   margin-bottom do componente compartilhado (GlassStatCards.css) some aqui: o espaçamento pras
+   seções vizinhas já vem do gap de .plano__content, e os dois juntos alargariam só este espaço. */
+.plano .glass-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.plano .glass-stat-card {
+  max-width: none;
+}
+
+@media (max-width: 1099.98px) {
+  .plano .glass-stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .plano .glass-stat-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

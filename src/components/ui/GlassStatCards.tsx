@@ -15,6 +15,9 @@ interface GlassStatCardItem {
   labelTitle?: string
   iconColor?: string
   footer?: ReactNode
+  // Opcional (Plano do mês): acessório ao lado do rótulo (ex.: botão "?" com explicação). Sem ele o
+  // DOM é idêntico ao de antes.
+  labelAccessory?: ReactNode
 }
 
 interface GlassStatCardsProps {
@@ -35,9 +38,18 @@ export function GlassStatCards({ items }: GlassStatCardsProps) {
           >
             {item.icon}
           </div>
-          <span className="glass-stat-card__label" title={item.labelTitle}>
-            {item.label}
-          </span>
+          {item.labelAccessory ? (
+            <span className="glass-stat-card__label-row">
+              <span className="glass-stat-card__label" title={item.labelTitle}>
+                {item.label}
+              </span>
+              {item.labelAccessory}
+            </span>
+          ) : (
+            <span className="glass-stat-card__label" title={item.labelTitle}>
+              {item.label}
+            </span>
+          )}
           <span
             className="glass-stat-card__value"
             style={item.valueColor ? { color: item.valueColor } : undefined}

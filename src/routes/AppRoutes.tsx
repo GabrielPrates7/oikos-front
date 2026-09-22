@@ -18,6 +18,7 @@ import { FaturasPage } from '../modules/faturas/FaturasPage'
 import { MetaDetalhePage } from '../modules/metas/MetaDetalhePage'
 import { MetasPage } from '../modules/metas/MetasPage'
 import { OrcamentosPage } from '../modules/orcamentos/OrcamentosPage'
+import { PlanoPage } from '../modules/plano/PlanoPage'
 import { ComparativoTab } from '../modules/relatorios/ComparativoTab'
 import { EvolucaoMensalTab } from '../modules/relatorios/EvolucaoMensalTab'
 import { PorCategoriaTab } from '../modules/relatorios/PorCategoriaTab'
@@ -50,6 +51,7 @@ export function AppRoutes() {
         <Route path="/cartoes/:id" element={<CartaoDetalhePage />} />
         <Route path="/faturas" element={<FaturasPage />} />
         <Route path="/faturas/:id" element={<FaturaDetalhePage />} />
+        <Route path="/plano" element={<PlanoPage />} />
         <Route path="/orcamentos" element={<OrcamentosPage />} />
         <Route path="/metas" element={<MetasPage />} />
         <Route path="/metas/:id" element={<MetaDetalhePage />} />

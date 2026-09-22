@@ -1,0 +1,268 @@
+.plan-lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.plan-list {
+  min-width: 0;
+  border-radius: 14px;
+  background: rgba(82, 114, 102, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  padding: 14px;
+}
+
+.plan-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.plan-list__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.plan-list__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plan-list__subtotal {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-list__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  flex: none;
+}
+
+.plan-list__add:focus-visible {
+  outline: 2px solid var(--color-accent-bright);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .plan-list__add:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.plan-list__empty {
+  margin: 12px 0 4px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.plan-list__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.plan-row--muted .plan-row__main,
+.plan-row--muted .plan-row__amounts {
+  opacity: 0.62;
+}
+
+.plan-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.plan-row__description {
+  font-size: 15px;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.plan-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.plan-row__date {
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-row__flag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-accent-gold);
+}
+
+.plan-row__flag-help {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.plan-row__amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-row__planned {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.plan-row__realized {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.plan-row__side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.plan-badge--pending {
+  color: var(--color-accent-gold);
+  border-color: color-mix(in srgb, var(--color-accent-gold) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent-gold) 12%, transparent);
+}
+
+.plan-badge--received,
+.plan-badge--paid {
+  color: #6baf82;
+  border-color: color-mix(in srgb, #6baf82 45%, transparent);
+  background: color-mix(in srgb, #6baf82 12%, transparent);
+}
+
+.plan-badge--overdue {
+  color: #cf6b52;
+  border-color: color-mix(in srgb, #cf6b52 45%, transparent);
+  background: color-mix(in srgb, #cf6b52 12%, transparent);
+}
+
+.plan-badge--estimated,
+.plan-badge--soft {
+  color: var(--color-text-muted);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.plan-badge--invoice {
+  color: var(--color-accent-info);
+  border-color: color-mix(in srgb, var(--color-accent-info) 45%, transparent);
+  background: color-mix(in srgb, var(--color-accent-info) 12%, transparent);
+}
+
+.plan-row__menu-trigger {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.plan-menu__item {
+  min-height: 44px;
+}
+
+.plan-menu__note {
+  margin: 2px 6px 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  max-width: 240px;
+}
+
+@media (max-width: 1099.98px) {
+  .plan-lists {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Mobile: cada linha vira um cartão em coluna única (sem tabela, sem rolagem horizontal). */
+@media (max-width: 767.98px) {
+  .plan-list {
+    padding: 12px;
+  }
+
+  .plan-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'main side'
+      'amounts amounts';
+    padding: 12px 0;
+  }
+
+  .plan-row__main {
+    grid-area: main;
+  }
+
+  .plan-row__side {
+    grid-area: side;
+    align-self: start;
+  }
+
+  .plan-row__amounts {
+    grid-area: amounts;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    text-align: left;
+    gap: 4px 12px;
+  }
+
+  .plan-menu__note {
+    max-width: 200px;
+  }
+}

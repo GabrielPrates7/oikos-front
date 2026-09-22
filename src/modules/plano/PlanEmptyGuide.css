@@ -1,0 +1,78 @@
+.plan-guide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+}
+
+.plan-guide__icon {
+  display: inline-flex;
+  padding: 10px;
+  border-radius: 999px;
+  color: var(--color-accent-bright);
+  background: rgba(127, 217, 160, 0.12);
+}
+
+.plan-guide__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plan-guide__lead {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  max-width: 640px;
+}
+
+.plan-guide__steps {
+  margin: 4px 0;
+  padding-left: 22px;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  max-width: 640px;
+}
+
+.plan-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.plan-guide__primary,
+.plan-guide__secondary {
+  min-height: 48px;
+  padding: 0 18px;
+}
+
+@media (max-width: 767.98px) {
+  .plan-guide {
+    padding: 16px;
+  }
+
+  .plan-guide__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .plan-guide__primary,
+  .plan-guide__secondary {
+    width: 100%;
+  }
+}

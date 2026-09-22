@@ -48,3 +48,11 @@
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
+
+/* Rótulo + acessório (Plano do mês). Só aparece quando labelAccessory é passado. */
+.glass-stat-card__label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}

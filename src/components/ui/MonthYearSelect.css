@@ -1,0 +1,30 @@
+/* Mesmo visual dos <select> "Mês"/"Ano" do painel de filtros de Entradas/Despesas
+   (EntradasList.css/DespesasList.css): appearance:none, fundo/borda iguais, seta customizada via
+   background-image (o select nativo perde a seta própria com appearance:none). */
+.month-year-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.month-year-select__field {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--color-bg-base);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%239ca79e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--color-bg-elevated);
+  border-radius: 8px;
+  padding: 8px 28px 8px 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.month-year-select__field:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

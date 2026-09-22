@@ -16,6 +16,7 @@ const NAV_RULES: { key: MobileNavKey; patterns: string[] }[] = [
       '/transferencias',
       '/contas',
       '/faturas',
+      '/plano',
       '/categorias',
       '/orcamentos',
       '/metas',
