@@ -41,4 +41,7 @@ export interface InvoicePayment {
   amount_cents: number
   payment_date: string
   created_at: string
+  // null = pagamento ativo. Preenchido só na resposta de cancelPayment (soft-cancel: o
+  // registro nunca é apagado).
+  canceled_at: string | null
 }

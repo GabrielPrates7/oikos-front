@@ -186,7 +186,9 @@
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -232,4 +234,37 @@
   font-weight: 600;
   color: var(--color-accent-income);
   margin-bottom: 4px;
+}
+
+/* "Cancelar pagamento": ação destrutiva, mesma cor de dropdown-menu__item--danger. */
+.fatura-detalhe-page__cancel-trigger {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-accent-expense);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.fatura-detalhe-page__cancel-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.fatura-detalhe-page__cancel-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.fatura-detalhe-page__cancel-confirm-actions .ui-button {
+  flex: 1;
 }

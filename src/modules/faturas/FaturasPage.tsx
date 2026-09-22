@@ -40,6 +40,15 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
+// 409 = pagamento já processado/cancelado por outra requisição (duplo clique, outra aba) —
+// mensagem específica; 404 e demais erros usam a mensagem padrão do backend (errorMessage).
+function cancelPaymentErrorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 409) {
+    return 'Este pagamento já foi processado ou cancelado, atualize a página.'
+  }
+  return errorMessage(error, 'Não foi possível cancelar o pagamento.')
+}
+
 export function FaturasPage() {
   const navError = useNavRedirectError()
   const [searchParams] = useSearchParams()
@@ -76,6 +85,9 @@ export function FaturasPage() {
   const [batchSubmitting, setBatchSubmitting] = useState(false)
   const [batchFormError, setBatchFormError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  // Cancelar pagamento: confirmação em duas etapas (mesmo padrão de Cartões/Contas).
+  const [confirmingCancelId, setConfirmingCancelId] = useState<string | null>(null)
+  const [cancelingInvoiceId, setCancelingInvoiceId] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
@@ -282,6 +294,32 @@ export function FaturasPage() {
     setMode({ type: 'list' })
   }
 
+  function handleRequestCancelPayment(invoiceId: string) {
+    setLoadError(null)
+    setConfirmingCancelId(invoiceId)
+  }
+
+  function handleDismissCancelPayment() {
+    setConfirmingCancelId(null)
+  }
+
+  // Só limpa confirmingCancelId ao TERMINAR (sucesso ou erro) — enquanto a requisição está em
+  // andamento, a confirmação continua na tela com o botão desabilitado (cancelingInvoiceId),
+  // evitando o duplo clique óbvio além da trava do backend (índice único + FOR UPDATE).
+  async function handleConfirmCancelPayment(invoiceId: string) {
+    setCancelingInvoiceId(invoiceId)
+    setLoadError(null)
+    try {
+      await faturasService.cancelPayment(invoiceId)
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setLoadError(cancelPaymentErrorMessage(error))
+    } finally {
+      setCancelingInvoiceId(null)
+      setConfirmingCancelId(null)
+    }
+  }
+
   async function handleBatchPaySubmit(data: PayFormData) {
     const cardsById = new Map(cards.map((card) => [card.id, card]))
     // Processa na ordem em que aparecem na lista (respeitando o filtro atual) — não na
@@ -407,6 +445,11 @@ export function FaturasPage() {
           onToggleSelectAll={handleToggleSelectAll}
           onRequestBatchPay={handleRequestBatchPay}
           onQuickPay={handleQuickPay}
+          confirmingCancelId={confirmingCancelId}
+          cancelingInvoiceId={cancelingInvoiceId}
+          onRequestCancelPayment={handleRequestCancelPayment}
+          onDismissCancelPayment={handleDismissCancelPayment}
+          onConfirmCancelPayment={handleConfirmCancelPayment}
         />
       )}
     </div>

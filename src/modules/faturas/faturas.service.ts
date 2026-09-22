@@ -73,4 +73,13 @@ export const faturasService = {
       body: JSON.stringify({ accountId: data.accountId, paymentDate: data.paymentDate }),
     })
   },
+
+  // Soft-cancel no backend: devolve o valor pra conta de origem e a fatura volta a "Aberta"
+  // ou "Atrasada" (o registro do pagamento não é apagado, só marcado como cancelado).
+  async cancelPayment(id: string): Promise<{ payment: InvoicePayment; invoice: Invoice }> {
+    return apiFetch<{ payment: InvoicePayment; invoice: Invoice }>(
+      `/invoices/${id}/cancel-payment`,
+      { method: 'POST' },
+    )
+  },
 }

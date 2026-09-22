@@ -149,6 +149,27 @@
   z-index: 5;
 }
 
+/* Confirmação de "Cancelar pagamento" (duas etapas, mesmo padrão de Cartões/Contas): substitui
+   o corpo + menu "⋮" no espaço que sobra ao lado do checkbox/spacer. */
+.faturas-grid__confirm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  min-width: 0;
+}
+
+.faturas-grid__confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.faturas-grid__confirm-actions .ui-button {
+  flex: 1;
+}
+
 .faturas-grid__checkbox,
 .faturas-grid__checkbox-spacer {
   flex: 0 0 auto;

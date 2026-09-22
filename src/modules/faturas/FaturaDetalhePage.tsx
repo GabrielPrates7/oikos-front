@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { FormError } from '../../components/feedback/FormError'
 import { PageHeader } from '../../components/layout/PageHeader'
+import { Button } from '../../components/ui/Button'
 import { CategoryBadge } from '../../components/ui/CategoryBadge'
 import { EssentialBadge } from '../../components/ui/EssentialBadge'
 import { Pagination } from '../../components/ui/Pagination'
@@ -29,6 +30,15 @@ function errorMessage(error: unknown, fallback: string): string {
   return error instanceof ApiError ? error.message : fallback
 }
 
+// 409 = pagamento já processado/cancelado por outra requisição (duplo clique, outra aba) —
+// mensagem específica; 404 e demais erros usam a mensagem padrão do backend (errorMessage).
+function cancelPaymentErrorMessage(error: unknown): string {
+  if (error instanceof ApiError && error.status === 409) {
+    return 'Este pagamento já foi processado ou cancelado, atualize a página.'
+  }
+  return errorMessage(error, 'Não foi possível cancelar o pagamento.')
+}
+
 export function FaturaDetalhePage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -46,6 +56,10 @@ export function FaturaDetalhePage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  // Cancelar pagamento: confirmação em duas etapas (mesmo padrão de Cartões/Contas/FaturasList).
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelingPayment, setCancelingPayment] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -91,6 +105,30 @@ export function FaturaDetalhePage() {
       active = false
     }
   }, [id, refreshKey, navigate])
+
+  function handleRequestCancelPayment() {
+    setCancelError(null)
+    setConfirmingCancel(true)
+  }
+
+  function handleDismissCancelPayment() {
+    setConfirmingCancel(false)
+  }
+
+  async function handleConfirmCancelPayment() {
+    if (!id) return
+    setCancelingPayment(true)
+    setCancelError(null)
+    try {
+      await faturasService.cancelPayment(id)
+      setRefreshKey((key) => key + 1)
+    } catch (error) {
+      setCancelError(cancelPaymentErrorMessage(error))
+    } finally {
+      setCancelingPayment(false)
+      setConfirmingCancel(false)
+    }
+  }
 
   async function handlePay(data: PayFormData) {
     if (!id) return
@@ -256,6 +294,40 @@ export function FaturaDetalhePage() {
               <p>Data do pagamento: {formatDateBR(invoice.payment.payment_date)}</p>
               <p>Conta: {paymentAccount?.name ?? 'Conta removida'}</p>
             </>
+          )}
+          <FormError message={cancelError} />
+          {confirmingCancel ? (
+            <div className="fatura-detalhe-page__cancel-confirm">
+              <p>
+                Cancelar o pagamento desta fatura? O valor volta para a conta de origem e a fatura
+                volta a &quot;Aberta&quot; ou &quot;Atrasada&quot;.
+              </p>
+              <div className="fatura-detalhe-page__cancel-confirm-actions">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleDismissCancelPayment}
+                  disabled={cancelingPayment}
+                >
+                  Voltar
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void handleConfirmCancelPayment()}
+                  disabled={cancelingPayment}
+                >
+                  {cancelingPayment ? 'Cancelando...' : 'Cancelar pagamento'}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="fatura-detalhe-page__cancel-trigger"
+              onClick={handleRequestCancelPayment}
+            >
+              Cancelar pagamento
+            </button>
           )}
         </div>
       )}

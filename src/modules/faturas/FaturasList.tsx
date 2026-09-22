@@ -44,6 +44,16 @@ interface FaturasListProps {
   onToggleSelectAll: () => void
   onRequestBatchPay: () => void
   onQuickPay: (invoiceId: string) => void
+  // Cancelar pagamento: confirmação em duas etapas (mesmo padrão de Cartões/Contas — o menu só
+  // ABRE a confirmação; quem chama a API é o "Cancelar pagamento" dentro dela).
+  // id da fatura com a confirmação aberta (no máximo uma por vez).
+  confirmingCancelId: string | null
+  // id da fatura com a requisição de cancelamento EM ANDAMENTO — desabilita o botão (evita
+  // duplo clique óbvio, além da trava do backend).
+  cancelingInvoiceId: string | null
+  onRequestCancelPayment: (invoiceId: string) => void
+  onDismissCancelPayment: () => void
+  onConfirmCancelPayment: (invoiceId: string) => void
 }
 
 export function FaturasList({
@@ -76,6 +86,11 @@ export function FaturasList({
   onToggleSelectAll,
   onRequestBatchPay,
   onQuickPay,
+  confirmingCancelId,
+  cancelingInvoiceId,
+  onRequestCancelPayment,
+  onDismissCancelPayment,
+  onConfirmCancelPayment,
 }: FaturasListProps) {
   const cardsById = new Map(cards.map((card) => [card.id, card]))
   // Filtro de mês, ordenação e paginação são todos resolvidos no servidor agora (mesmo
@@ -265,52 +280,97 @@ export function FaturasList({
                   ) : (
                     <span className="faturas-grid__checkbox-spacer" aria-hidden="true" />
                   )}
-                  <Link to={`/faturas/${invoice.id}`} className="faturas-grid__body">
-                    <div className="faturas-grid__header">
-                      <span className="faturas-grid__card-name">
-                        {card?.name ?? 'Cartão removido'}
+                  {!isPayable && confirmingCancelId === invoice.id ? (
+                    <div className="faturas-grid__confirm">
+                      <span>
+                        Cancelar o pagamento desta fatura? O valor volta para a conta de origem e a
+                        fatura volta a &quot;Aberta&quot; ou &quot;Atrasada&quot;.
                       </span>
-                      <span className="faturas-grid__reference">
-                        {formatReferenceMonth(invoice.reference_month)}
-                      </span>
-                    </div>
-                    <span className="faturas-grid__total">{centsToBRL(invoice.totalCents)}</span>
-                    <div className="faturas-grid__meta">
-                      <InvoiceStatusBadge status={invoice.displayStatus} />
-                      <span className="faturas-grid__due">
-                        Vence {formatDateBR(invoice.due_date)}
-                      </span>
-                    </div>
-                  </Link>
-                  <DropdownMenu
-                    label={`Mais opções da fatura de ${formatReferenceMonth(invoice.reference_month)}`}
-                  >
-                    {(close) => (
-                      <>
-                        <Link
-                          to={`/faturas/${invoice.id}`}
-                          className="dropdown-menu__item"
-                          role="menuitem"
-                          onClick={close}
+                      <div className="faturas-grid__confirm-actions">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={onDismissCancelPayment}
+                          disabled={cancelingInvoiceId === invoice.id}
                         >
-                          Ver detalhe
-                        </Link>
-                        {isPayable && (
-                          <button
-                            type="button"
-                            className="dropdown-menu__item"
-                            role="menuitem"
-                            onClick={() => {
-                              close()
-                              onQuickPay(invoice.id)
-                            }}
-                          >
-                            Pagar
-                          </button>
+                          Voltar
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => onConfirmCancelPayment(invoice.id)}
+                          disabled={cancelingInvoiceId === invoice.id}
+                        >
+                          {cancelingInvoiceId === invoice.id
+                            ? 'Cancelando...'
+                            : 'Cancelar pagamento'}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <Link to={`/faturas/${invoice.id}`} className="faturas-grid__body">
+                        <div className="faturas-grid__header">
+                          <span className="faturas-grid__card-name">
+                            {card?.name ?? 'Cartão removido'}
+                          </span>
+                          <span className="faturas-grid__reference">
+                            {formatReferenceMonth(invoice.reference_month)}
+                          </span>
+                        </div>
+                        <span className="faturas-grid__total">
+                          {centsToBRL(invoice.totalCents)}
+                        </span>
+                        <div className="faturas-grid__meta">
+                          <InvoiceStatusBadge status={invoice.displayStatus} />
+                          <span className="faturas-grid__due">
+                            Vence {formatDateBR(invoice.due_date)}
+                          </span>
+                        </div>
+                      </Link>
+                      <DropdownMenu
+                        label={`Mais opções da fatura de ${formatReferenceMonth(invoice.reference_month)}`}
+                      >
+                        {(close) => (
+                          <>
+                            <Link
+                              to={`/faturas/${invoice.id}`}
+                              className="dropdown-menu__item"
+                              role="menuitem"
+                              onClick={close}
+                            >
+                              Ver detalhe
+                            </Link>
+                            {isPayable && (
+                              <button
+                                type="button"
+                                className="dropdown-menu__item"
+                                role="menuitem"
+                                onClick={() => {
+                                  close()
+                                  onQuickPay(invoice.id)
+                                }}
+                              >
+                                Pagar
+                              </button>
+                            )}
+                            {!isPayable && (
+                              <button
+                                type="button"
+                                className="dropdown-menu__item dropdown-menu__item--danger"
+                                role="menuitem"
+                                onClick={() => {
+                                  close()
+                                  onRequestCancelPayment(invoice.id)
+                                }}
+                              >
+                                Cancelar pagamento
+                              </button>
+                            )}
+                          </>
                         )}
-                      </>
-                    )}
-                  </DropdownMenu>
+                      </DropdownMenu>
+                    </>
+                  )}
                 </div>
               )
             })}
