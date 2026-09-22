@@ -71,14 +71,11 @@ function CategoriaSection({
     }
   }
 
-  const ownCount = categories.filter((category) => category.user_id !== null).length
-
   return (
     <section className="categorias-list__section" ref={containerRef}>
       <h2 className={`categorias-list__title categorias-list__title--${tone}`}>{title}</h2>
       <ul className="categorias-list__rows">
         {categories.map((category) => {
-          const isOwn = category.user_id !== null
           const isConfirming = confirmingId === category.id
           return (
             <li key={category.id} className="categorias-list__row">
@@ -89,59 +86,47 @@ function CategoriaSection({
                 <span className="categorias-list__name">{category.name}</span>
                 <span className="categorias-list__usage">{usageLabel(category.usageCount)}</span>
               </div>
-              {isOwn && (
-                <div className="categorias-list__actions">
-                  {isConfirming ? (
-                    <>
-                      <button
-                        type="button"
-                        className="categorias-list__confirm-delete"
-                        onClick={() => handleDeleteClick(category)}
-                      >
-                        Confirmar exclusão?
-                      </button>
-                      <button
-                        type="button"
-                        className="categorias-list__cancel-delete"
-                        onClick={() => setConfirmingId(null)}
-                      >
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        aria-label={`Editar ${category.name}`}
-                        onClick={() => onEdit(category)}
-                      >
-                        <Edit2 size={16} aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Excluir ${category.name}`}
-                        onClick={() => handleDeleteClick(category)}
-                      >
-                        <Trash2 size={16} aria-hidden="true" />
-                      </button>
-                    </>
-                  )}
-                </div>
-              )}
+              <div className="categorias-list__actions">
+                {isConfirming ? (
+                  <>
+                    <button
+                      type="button"
+                      className="categorias-list__confirm-delete"
+                      onClick={() => handleDeleteClick(category)}
+                    >
+                      Confirmar exclusão?
+                    </button>
+                    <button
+                      type="button"
+                      className="categorias-list__cancel-delete"
+                      onClick={() => setConfirmingId(null)}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      aria-label={`Editar ${category.name}`}
+                      onClick={() => onEdit(category)}
+                    >
+                      <Edit2 size={16} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Excluir ${category.name}`}
+                      onClick={() => handleDeleteClick(category)}
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </>
+                )}
+              </div>
             </li>
           )
         })}
       </ul>
-      {/* ownCount só reflete a página atual — na página 2+ isso daria falso positivo pra
-          quem tem categorias próprias, só que nenhuma nesta página específica. Página 2+ só
-          existe quando total > pageSize, o que na prática já implica categoria própria
-          (os padrões sozinhos não chegam a 20), então restringir a página 1 é seguro. */}
-      {page === 1 && ownCount === 0 && (
-        <p className="categorias-list__hint">
-          Você ainda não tem categorias de {title.toLowerCase()} próprias. Crie uma pra personalizar
-          seus lançamentos.
-        </p>
-      )}
       <Pagination page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </section>
   )
