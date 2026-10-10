@@ -4,6 +4,9 @@ export const profileSchema = z
   .object({
     name: z.string().min(2, 'nome deve ter pelo menos 2 caracteres').optional(),
     email: z.string().email('e-mail inválido').optional(),
+    // Só obrigatório de verdade quando o e-mail está mudando — checado no componente
+    // (compara com o e-mail atual do usuário, que o schema não conhece), não aqui.
+    currentPassword: z.string().optional(),
   })
   .refine((data) => data.name !== undefined || data.email !== undefined, {
     message: 'informe ao menos um campo',

@@ -4,6 +4,37 @@
   padding: 20px;
 }
 
+.profile-form__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-bg-base);
+}
+
+.profile-form__header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profile-form__header-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profile-form__header-email {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .profile-form__row {
   display: flex;
   gap: 16px;
@@ -28,4 +59,34 @@
   margin-top: 4px;
   padding-top: 16px;
   border-top: 1px solid var(--color-bg-base);
+}
+
+.profile-form__export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-bg-base);
+}
+
+.profile-form__export-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profile-form__export-description {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 480px) {
+  .profile-form__export {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

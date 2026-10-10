@@ -1,4 +1,7 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Settings } from 'lucide-react'
+import { Outlet } from 'react-router-dom'
+import { PageHeader } from '../../components/layout/PageHeader'
+import { Tabs } from '../../components/layout/Tabs'
 import './ConfiguracoesPage.css'
 
 const TABS = [
@@ -9,25 +12,10 @@ const TABS = [
 export function ConfiguracoesPage() {
   return (
     <div className="configuracoes-page">
-      <h1 className="configuracoes-page__title">Configurações</h1>
-      <div className="configuracoes-page__layout">
-        <nav className="configuracoes-page__tabs" aria-label="Seções de configurações">
-          {TABS.map(({ path, label }) => (
-            <NavLink
-              key={path}
-              to={path}
-              className={({ isActive }) =>
-                `configuracoes-page__tab${isActive ? ' configuracoes-page__tab--active' : ''}`
-              }
-            >
-              <span className="configuracoes-page__tab-dot" aria-hidden="true" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="configuracoes-page__content">
-          <Outlet />
-        </div>
+      <PageHeader title="Configurações" icon={<Settings size={22} aria-hidden="true" />} />
+      <Tabs items={TABS} />
+      <div className="configuracoes-page__content">
+        <Outlet />
       </div>
     </div>
   )

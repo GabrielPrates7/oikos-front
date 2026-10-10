@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { Shell } from '../components/layout/Shell'
 import { LoginPage } from '../modules/auth/LoginPage'
 import { RegisterPage } from '../modules/auth/RegisterPage'
-import { ChangePasswordForm } from '../modules/configuracoes/ChangePasswordForm'
+import { SegurancaTab } from '../modules/configuracoes/SegurancaTab'
 import { ConfiguracoesPage } from '../modules/configuracoes/ConfiguracoesPage'
 import { ProfileForm } from '../modules/configuracoes/ProfileForm'
 import { CartaoDetalhePage } from '../modules/cartoes/CartaoDetalhePage'
@@ -70,7 +70,7 @@ export function AppRoutes() {
           {/* Aba removida — quem tinha /configuracoes/preferencias salva/favoritada cai no
               Perfil em vez de 404. */}
           <Route path="preferencias" element={<Navigate to="/configuracoes/perfil" replace />} />
-          <Route path="seguranca" element={<ChangePasswordForm />} />
+          <Route path="seguranca" element={<SegurancaTab />} />
         </Route>
       </Route>
 

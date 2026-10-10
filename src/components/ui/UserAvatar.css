@@ -1,0 +1,16 @@
+/* Mesma linguagem visual do avatar da marca na Sidebar (cor de destaque, letra em negrito),
+   maior, pra abrir a aba Perfil. Componente próprio: não referencia nem altera Sidebar.css. */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-bg-base);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  flex-shrink: 0;
+}

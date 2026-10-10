@@ -88,10 +88,24 @@ export async function refreshSession(): Promise<string | null> {
   return accessToken
 }
 
-export async function apiFetch<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+interface ApiFetchOptions extends RequestInit {
+  // 'json' (padrão) cobre todo o resto da API. 'blob' é só pra download de arquivo (ex.:
+  // exportar dados em CSV) — mesmo fluxo de token/401/refresh, só muda o parse final.
+  responseType?: 'json' | 'blob'
+}
+
+export async function apiFetch<T = unknown>(
+  path: string,
+  options: ApiFetchOptions = {},
+): Promise<T> {
+  // Sem token não há sessão pra expirar — um 401 aqui é resposta normal de endpoint público
+  // (ex: /auth/login com senha errada), não sinal de sessão inválida. Sem essa distinção, um
+  // login com credenciais erradas disparava o mesmo fluxo de refresh+onUnauthorized de uma
+  // sessão expirada, descartando a mensagem real da API (ex: "credenciais inválidas").
+  const hadToken = Boolean(getToken())
   let response = await rawRequest(path, options)
 
-  if (response.status === 401) {
+  if (response.status === 401 && hadToken) {
     const refreshedToken = await refreshSession()
     if (refreshedToken) {
       response = await rawRequest(path, options)
@@ -104,6 +118,10 @@ export async function apiFetch<T = unknown>(path: string, options: RequestInit =
 
   if (!response.ok) {
     throw new ApiError(response.status, await parseErrorMessage(response))
+  }
+
+  if (options.responseType === 'blob') {
+    return (await response.blob()) as T
   }
 
   if (response.status === 204) {

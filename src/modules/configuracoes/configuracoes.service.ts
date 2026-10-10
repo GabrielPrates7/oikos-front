@@ -21,4 +21,8 @@ export const configuracoesService = {
       }),
     })
   },
+
+  async exportData(): Promise<Blob> {
+    return apiFetch<Blob>('/users/me/export', { responseType: 'blob' })
+  },
 }

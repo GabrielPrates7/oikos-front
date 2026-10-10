@@ -25,7 +25,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setOnUnauthorized(() => {
       setUser(null)
-      navigate('/login')
+      // Esse redirecionamento é silencioso por natureza (dispara no meio de qualquer chamada
+      // autenticada, não numa submissão de formulário) — sem a mensagem no state, o usuário só
+      // via a tela trocar pro login, sem entender por quê (ver LoginForm.tsx, que lê e exibe
+      // location.state?.message).
+      navigate('/login', {
+        state: { message: 'Sua sessão não pôde ser validada. Entre novamente.' },
+      })
     })
   }, [navigate])
 
